@@ -10,22 +10,28 @@
 using namespace std;
 
 typedef std::unordered_map<std::string, std::vector<std::vector<double>>> RNASeqData;
-typedef unordered_map<string, unordered_map<string, vector<string>>> PatientData;
-typedef std::vector<std::pair<std::string, int>> GeneMapping;
+typedef unordered_map<string, vector<string>> PatientList;
+typedef std::vector<std::pair<std::string, int>> GeneList;
 
 
 int main()
 {
 
     vector<string> cancers{"BRCA"};
-    PatientData patientData;
-    readPatientData(cancers, patientData);
-    GeneMapping geneMapping(makeGeneMapping("data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
+    PatientList patientControlData;
+    PatientList patientTumorData;
     RNASeqData controlData;
-    readControlData(patientData, geneMapping, controlData);
     RNASeqData tumorData;
-    readCancerData(patientData, geneMapping, tumorData);
-    //exportDataToFile(patientData, geneMapping.size(), controlData, tumorData, "brca.export");
+    GeneList geneMapping(makeGeneMapping("data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
+
+    /*
+    readPatientData(cancers, patientControlData, patientTumorData);
+    readData(patientControlData, patientTumorData, geneMapping, controlData, tumorData, 5);
+	*/
+    importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
+    exportDataToFile(patientControlData, patientTumorData, geneMapping.size(), controlData, tumorData, "brca.export2");
+
+    /*
 
 
     unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
@@ -45,6 +51,7 @@ int main()
     for(int i=0; i<100; ++i){
         cout << sortedIndexes[i] << " " << geneMapping[sortedIndexes[i]].first << " " << sumZScores[sortedIndexes[i]] << endl;
     }
+    */
 
 
     /*

@@ -45,7 +45,7 @@ double computeCorrelation(const vector<double> &x, const vector<double> &y){
     double x_stddev = computeStandardDeviation(x);
     double y_mean = computeMean(y);
     double y_stddev = computeStandardDeviation(y);
-    for(auto i=0; i != x.size(); ++i){
+    for(unsigned int i=0; i != x.size(); ++i){
         vec.push_back((x[i]-x_mean)*(y[i]-y_mean));
     }
     return computeMean(vec)/(x_stddev*y_stddev);
