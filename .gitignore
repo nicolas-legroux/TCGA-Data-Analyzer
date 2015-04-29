@@ -2,6 +2,7 @@ data/*
 Debug/*
 Release/*
 export/*
+outputs/*
 
 #Eclipse files
 .project
