@@ -281,14 +281,17 @@ void importDataFromFile(PatientList &patientControlData,
 		int numberOfControlSamples;
 		int numberOfTumorSamples;
 
-		inputStream >> cancerName >> numberOfControlSamples >> numberOfTumorSamples;
+		inputStream >> cancerName >> numberOfControlSamples
+				>> numberOfTumorSamples;
 
 		patientControlData.insert(make_pair(cancerName, vector<string>()));
 		patientTumorData.insert(make_pair(cancerName, vector<string>()));
 
 		cout << "-- Processing " << cancerName << " Sample Names --" << endl;
-		importSampleNames(inputStream, patientControlData, cancerName, numberOfControlSamples);
-		importSampleNames(inputStream, patientTumorData, cancerName, numberOfTumorSamples);
+		importSampleNames(inputStream, patientControlData, cancerName,
+				numberOfControlSamples);
+		importSampleNames(inputStream, patientTumorData, cancerName,
+				numberOfTumorSamples);
 		cout << "--------------------------" << endl;
 	}
 
@@ -324,4 +327,50 @@ void importDataFromFile(PatientList &patientControlData,
 					numberOfProteins, numberOfSamples);
 		}
 	}
+}
+
+void exportToMatrix(const PatientList &patientControlData,
+		const PatientList &patientTumorData, const RNASeqData &controlSeqData,
+		const RNASeqData &tumorSeqData, const string &matrixFileName,
+		const string &patientListFileName, int numberOfGenes) {
+
+	cout << endl << "****** Exporting raw matrix ******" << endl;
+
+	ofstream matrixOutputStream("export/" + matrixFileName);
+	ofstream patientsOutputStream("export/" + patientListFileName);
+
+	for (int i = 0; i < numberOfGenes; ++i) {
+
+		if (i%1000 == 0){
+			cout << (100*i)/numberOfGenes << "%..." << endl;
+		}
+
+		for (const auto &kv : tumorSeqData) {
+			string cancerName = kv.first;
+
+			for (unsigned int j = 0; j < controlSeqData.at(cancerName).at(0).size();
+					++j) {
+				if(i == 0){
+					patientsOutputStream << cancerName << "-Control ("
+							<< patientControlData.at(cancerName).at(j) << ")" << endl;
+				}
+
+				matrixOutputStream << controlSeqData.at(cancerName).at(i).at(j) << "\t";
+			}
+
+			for (unsigned int j = 0; j < tumorSeqData.at(cancerName).at(0).size();
+					++j) {
+				if(i == 0){
+					patientsOutputStream << cancerName << "-Tumor ("
+							<< patientTumorData.at(cancerName).at(j) << ")" << endl;
+				}
+
+				matrixOutputStream << tumorSeqData.at(cancerName).at(i).at(j) << "\t";
+			}
+		}
+
+		matrixOutputStream << endl;
+	}
+
+	cout << "********* Done exporting *********" << endl;
 }

@@ -39,4 +39,9 @@ void importDataFromFile(PatientList &patientControlData,
 		PatientList &patientTumorData, RNASeqData &controlSeqData,
 		RNASeqData &cancerSeqData, const std::string &fileName);
 
+void exportToMatrix(const PatientList &patientControlData,
+		const PatientList &patientTumorData, const RNASeqData &controlSeqData,
+		const RNASeqData &tumorSeqData, const std::string &matrixFileName,
+		const std::string &patientListFileName, int numberOfGenes);
+
 #endif // DATAREADER_H_INCLUDED
