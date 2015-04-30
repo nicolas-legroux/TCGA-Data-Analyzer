@@ -287,17 +287,16 @@ void importDataFromFile(PatientList &patientControlData,
 		patientControlData.insert(make_pair(cancerName, vector<string>()));
 		patientTumorData.insert(make_pair(cancerName, vector<string>()));
 
-		cout << "-- Processing " << cancerName << " Sample Names --" << endl;
+		cout << "Processing " << cancerName << " Sample Names..." << endl;
 		importSampleNames(inputStream, patientControlData, cancerName,
 				numberOfControlSamples);
 		importSampleNames(inputStream, patientTumorData, cancerName,
 				numberOfTumorSamples);
-		cout << "--------------------------" << endl;
 	}
 
 	int numberOfProteins;
 	inputStream >> numberOfProteins;
-	cout << endl << "Number of proteins : " << numberOfProteins << endl;
+	cout << "Number of proteins : " << numberOfProteins << endl;
 
 	///Import control data
 	for (int i = 0; i < numberCancers; ++i) {
@@ -327,6 +326,8 @@ void importDataFromFile(PatientList &patientControlData,
 					numberOfProteins, numberOfSamples);
 		}
 	}
+
+	cout << "**************************************" << endl;
 }
 
 void exportToMatrix(const PatientList &patientControlData,

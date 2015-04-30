@@ -24,18 +24,20 @@ int main() {
 	GeneList geneMapping(
 			makeGeneMapping(
 					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
-
-
-	readPatientData(filenameCancers, patientControlData, patientTumorData);
-	readData(patientControlData, patientTumorData, geneMapping, controlData, tumorData, 50);
-
-	//importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
-	exportToMatrix(patientControlData, patientTumorData, controlData, tumorData,
-			"matrix.out", "patients.out", geneMapping.size());
+	int numberOfProteins = geneMapping.size();
 
 	/*
+	readPatientData(cancers, patientControlData, patientTumorData);
+	readData(patientControlData, patientTumorData, geneMapping, controlData, tumorData, 50);
+	*/
+
+	importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
+
+	//importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
+	/* exportToMatrix(patientControlData, patientTumorData, controlData, tumorData, "matrix.out", "patients.out", geneMapping.size());*/
 
 
+	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
 	 computeZScore(tumorData, test);
 
