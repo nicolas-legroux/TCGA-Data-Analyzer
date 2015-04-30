@@ -2,8 +2,10 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <random>
 
 #include "k_means.hpp"
+#include "stats.hpp"
 
 using namespace std;
 
@@ -14,6 +16,22 @@ void initializeClusters(const vector<double> &data, vector<double> &means, int K
 	int step = N_unique/(K+1);
 	for(int i=0; i<K; ++i){
 		means[i] = copyData[(i+1)*step];
+	}
+}
+
+void initializeClustersRandomly(const vector<double> &data, vector<double> &means, int K){
+	default_random_engine generator;
+	uniform_int_distribution<int> distribution(0,data.size()-1);
+	for(int i=0; i<K; i++){
+		while(true){
+			int randomInt = distribution(generator);
+			double randomData = data[randomInt];
+			if(find(means.begin(), means.begin()+i, randomData) == (means.begin()+i)){
+				cout << "OK" << endl;
+				means[i] = randomData;
+				break;
+			}
+		}
 	}
 }
 
@@ -62,15 +80,32 @@ bool recomputeClusters(const vector<double> &data, vector<double> &means, vector
 	return clustersChanged;
 }
 
+void sortClusters(vector<int> &clusters, const vector<int> &mapping){
+	for(unsigned int i=0; i != clusters.size(); ++i){
+		int currentCluster = clusters[i];
+		clusters[i] = mapping.at(currentCluster);
+	}
+}
+
 vector<double> computeKMeans(const vector<double> &data, vector<int> &clusters, int K, int N){
 
 	vector<double> means(K);
-	initializeClusters(data, means, K);
+	initializeClustersRandomly(data, means, K);
 
 	int i = 0;
-	while(i<N && !recomputeClusters(data, means, clusters, K)){
+	while(i<N && recomputeClusters(data, means, clusters, K)){
 		++i;
 	}
+
+	vector<size_t> sortedClusterIndexes(sort_indexes_increasing<double>(means));
+
+	vector<int> sortingMapping(K);
+	for(int i=0; i!=K; ++i){
+		sortingMapping[sortedClusterIndexes[i]] = i;
+	}
+
+	sortClusters(clusters, sortingMapping);
+	sort(means.begin(), means.end());
 
 	cout << "K-Means finished after " << i << " iterations." << endl;
 

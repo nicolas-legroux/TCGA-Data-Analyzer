@@ -6,6 +6,7 @@
 #include <random>
 #include "dataReader.hpp"
 #include "stats.hpp"
+#include "k_means.hpp"
 
 using namespace std;
 
@@ -32,6 +33,25 @@ int main() {
 	*/
 
 	importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
+
+	vector<double> data(numberOfProteins);
+	for(int i=0; i<numberOfProteins; ++i){
+		data[i] = tumorData["BRCA"][i][0];
+	}
+	vector<int> clusters(data.size(), 0);
+	int K = 8;
+	double Nmax = 1000;
+	vector<double> means = computeKMeans(data, clusters, K, Nmax);
+
+	vector<int> clusterCount(K, 0);
+	for(int i : clusters){
+		clusterCount[i]++;
+	}
+
+	for(int i=0; i != K; ++i){
+		cout << "Cluster " << (i+1) << ": " << means[i] << ", size=" << clusterCount[i] << endl;
+	}
+
 
 	//importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
 	/* exportToMatrix(patientControlData, patientTumorData, controlData, tumorData, "matrix.out", "patients.out", geneMapping.size());*/
