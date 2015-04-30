@@ -99,5 +99,3 @@ void computeZScore(RNASeqData &tumorData, const unordered_map<string, vector<pai
         }
     }
 }
-
-
