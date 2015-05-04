@@ -32,7 +32,7 @@ int main() {
 	readPatientData(filenameCancers, patientControlData, patientTumorData);
 	readData(patientControlData, patientTumorData, geneMapping, controlData, tumorData, 50);
 
-	normalizeKMeans(controlData, tumorData);
+	normalizeKMeans(controlData, tumorData, 5);
 
 
 	//importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
