@@ -9,6 +9,7 @@
 #include "k_means.hpp"
 #include "patientUnsupervisedNormalization.hpp"
 #include "tests/stats_test.hpp"
+#include "tests/k_means_test.hpp"
 
 using namespace std;
 
@@ -17,7 +18,6 @@ typedef std::vector<std::pair<std::string, int>> GeneList;
 
 int main() {
 
-	/*
 	vector<string> cancers { "BRCA" };
 	string filenameCancers = "cancer.list";
 	PatientList patientControlData;
@@ -27,32 +27,13 @@ int main() {
 	GeneList geneMapping(
 			makeGeneMapping(
 					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
-	int numberOfProteins = geneMapping.size();
+
 
 
 	readPatientData(filenameCancers, patientControlData, patientTumorData);
 	readRNASeqData(patientControlData, patientTumorData, geneMapping, controlData, tumorData, 50);
-	*/
 
-	/*
-	vector<double> data(numberOfProteins);
-	for(int i=0; i<numberOfProteins; ++i){
-		data[i] = tumorData["BRCA"][i][0];
-	}
-	vector<int> clusters(data.size(), 0);
-	int K = 8;
-	double Nmax = 1000;
-	vector<double> means = computeKMeans(data, clusters, K, Nmax);
-
-	vector<int> clusterCount(K, 0);
-	for(int i : clusters){
-		clusterCount[i]++;
-	}
-
-	for(int i=0; i != K; ++i){
-		cout << "Cluster " << (i+1) << ": " << means[i] << ", size=" << clusterCount[i] << endl;
-	}
-	*/
+	kMeansTest1(tumorData, "BRCA", 0);
 
 
 	//importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
@@ -107,25 +88,6 @@ int main() {
 	 }
 	 */
 
-	/*
-	 vector<double> brca1;
-	 vector<double> brca2;
-	 vector<double> thca1;
-	 vector<double> thca2;
 
-	 for(int i=0; i < geneMapping.size(); i++){
-	 brca1.push_back(tumorData["KIRC"][i][0]);
-	 brca2.push_back(tumorData["KIRC"][i][1]);
-	 thca1.push_back(tumorData["THCA"][i][1]);
-	 thca2.push_back(tumorData["THCA"][i][4]);
-	 }
-
-	 cout << computeCorrelation(brca1, brca2) << endl;
-	 cout << computeCorrelation(brca1, thca2) << endl;
-	 cout << computeCorrelation(brca1, thca1) << endl;
-	 cout << computeCorrelation(brca2, thca1) << endl;
-	 cout << computeCorrelation(brca2, thca2) << endl;
-	 cout << computeCorrelation(thca1, thca2) << endl;
-	 */
 	return 0;
 }
