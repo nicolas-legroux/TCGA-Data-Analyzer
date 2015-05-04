@@ -27,7 +27,6 @@ void initializeClustersRandomly(const vector<double> &data, vector<double> &mean
 			int randomInt = distribution(generator);
 			double randomData = data[randomInt];
 			if(find(means.begin(), means.begin()+i, randomData) == (means.begin()+i)){
-				cout << "OK" << endl;
 				means[i] = randomData;
 				break;
 			}
@@ -107,7 +106,7 @@ vector<double> computeKMeans(const vector<double> &data, vector<int> &clusters, 
 	sortClusters(clusters, sortingMapping);
 	sort(means.begin(), means.end());
 
-	cout << "K-Means finished after " << i << " iterations." << endl;
+	//cout << "K-Means finished after " << i << " iterations." << endl;
 
 	return means;
 }

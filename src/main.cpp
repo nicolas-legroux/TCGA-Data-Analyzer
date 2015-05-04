@@ -7,6 +7,7 @@
 #include "dataReader.hpp"
 #include "stats.hpp"
 #include "k_means.hpp"
+#include "patientUnsupervisedNormalization.hpp"
 
 using namespace std;
 
@@ -27,13 +28,16 @@ int main() {
 					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
 	int numberOfProteins = geneMapping.size();
 
-	/*
-	readPatientData(cancers, patientControlData, patientTumorData);
+
+	readPatientData(filenameCancers, patientControlData, patientTumorData);
 	readData(patientControlData, patientTumorData, geneMapping, controlData, tumorData, 50);
-	*/
 
-	importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
+	normalizeKMeans(controlData, tumorData);
 
+
+	//importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
+
+	/*
 	vector<double> data(numberOfProteins);
 	for(int i=0; i<numberOfProteins; ++i){
 		data[i] = tumorData["BRCA"][i][0];
@@ -51,10 +55,11 @@ int main() {
 	for(int i=0; i != K; ++i){
 		cout << "Cluster " << (i+1) << ": " << means[i] << ", size=" << clusterCount[i] << endl;
 	}
+	*/
 
 
 	//importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
-	/* exportToMatrix(patientControlData, patientTumorData, controlData, tumorData, "matrix.out", "patients.out", geneMapping.size());*/
+	exportToMatrix(patientControlData, patientTumorData, controlData, tumorData, "matrix.out", "patients.out", geneMapping.size());
 
 
 	/*
