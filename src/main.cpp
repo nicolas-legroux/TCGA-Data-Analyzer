@@ -8,15 +8,18 @@
 #include "stats.hpp"
 #include "k_means.hpp"
 #include "patientUnsupervisedNormalization.hpp"
+#include "tests/stats_test.hpp"
 
 using namespace std;
 
-typedef std::unordered_map<std::string, std::vector<std::vector<double>>>RNASeqData;
 typedef unordered_map<string, vector<string>> PatientList;
 typedef std::vector<std::pair<std::string, int>> GeneList;
 
 int main() {
 
+
+
+	/*
 	vector<string> cancers { "BRCA" };
 	string filenameCancers = "cancer.list";
 	PatientList patientControlData;
@@ -59,7 +62,7 @@ int main() {
 
 
 	//importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
-	exportToMatrix(patientControlData, patientTumorData, controlData, tumorData, "matrix.out", "patients.out", geneMapping.size());
+	//exportToMatrix(patientControlData, patientTumorData, controlData, tumorData, "matrix.out", "patients.out", geneMapping.size());
 
 
 	/*

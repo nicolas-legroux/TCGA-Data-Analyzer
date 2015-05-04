@@ -12,7 +12,9 @@
 double computeMean(const std::vector<double> &vec);
 double computeStandardDeviation(const std::vector<double> &vec);
 double computeZeroPercentage(const std::vector<double> &vec);
-double computeCorrelation(const std::vector<double> &x, const std::vector<double> &y);
+double computePearsonCorrelation(const std::vector<double> &x, const std::vector<double> &y);
+void computeRank(std::vector<double> &x);
+double computeSpearmanCorrelation(const std::vector<double> x, const std::vector<double> y);
 
 std::unordered_map<std::string, std::vector<std::pair<double, double>>> computeControlDistribution(const RNASeqData &controlData);
 void computeZScore(RNASeqData &tumorData, const std::unordered_map<std::string, std::vector<std::pair<double, double>>> &controlDistributionParameters);
@@ -44,5 +46,16 @@ std::vector<size_t> sort_indexes_increasing(const std::vector<T> &v) {
 
   return idx;
 }
+
+template <typename T>
+std::vector<size_t> get_rank_increasing(const std::vector<T> &v){
+	std::vector<size_t> sortedIdx{sort_indexes_increasing(v)};
+	std::vector<size_t> ranks(sortedIdx.size());
+	for(size_t i = 0; i != ranks.size(); ++i){
+		ranks[sortedIdx[i]] = i;
+	}
+	return ranks;
+}
+
 
 #endif // STATS_HPP_INCLUDEDs

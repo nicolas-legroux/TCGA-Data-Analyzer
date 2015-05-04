@@ -9,7 +9,7 @@ using namespace std;
 
 typedef unordered_map<string, vector<vector<double>>> RNASeqData;
 
-void normalizePatientKMeans(const string &cancer, RNASeqData &rnaData, int patientId, int K){
+void normalizePatientKMeans(const string &cancer, RNASeqData &rnaData, int patientId, int K, int Nmax){
 	int numberOfGenes = rnaData[cancer].size();
 	vector<double> data(numberOfGenes);
 	for(int i=0; i<numberOfGenes; ++i){
@@ -17,7 +17,6 @@ void normalizePatientKMeans(const string &cancer, RNASeqData &rnaData, int patie
 	}
 
 	vector<int> clusters(numberOfGenes);
-	int Nmax = 100;
 
 	computeKMeans(data, clusters, K, Nmax);
 
@@ -26,12 +25,12 @@ void normalizePatientKMeans(const string &cancer, RNASeqData &rnaData, int patie
 	}
 }
 
-void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K){
+void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K, int Nmax){
 	cout << "Normalizing control Data..." << endl;
 	for(auto &mappedData : controlData){
 		string cancer = mappedData.first;
 		for(unsigned int i=0; i<mappedData.second[0].size(); ++i){
-			normalizePatientKMeans(cancer, controlData, i, K);
+			normalizePatientKMeans(cancer, controlData, i, K, Nmax);
 		}
 	}
 
@@ -39,7 +38,7 @@ void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K){
 	for(auto &mappedData : tumorData){
 		string cancer = mappedData.first;
 		for(unsigned int i=0; i<mappedData.second[0].size(); ++i){
-			normalizePatientKMeans(cancer, tumorData, i, K);
+			normalizePatientKMeans(cancer, tumorData, i, K, Nmax);
 		}
 	}
 }

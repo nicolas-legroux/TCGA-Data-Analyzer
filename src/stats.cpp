@@ -39,7 +39,7 @@ double computeZeroPercentage(const vector<double> &vec){
     return (double)countZero / (double)vec.size();
 }
 
-double computeCorrelation(const vector<double> &x, const vector<double> &y){
+double computePearsonCorrelation(const vector<double> &x, const vector<double> &y){
     vector<double> vec;
     double x_mean = computeMean(x);
     double x_stddev = computeStandardDeviation(x);
@@ -49,6 +49,50 @@ double computeCorrelation(const vector<double> &x, const vector<double> &y){
         vec.push_back((x[i]-x_mean)*(y[i]-y_mean));
     }
     return computeMean(vec)/(x_stddev*y_stddev);
+}
+
+//Assume x is sorted
+void computeRankSorted(vector<double> &x){
+	unsigned int current = 0;
+	while(current != x.size()){
+		double d = x[current];
+		unsigned int i = current+1;
+		int sum = current+1;
+		int count = 1;
+		while(i < x.size() && d == x[i]){
+			++count;
+			sum += i+1;
+			++i;
+		}
+
+		for(unsigned int j=current; j<i; ++j){
+			x[j] = (double)sum/(double)count;
+		}
+
+		current = i;
+	}
+}
+
+void computeRank(vector<double> &x){
+	vector<double> copyX(x);
+	vector<size_t> sortedXIndexes = get_rank_increasing(copyX);
+	sort(copyX.begin(), copyX.end());
+	computeRankSorted(copyX);
+	for(unsigned int i=0;  i != x.size(); ++i){
+		x[i] = copyX[sortedXIndexes[i]];
+	}
+}
+
+double computeSpearmanCorrelationRankedVectors(const vector<double> rankedX, const vector<double> rankedY){
+	return computePearsonCorrelation(rankedX, rankedY);
+}
+
+double computeSpearmanCorrelation(const vector<double> x, const vector<double> y){
+	vector<double> copyX(x);
+	vector<double> copyY(y);
+	computeRank(copyX);
+	computeRank(copyY);
+	return computePearsonCorrelation(copyX, copyY);
 }
 
 unordered_map<string, vector<pair<double, double>>> computeControlDistribution(const RNASeqData &controlData){
