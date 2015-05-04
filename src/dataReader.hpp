@@ -10,7 +10,7 @@ typedef std::unordered_map<std::string, std::vector<std::string>> PatientList;
 typedef std::vector<std::pair<std::string, int>> GeneList;
 
 std::vector<std::string> getCancerNames(const std::string &filename);
-void buildPatientIDs(const std::string &cancerName,
+void buildPatientIDsFromFile(const std::string &cancerName,
 		PatientList &patientControlData, PatientList &patientTumorData);
 void readPatientData(const std::string &filename,
 		PatientList &patientControlData, PatientList &patientTumorData);
@@ -18,7 +18,7 @@ void readPatientData(const std::vector<std::string> &cancers,
 		PatientList &patientControlData, PatientList &patientTumorData);
 GeneList makeGeneMapping(const std::string &filename);
 
-void readRNASeq(const std::string &cancerName, const std::string& dataType,
+void readRNASeqFromFile(const std::string &cancerName, const std::string& dataType,
 		const std::string &patientName, const GeneList &geneMapping,
 		RNASeqData &rnaSeqData);
 
@@ -27,7 +27,7 @@ void initializeRNASeqData(const PatientList &patientData,
 
 void readRNASeqData(const PatientList &patientData, const GeneList &geneMapping,
 		RNASeqData &rnaSeqData, bool isTumorData, int maxPatients);
-void readData(const PatientList &patientControlData,
+void readRNASeqData(const PatientList &patientControlData,
 		const PatientList &patientTumorData, const GeneList &geneMapping,
 		RNASeqData &controlData, RNASeqData &tumorData, int maxPatients = 2000);
 

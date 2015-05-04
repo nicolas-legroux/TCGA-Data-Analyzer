@@ -17,8 +17,6 @@ typedef std::vector<std::pair<std::string, int>> GeneList;
 
 int main() {
 
-
-
 	/*
 	vector<string> cancers { "BRCA" };
 	string filenameCancers = "cancer.list";
@@ -33,12 +31,8 @@ int main() {
 
 
 	readPatientData(filenameCancers, patientControlData, patientTumorData);
-	readData(patientControlData, patientTumorData, geneMapping, controlData, tumorData, 50);
-
-	normalizeKMeans(controlData, tumorData, 5);
-
-
-	//importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
+	readRNASeqData(patientControlData, patientTumorData, geneMapping, controlData, tumorData, 50);
+	*/
 
 	/*
 	vector<double> data(numberOfProteins);

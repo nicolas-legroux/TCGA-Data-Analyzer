@@ -22,7 +22,7 @@ vector<string> getCancerNames(const string &filename) {
 	return cancerNames;
 }
 
-void buildPatientIDs(const std::string &cancerName,
+void buildPatientIDsFromFile(const std::string &cancerName,
 		PatientList &patientControlData, PatientList &patientTumorData) {
 	cout << "**** Processing " << cancerName << " Patients ****" << endl;
 	string patientListFilename = "data/" + cancerName
@@ -77,7 +77,7 @@ void readPatientData(const std::string &filename,
 	for (const string &cancer : cancerNames) {
 		patientControlData.insert(make_pair(cancer, vector<string>()));
 		patientTumorData.insert(make_pair(cancer, vector<string>()));
-		buildPatientIDs(cancer, patientControlData, patientTumorData);
+		buildPatientIDsFromFile(cancer, patientControlData, patientTumorData);
 	}
 }
 
@@ -86,7 +86,7 @@ void readPatientData(const vector<string> &cancerNames,
 	for (const string &cancer : cancerNames) {
 		patientControlData.insert(make_pair(cancer, vector<string>()));
 		patientTumorData.insert(make_pair(cancer, vector<string>()));
-		buildPatientIDs(cancer, patientControlData, patientTumorData);
+		buildPatientIDsFromFile(cancer, patientControlData, patientTumorData);
 	}
 }
 
@@ -108,7 +108,7 @@ GeneList makeGeneMapping(const string &pathToFile) {
 	return geneMapping;
 }
 
-void readRNASeq(const string &cancerName, const string& dataType,
+void readRNASeqFromFile(const string &cancerName, const string& dataType,
 		const string &patientName, const GeneList &geneMapping,
 		RNASeqData &rnaSeqData) {
 	string filename = patientName + "-" + dataType
@@ -151,10 +151,10 @@ void readRNASeqData(const PatientList &patientData, const GeneList &geneMapping,
 
 		for (const string &patientName : pairedData.second) {
 			if (isTumorData) {
-				readRNASeq(cancerName, "01", patientName, geneMapping,
+				readRNASeqFromFile(cancerName, "01", patientName, geneMapping,
 						rnaSeqData);
 			} else {
-				readRNASeq(cancerName, "11", patientName, geneMapping,
+				readRNASeqFromFile(cancerName, "11", patientName, geneMapping,
 						rnaSeqData);
 			}
 
@@ -170,7 +170,7 @@ void readRNASeqData(const PatientList &patientData, const GeneList &geneMapping,
 	}
 }
 
-void readData(const PatientList &patientControlData,
+void readRNASeqData(const PatientList &patientControlData,
 		const PatientList &patientTumorData, const GeneList &geneMapping,
 		RNASeqData &controlData, RNASeqData &tumorData, int maxPatients) {
 	readRNASeqData(patientControlData, geneMapping, controlData, false,
