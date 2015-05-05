@@ -12,6 +12,7 @@
 #include <string>
 #include <iostream>
 #include "../dataReader.hpp"
+#include "../k_means.hpp"
 
 void kMeansTest1(const RNASeqData &rnaSeqData, std::string cancerName, int patientID) {
 	int numberOfProteins = rnaSeqData.at(cancerName).size();

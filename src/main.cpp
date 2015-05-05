@@ -1,44 +1,12 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <map>
-#include <unordered_map>
-#include <random>
-#include "dataReader.hpp"
-#include "stats.hpp"
-#include "k_means.hpp"
-#include "patientUnsupervisedNormalization.hpp"
 #include "tests/stats_test.hpp"
 #include "tests/k_means_test.hpp"
+#include "tests/correlationMatrix_test.hpp"
 
 using namespace std;
 
-typedef unordered_map<string, vector<string>> PatientList;
-typedef std::vector<std::pair<std::string, int>> GeneList;
-
 int main() {
 
-	vector<string> cancers { "BRCA" };
-	string filenameCancers = "cancer.list";
-	PatientList patientControlData;
-	PatientList patientTumorData;
-	RNASeqData controlData;
-	RNASeqData tumorData;
-	GeneList geneMapping(
-			makeGeneMapping(
-					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
-
-
-
-	readPatientData(filenameCancers, patientControlData, patientTumorData);
-	readRNASeqData(patientControlData, patientTumorData, geneMapping, controlData, tumorData, 50);
-
-	kMeansTest1(tumorData, "BRCA", 0);
-
-
-	//importDataFromFile(patientControlData, patientTumorData, controlData, tumorData, "brca.export");
-	//exportToMatrix(patientControlData, patientTumorData, controlData, tumorData, "matrix.out", "patients.out", geneMapping.size());
-
+	correlationMatrixTest1();
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
