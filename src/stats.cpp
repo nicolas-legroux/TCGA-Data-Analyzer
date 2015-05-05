@@ -39,6 +39,14 @@ double computeZeroPercentage(const vector<double> &vec){
     return (double)countZero / (double)vec.size();
 }
 
+double computePearsonCorrelation(const vector<double> &x, const vector<double> &y, double x_mean, double x_stddev, double y_mean, double y_stddev){
+	vector<double> vec;
+    for(unsigned int i=0; i != x.size(); ++i){
+        vec.push_back((x[i]-x_mean)*(y[i]-y_mean));
+    }
+    return computeMean(vec)/(x_stddev*y_stddev);
+}
+
 double computePearsonCorrelation(const vector<double> &x, const vector<double> &y){
     vector<double> vec;
     double x_mean = computeMean(x);
@@ -49,6 +57,29 @@ double computePearsonCorrelation(const vector<double> &x, const vector<double> &
         vec.push_back((x[i]-x_mean)*(y[i]-y_mean));
     }
     return computeMean(vec)/(x_stddev*y_stddev);
+}
+
+vector<double> computePearsonCorrelation(const vector<vector<double>> &M){
+	int N = M.size();
+	vector<double> correlationMatrix(N*N);
+	vector<double> means(N);
+	vector<double> standard_deviations(N);
+
+	for(int i=0; i<N; ++i){
+		means[i] = computeMean(M[i]);
+		standard_deviations[i] = computeStandardDeviation(M[i]);
+	}
+
+	for(int i=0; i<N; ++i){
+		correlationMatrix[i+N*i] = 1.0;
+		for(int j=i+1; j<N; ++j){
+			double cor = computePearsonCorrelation(M[i], M[j], means[i], standard_deviations[i], means[j], standard_deviations[j]);
+			correlationMatrix[i+N*j] = cor;
+			correlationMatrix[j+N*i] = cor;
+		}
+	}
+
+	return correlationMatrix;
 }
 
 //Assume x is sorted
@@ -83,16 +114,24 @@ void computeRank(vector<double> &x){
 	}
 }
 
-double computeSpearmanCorrelationRankedVectors(const vector<double> rankedX, const vector<double> rankedY){
+double computeSpearmanCorrelationRankedVectors(const vector<double> &rankedX, const vector<double> &rankedY){
 	return computePearsonCorrelation(rankedX, rankedY);
 }
 
-double computeSpearmanCorrelation(const vector<double> x, const vector<double> y){
+double computeSpearmanCorrelation(const vector<double> &x, const vector<double> &y){
 	vector<double> copyX(x);
 	vector<double> copyY(y);
 	computeRank(copyX);
 	computeRank(copyY);
 	return computePearsonCorrelation(copyX, copyY);
+}
+
+vector<double> computeSpearmanCorrelation(const vector<vector<double>> &M){
+	vector<vector<double>> M_copy(M);
+	for(vector<double> &vec : M_copy){
+		computeRank(vec);
+	}
+	return computePearsonCorrelation(M_copy);
 }
 
 unordered_map<string, vector<pair<double, double>>> computeControlDistribution(const RNASeqData &controlData){
