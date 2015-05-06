@@ -74,14 +74,18 @@ vector<double> computePearsonCorrelation(const vector<vector<double>> &M){
 	}
 	cout << "Done."  << endl;
 
-	cout << "Computing correlations for all pairs of vectors... " << flush;
+	int count = 0;
+
+	cout << "Computing correlations for all pairs of vectors... " << endl;
 	for(int i=0; i<N; ++i){
+		cout << (100*count)/(N*(N-1)/2) << "% \r" << flush;
 		correlationMatrix[i+N*i] = 1.0;
 		for(int j=i+1; j<N; ++j){
 			double cor = computePearsonCorrelation(M[i], M[j], means[i], standard_deviations[i], means[j], standard_deviations[j]);
 			correlationMatrix[i+N*j] = cor;
 			correlationMatrix[j+N*i] = cor;
 		}
+		count += N-i+1;
 	}
 	cout << "Done. " << endl << flush;
 

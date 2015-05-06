@@ -45,7 +45,7 @@ void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 		const std::vector<DataIdentifier> &dataIdentifiers,
 		const std::string &filemaneMatrix, const std::string &patientsIds);
 
-void printGeneralStats(const std::vector<double> &correlationMatrix,
-		const DataTypeMapping &dataTypeMapping);
+void exportGeneralStats(const std::vector<double> &correlationMatrix,
+		const DataTypeMapping &dataTypeMapping, const std::string &filemane);
 
 #endif /* SRC_CORRELATIONMATRIX_HPP_ */

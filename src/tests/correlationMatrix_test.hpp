@@ -35,4 +35,33 @@ void correlationMatrixTest1() {
 	exportCorrelationMatrix(correlationMatrix, dataIdentifiers, "matrix.out.test", "patients.out.test");
 }
 
+void correlationMatrixTest2() {
+	std::string filenameCancers = "cancer.list";
+	PatientList patientControlList;
+	PatientList patientTumorList;
+	RNASeqData controlData;
+	RNASeqData tumorData;
+	GeneList geneMapping(
+			makeGeneMapping(
+					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
+	readPatientData(filenameCancers, patientControlList, patientTumorList);
+	readRNASeqData(patientControlList, patientTumorList, geneMapping,
+			controlData, tumorData, 1000);
+
+	std::vector<std::vector<double>> data;
+	std::vector<DataIdentifier> dataIdentifiers;
+	DataTypeMapping dataTypeMapping;
+
+	prepareData(data, dataIdentifiers, dataTypeMapping, patientControlList,
+			patientTumorList, controlData, tumorData);
+
+	std::vector<double> correlationMatrixPearson = pearson(data);
+	exportCorrelationMatrix(correlationMatrixPearson, dataIdentifiers, "matrix.pearson", "patients.pearson");
+	exportGeneralStats(correlationMatrixPearson, dataTypeMapping, "general_stats_pearson.out");
+
+	std::vector<double> correlationMatrixSpearman = spearman(data);
+	exportCorrelationMatrix(correlationMatrixSpearman, dataIdentifiers, "matrix.spearman", "patients.spearman");
+	exportGeneralStats(correlationMatrixSpearman, dataTypeMapping, "general_stats_spearman.out");
+}
+
 #endif /* SRC_TESTS_CORRELATIONMATRIX_TEST_HPP_ */

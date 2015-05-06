@@ -7,7 +7,7 @@ using namespace std;
 
 int main() {
 
-	general_test1();
+	correlationMatrixTest2();
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

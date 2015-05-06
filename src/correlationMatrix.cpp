@@ -2,6 +2,8 @@
 #include "stats.hpp"
 #include <iostream>
 #include <fstream>
+#include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -41,6 +43,7 @@ void prepareData(std::vector<std::vector<double>> &data,
 				patientData[k] = controlData.at(cancerName).at(k).at(j);
 			}
 			data.push_back(patientData);
+			countPatients++;
 		}
 
 		for (unsigned int j = 0; j < tumorData.at(cancerName).at(0).size();
@@ -56,6 +59,7 @@ void prepareData(std::vector<std::vector<double>> &data,
 				patientData[k] = tumorData.at(cancerName).at(k).at(j);
 			}
 			data.push_back(patientData);
+			countPatients++;
 		}
 	}
 
@@ -95,4 +99,68 @@ void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 	}
 
 	cout << " Done." << endl;
+}
+
+void exportGeneralStats(const std::vector<double> &correlationMatrix,
+		const DataTypeMapping &dataTypeMapping, const string &filemane){
+
+	cout << endl;
+
+	vector<string> classes;
+	int N = (int)sqrt(correlationMatrix.size());
+
+	for(const auto &kv : dataTypeMapping){
+		string dataType = kv.first;
+		cout << dataType << " : ";
+		if(kv.second.size()>0){
+			classes.push_back(dataType);
+		}
+		for(int i : kv.second){
+			cout << i << " ";
+		}
+
+		cout << endl;
+	}
+
+	sort(classes.begin(), classes.end());
+	int n = classes.size();
+	vector<double> mean_correlation(n*n);
+
+	for(int i=0; i<n; ++i){
+		for(int j=i; j<n; ++j){
+			double sum = 0;
+			for(double I : dataTypeMapping.at(classes[i])){
+				for(double J : dataTypeMapping.at(classes[j])){
+					if(I != J){
+						sum += correlationMatrix[N*I+J];
+					}
+				}
+			}
+			int mi = dataTypeMapping.at(classes[i]).size();
+			int mj = dataTypeMapping.at(classes[j]).size();
+			if(i==j){
+				sum /= (double)(mi*(mi-1));
+			}
+			else{
+				sum /= (double)(mi*mj);
+			}
+			mean_correlation[n*i+j] = sum;
+			mean_correlation[n*j+i] = sum;
+		}
+	}
+
+	ofstream outputStream("export/" + filemane);
+	outputStream << "CLASSES";
+	for(const string &s : classes){
+		outputStream << "\t" << s;
+	}
+	outputStream << endl;
+
+	for(int i=0; i<n; ++i){
+		outputStream << classes[i];
+		for(int j=0; j<n; ++j){
+			outputStream << "\t" << mean_correlation[n*i+j];
+		}
+		outputStream << endl;
+	}
 }
