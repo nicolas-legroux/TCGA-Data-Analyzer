@@ -40,11 +40,12 @@ double computeZeroPercentage(const vector<double> &vec){
 }
 
 double computePearsonCorrelation(const vector<double> &x, const vector<double> &y, double x_mean, double x_stddev, double y_mean, double y_stddev){
-	vector<double> vec;
-    for(unsigned int i=0; i != x.size(); ++i){
-        vec.push_back((x[i]-x_mean)*(y[i]-y_mean));
+	double sum = 0.0;
+	unsigned int N = x.size();
+    for(unsigned int i=0; i != N; ++i){
+        sum += ((x[i]-x_mean)*(y[i]-y_mean));
     }
-    return computeMean(vec)/(x_stddev*y_stddev);
+    return sum/((double)N*(x_stddev*y_stddev));
 }
 
 double computePearsonCorrelation(const vector<double> &x, const vector<double> &y){
@@ -61,15 +62,19 @@ double computePearsonCorrelation(const vector<double> &x, const vector<double> &
 
 vector<double> computePearsonCorrelation(const vector<vector<double>> &M){
 	int N = M.size();
+	cout << endl << "Pearson correlation to be computed for " << N << " vectors..." << endl;
 	vector<double> correlationMatrix(N*N);
 	vector<double> means(N);
 	vector<double> standard_deviations(N);
 
+	cout << "Computing all means and standard deviations... " << flush;
 	for(int i=0; i<N; ++i){
 		means[i] = computeMean(M[i]);
 		standard_deviations[i] = computeStandardDeviation(M[i]);
 	}
+	cout << "Done."  << endl;
 
+	cout << "Computing correlations for all pairs of vectors... " << flush;
 	for(int i=0; i<N; ++i){
 		correlationMatrix[i+N*i] = 1.0;
 		for(int j=i+1; j<N; ++j){
@@ -78,6 +83,7 @@ vector<double> computePearsonCorrelation(const vector<vector<double>> &M){
 			correlationMatrix[j+N*i] = cor;
 		}
 	}
+	cout << "Done. " << endl << flush;
 
 	return correlationMatrix;
 }

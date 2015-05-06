@@ -65,13 +65,11 @@ void prepareData(std::vector<std::vector<double>> &data,
 std::vector<double> pearson(std::vector<std::vector<double>> &data) {
 	cout << endl << "Computing Pearson Correlation... " << flush;
 	return computePearsonCorrelation(data);
-	cout << " Done." << endl;
 }
 
 std::vector<double> spearman(std::vector<std::vector<double>> &data) {
 	cout << endl << "Computing Spearman Correlation... " << flush;
 	return computeSpearmanCorrelation(data);
-	cout << " Done." << endl;
 }
 
 void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,

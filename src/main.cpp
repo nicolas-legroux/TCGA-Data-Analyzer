@@ -1,12 +1,13 @@
 #include "tests/stats_test.hpp"
 #include "tests/k_means_test.hpp"
 #include "tests/correlationMatrix_test.hpp"
+#include "tests/general_test.hpp"
 
 using namespace std;
 
 int main() {
 
-	correlationMatrixTest1();
+	general_test1();
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
@@ -55,7 +56,6 @@ int main() {
 	 cout << count0 << " genes with more than 80% zero values" << endl;
 	 }
 	 */
-
 
 	return 0;
 }
