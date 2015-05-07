@@ -9,3 +9,6 @@ outputs/*
 .cproject
 /Debug/
 /Release/
+
+*.png
+
