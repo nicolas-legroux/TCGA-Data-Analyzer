@@ -29,16 +29,20 @@ void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K, int 
 	cout << "Normalizing control Data..." << endl;
 	for(auto &mappedData : controlData){
 		string cancer = mappedData.first;
+		cout << "\t" << cancer << "... " << flush;
 		for(unsigned int i=0; i<mappedData.second[0].size(); ++i){
 			normalizePatientKMeans(cancer, controlData, i, K, Nmax);
 		}
+		cout << "Done." << endl;
 	}
 
 	cout << "Normalizing tumor Data..." << endl;
 	for(auto &mappedData : tumorData){
 		string cancer = mappedData.first;
+		cout << "\t" << cancer << "... " << flush;
 		for(unsigned int i=0; i<mappedData.second[0].size(); ++i){
 			normalizePatientKMeans(cancer, tumorData, i, K, Nmax);
 		}
+		cout << "Done." << endl;
 	}
 }

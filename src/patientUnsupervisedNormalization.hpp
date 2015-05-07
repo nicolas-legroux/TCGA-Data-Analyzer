@@ -10,6 +10,6 @@
 
 typedef std::unordered_map<std::string, std::vector<std::vector<double>>>RNASeqData;
 
-void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K);
+void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K, int Nmax);
 
 #endif /* SRC_PATIENTUNSUPERVISEDNORMALIZATION_HPP_ */

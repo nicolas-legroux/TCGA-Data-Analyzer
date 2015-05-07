@@ -14,16 +14,28 @@
 #include "../dataReader.hpp"
 #include "../k_means.hpp"
 
-void kMeansTest1(const RNASeqData &rnaSeqData, std::string cancerName, int patientID) {
-	int numberOfProteins = rnaSeqData.at(cancerName).size();
+void kMeansTest1(int K, int Nmax) {
+
+	std::vector<std::string> cancers{"BRCA"};
+	PatientList patientControlList;
+	PatientList patientTumorList;
+	RNASeqData controlData;
+	RNASeqData tumorData;
+	GeneList geneMapping(
+				makeGeneMapping(
+						"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
+	readPatientData(cancers, patientControlList, patientTumorList);
+	readRNASeqData(patientControlList, patientTumorList, geneMapping,
+				controlData, tumorData, 1);
+
+	int numberOfProteins = geneMapping.size();
+
 	std::vector<double> data(numberOfProteins);
+
 	for (int i = 0; i < numberOfProteins; ++i) {
-		data[i] = rnaSeqData.at(cancerName).at(i).at(patientID);
+		data[i] = tumorData.at("BRCA").at(i).at(0);
 	}
 	std::vector<int> clusters(data.size(), 0);
-
-	int K = 8;
-	double Nmax = 1000;
 
 	std::vector<double> means = computeKMeans(data, clusters, K, Nmax);
 

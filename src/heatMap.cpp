@@ -3,10 +3,11 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
-void makeHeatMap(const vector<double> &matrix, const char* filename){
+void makeHeatMap(const vector<double> &matrix, const char* filenameC){
 	vector<unsigned char>image;
 
 	double min = *min_element(matrix.cbegin(), matrix.cend());
@@ -22,7 +23,10 @@ void makeHeatMap(const vector<double> &matrix, const char* filename){
 		image.push_back(255);
 	}
 
-	 unsigned error = lodepng::encode(filename, image, n, n);
+	string fileName("export/");
+	fileName += filenameC;
+
+	 unsigned error = lodepng::encode(fileName.c_str(), image, n, n);
 
 	 //if there's an error, display it
 	 if(error) std::cout << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;

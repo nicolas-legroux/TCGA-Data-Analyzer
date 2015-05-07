@@ -3,12 +3,13 @@
 #include "tests/correlationMatrix_test.hpp"
 #include "tests/general_test.hpp"
 #include "tests/lodePNG_test.hpp"
+#include "tests/patientUnsupervisedNormalization_test.hpp"
 
 using namespace std;
 
 int main() {
 
-	correlationMatrixTest1();
+	normalizationTest1(7, 1000);
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
