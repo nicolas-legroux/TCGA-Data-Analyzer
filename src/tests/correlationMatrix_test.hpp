@@ -46,7 +46,7 @@ void correlationMatrixTest2() {
 					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
 	readPatientData(filenameCancers, patientControlList, patientTumorList);
 	readRNASeqData(patientControlList, patientTumorList, geneMapping,
-			controlData, tumorData, 1000);
+			controlData, tumorData, 500);
 
 	std::vector<std::vector<double>> data;
 	std::vector<DataIdentifier> dataIdentifiers;

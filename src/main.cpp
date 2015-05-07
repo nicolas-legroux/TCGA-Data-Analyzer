@@ -2,12 +2,15 @@
 #include "tests/k_means_test.hpp"
 #include "tests/correlationMatrix_test.hpp"
 #include "tests/general_test.hpp"
+#include "tests/lodePNG_test.hpp"
 
 using namespace std;
 
 int main() {
 
-	correlationMatrixTest2();
+	vector<unsigned char>image{0,0,0,255,255,255,255,255,255,255,255,255,0,0,0,255};
+	encodeOneStep("test.png", image, 2, 2);
+
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
@@ -19,7 +22,6 @@ int main() {
 	 }
 
 	 cout << geneMapping[5678].first << " --> " << sumZScores[5678]<< endl;
-
 
 
 	 vector<size_t> sortedIndexes = sort_indexes(sumZScores);
