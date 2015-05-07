@@ -33,7 +33,7 @@ void correlationMatrixTest1() {
 			patientTumorList, controlData, tumorData);
 
 	std::vector<double> correlationMatrix = pearson(data);
-	exportCorrelationMatrix(correlationMatrix, dataIdentifiers, "matrix.out.test", "patients.out.test");
+	exportCorrelationMatrix(correlationMatrix, dataIdentifiers, "matrix.out.test", "patients.out.test", "labels.out");
 
 	makeHeatMap(correlationMatrix,"testheatmap.png");
 }
@@ -59,12 +59,14 @@ void correlationMatrixTest2() {
 			patientTumorList, controlData, tumorData);
 
 	std::vector<double> correlationMatrixPearson = pearson(data);
-	exportCorrelationMatrix(correlationMatrixPearson, dataIdentifiers, "matrix.pearson", "patients.pearson");
-	exportGeneralStats(correlationMatrixPearson, dataTypeMapping, "general_stats_pearson.out");
+	exportCorrelationMatrix(correlationMatrixPearson, dataIdentifiers, "matrix.pearson", "patients.pearson", "labels.pearson");
+	exportGeneralStats(correlationMatrixPearson, dataTypeMapping, "classes_correlation_pearson.out", "classes_size_pearson.out");
+	makeHeatMap(correlationMatrixPearson,"export/heat_map_pearson.png");
 
 	std::vector<double> correlationMatrixSpearman = spearman(data);
-	exportCorrelationMatrix(correlationMatrixSpearman, dataIdentifiers, "matrix.spearman", "patients.spearman");
-	exportGeneralStats(correlationMatrixSpearman, dataTypeMapping, "general_stats_spearman.out");
+	exportCorrelationMatrix(correlationMatrixSpearman, dataIdentifiers, "matrix.spearman", "patients.spearman", "labels.spearman");
+	exportGeneralStats(correlationMatrixSpearman, dataTypeMapping, "classes_correlatio_spearman.out", "classes_size_spearman.out");
+	makeHeatMap(correlationMatrixSpearman,"export/heat_map_spearman.png");
 }
 
 #endif /* SRC_TESTS_CORRELATIONMATRIX_TEST_HPP_ */

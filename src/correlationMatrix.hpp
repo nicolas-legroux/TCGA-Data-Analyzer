@@ -43,9 +43,11 @@ std::vector<double> spearman(std::vector<std::vector<double>> &data);
 
 void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 		const std::vector<DataIdentifier> &dataIdentifiers,
-		const std::string &filemaneMatrix, const std::string &patientsIds);
+		const std::string &filemaneMatrix, const std::string &patientsIds,
+		const std::string &filenameHeatMapLabels);
 
 void exportGeneralStats(const std::vector<double> &correlationMatrix,
-		const DataTypeMapping &dataTypeMapping, const std::string &filemane);
+		const DataTypeMapping &dataTypeMapping,
+		const std::string &filemaneCorrelationMeans, const std::string &filemaneClasses);
 
 #endif /* SRC_CORRELATIONMATRIX_HPP_ */

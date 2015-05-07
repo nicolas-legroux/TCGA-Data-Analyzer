@@ -39,7 +39,7 @@ void prepareData(std::vector<std::vector<double>> &data,
 					DataIdentifier(cancerName, false,
 							patientControlList.at(cancerName).at(j)));
 			vector<double> patientData(numberOfGenes);
-			for(int k=0; k<numberOfGenes; ++k){
+			for (int k = 0; k < numberOfGenes; ++k) {
 				patientData[k] = controlData.at(cancerName).at(k).at(j);
 			}
 			data.push_back(patientData);
@@ -55,7 +55,7 @@ void prepareData(std::vector<std::vector<double>> &data,
 					DataIdentifier(cancerName, true,
 							patientTumorList.at(cancerName).at(j)));
 			vector<double> patientData(numberOfGenes);
-			for(int k=0; k<numberOfGenes; ++k){
+			for (int k = 0; k < numberOfGenes; ++k) {
 				patientData[k] = tumorData.at(cancerName).at(k).at(j);
 			}
 			data.push_back(patientData);
@@ -78,7 +78,8 @@ std::vector<double> spearman(std::vector<std::vector<double>> &data) {
 
 void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 		const std::vector<DataIdentifier> &dataIdentifiers,
-		const std::string &filemaneMatrix, const std::string &patientsIds){
+		const std::string &filemaneMatrix, const std::string &patientsIds,
+		const std::string &filenameHeatMapLabels) {
 
 	cout << endl << "Exporting Correlation matrix...";
 
@@ -87,14 +88,29 @@ void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 
 	int N = dataIdentifiers.size();
 
-	for(int i=0; i<N; ++i){
-		for(int j=0; j<N; ++j){
-			matrixOutputStream << correlationMatrix[i*N+j] << "\t";
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			matrixOutputStream << correlationMatrix[i * N + j] << "\t";
 		}
 		matrixOutputStream << endl;
 	}
 
-	for(const DataIdentifier &dataIdentifier : dataIdentifiers){
+	string current = "";
+	int countCurrent = 0;
+	ofstream outputStreamLabels("export/" + filenameHeatMapLabels);
+
+	for (const DataIdentifier &dataIdentifier : dataIdentifiers) {
+		string newCurrent= dataIdentifier.cancerName + "-" + ((dataIdentifier.isTumor)? "Tumor" : "Control");
+		if(newCurrent != current){
+			if(countCurrent != 0){
+				outputStreamLabels << current << " " << countCurrent << endl;
+			}
+			current = newCurrent;
+			countCurrent  = 1;
+		}
+		else{
+			countCurrent++;
+		}
 		patientsOutputStream << dataIdentifier.toString() << endl;
 	}
 
@@ -102,64 +118,67 @@ void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 }
 
 void exportGeneralStats(const std::vector<double> &correlationMatrix,
-		const DataTypeMapping &dataTypeMapping, const string &filemane){
+		const DataTypeMapping &dataTypeMapping,
+		const string &filemaneCorrelationMeans, const string &filemaneClasses) {
 
 	cout << endl;
 
 	vector<string> classes;
-	int N = (int)sqrt(correlationMatrix.size());
+	int N = (int) sqrt(correlationMatrix.size());
 
-	for(const auto &kv : dataTypeMapping){
+	for (const auto &kv : dataTypeMapping) {
 		string dataType = kv.first;
-		cout << dataType << " : ";
-		if(kv.second.size()>0){
+		if (kv.second.size() > 0) {
 			classes.push_back(dataType);
 		}
-		for(int i : kv.second){
-			cout << i << " ";
-		}
-
-		cout << endl;
 	}
 
 	sort(classes.begin(), classes.end());
-	int n = classes.size();
-	vector<double> mean_correlation(n*n);
 
-	for(int i=0; i<n; ++i){
-		for(int j=i; j<n; ++j){
+	ofstream outputStreamClasses("export/" + filemaneClasses);
+
+	for (const string &s : classes) {
+		outputStreamClasses << s << " " << dataTypeMapping.at(s).size() << endl;
+	}
+
+	outputStreamClasses.close();
+
+	int n = classes.size();
+	vector<double> mean_correlation(n * n);
+
+	for (int i = 0; i < n; ++i) {
+		for (int j = i; j < n; ++j) {
 			double sum = 0;
-			for(double I : dataTypeMapping.at(classes[i])){
-				for(double J : dataTypeMapping.at(classes[j])){
-					if(I != J){
-						sum += correlationMatrix[N*I+J];
+			for (double I : dataTypeMapping.at(classes[i])) {
+				for (double J : dataTypeMapping.at(classes[j])) {
+					if (I != J) {
+						sum += correlationMatrix[N * I + J];
 					}
 				}
 			}
 			int mi = dataTypeMapping.at(classes[i]).size();
 			int mj = dataTypeMapping.at(classes[j]).size();
-			if(i==j){
-				sum /= (double)(mi*(mi-1));
+			if (i == j) {
+				sum /= (double) (mi * (mi - 1));
+			} else {
+				sum /= (double) (mi * mj);
 			}
-			else{
-				sum /= (double)(mi*mj);
-			}
-			mean_correlation[n*i+j] = sum;
-			mean_correlation[n*j+i] = sum;
+			mean_correlation[n * i + j] = sum;
+			mean_correlation[n * j + i] = sum;
 		}
 	}
 
-	ofstream outputStream("export/" + filemane);
+	ofstream outputStream("export/" + filemaneCorrelationMeans);
 	outputStream << "CLASSES";
-	for(const string &s : classes){
+	for (const string &s : classes) {
 		outputStream << "\t" << s;
 	}
 	outputStream << endl;
 
-	for(int i=0; i<n; ++i){
+	for (int i = 0; i < n; ++i) {
 		outputStream << classes[i];
-		for(int j=0; j<n; ++j){
-			outputStream << "\t" << mean_correlation[n*i+j];
+		for (int j = 0; j < n; ++j) {
+			outputStream << "\t" << mean_correlation[n * i + j];
 		}
 		outputStream << endl;
 	}
