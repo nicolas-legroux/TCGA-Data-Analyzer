@@ -8,9 +8,7 @@ using namespace std;
 
 int main() {
 
-	vector<unsigned char>image{0,0,0,255,255,255,255,255,255,255,255,255,0,0,0,255};
-	encodeOneStep("test.png", image, 2, 2);
-
+	correlationMatrixTest1();
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

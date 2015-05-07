@@ -10,6 +10,7 @@
 
 #include "../correlationMatrix.hpp"
 #include "../dataReader.hpp"
+#include "../heatMap.hpp"
 
 void correlationMatrixTest1() {
 	std::string filenameCancers = "cancer.list";
@@ -33,6 +34,8 @@ void correlationMatrixTest1() {
 
 	std::vector<double> correlationMatrix = pearson(data);
 	exportCorrelationMatrix(correlationMatrix, dataIdentifiers, "matrix.out.test", "patients.out.test");
+
+	makeHeatMap(correlationMatrix,"testheatmap.png");
 }
 
 void correlationMatrixTest2() {
