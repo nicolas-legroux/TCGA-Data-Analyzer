@@ -4,12 +4,9 @@
 #include <fstream>
 #include <cmath>
 #include <algorithm>
+#include "typedefs.hpp"
 
 using namespace std;
-
-typedef std::unordered_map<std::string, std::vector<int>> DataTypeMapping;
-typedef std::unordered_map<std::string, std::vector<std::vector<double>>>RNASeqData;
-typedef std::unordered_map<std::string, std::vector<std::string>> PatientList;
 
 void prepareData(std::vector<std::vector<double>> &data,
 		std::vector<DataIdentifier> &dataIdentifiers,

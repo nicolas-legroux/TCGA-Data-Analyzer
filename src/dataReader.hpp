@@ -4,10 +4,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-
-typedef std::unordered_map<std::string, std::vector<std::vector<double>>>RNASeqData;
-typedef std::unordered_map<std::string, std::vector<std::string>> PatientList;
-typedef std::vector<std::pair<std::string, int>> GeneList;
+#include "typedefs.hpp"
 
 std::vector<std::string> getCancerNames(const std::string &filename);
 void buildPatientIDsFromFile(const std::string &cancerName,

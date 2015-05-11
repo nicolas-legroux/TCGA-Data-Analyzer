@@ -6,6 +6,7 @@
 
 #include "k_means.hpp"
 #include "stats.hpp"
+#include "utilities.hpp"
 
 using namespace std;
 

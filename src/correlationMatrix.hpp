@@ -11,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "typedefs.hpp"
 
 struct DataIdentifier {
 	std::string cancerName;
@@ -28,9 +29,7 @@ struct DataIdentifier {
 	}
 };
 
-typedef std::unordered_map<std::string, std::vector<int>> DataTypeMapping;
-typedef std::unordered_map<std::string, std::vector<std::vector<double>>>RNASeqData;
-typedef std::unordered_map<std::string, std::vector<std::string>> PatientList;
+
 
 void prepareData(std::vector<std::vector<double>> &data,
 		std::vector<DataIdentifier> &dataIdentifiers,

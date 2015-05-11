@@ -1,14 +1,15 @@
 #include <vector>
-#include "stats.hpp"
 #include <cmath>
 #include <unordered_map>
 #include <string>
 #include <utility>
 #include <iostream>
 
-using namespace std;
+#include "stats.hpp"
+#include "typedefs.hpp"
+#include "utilities.hpp"
 
-typedef unordered_map<string, vector<vector<double>>> RNASeqData;
+using namespace std;
 
 double computeMean(const vector<double> &vec){
     double mean = 0.0;

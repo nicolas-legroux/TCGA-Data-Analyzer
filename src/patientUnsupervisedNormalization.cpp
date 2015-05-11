@@ -2,12 +2,12 @@
 #include <string>
 #include <iostream>
 
+#include "typedefs.hpp"
 #include "k_means.hpp"
 #include "patientUnsupervisedNormalization.hpp"
+#include "utilities.hpp"
 
 using namespace std;
-
-typedef unordered_map<string, vector<vector<double>>> RNASeqData;
 
 void normalizePatientKMeans(const string &cancer, RNASeqData &rnaData, int patientId, int K, int Nmax){
 	int numberOfGenes = rnaData[cancer].size();
@@ -44,5 +44,64 @@ void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K, int 
 			normalizePatientKMeans(cancer, tumorData, i, K, Nmax);
 		}
 		cout << "Done." << endl;
+	}
+}
+
+void printMaxExpressedGenes(const RNASeqData &controlNormalized, const RNASeqData &tumorNormalized, const GeneList &geneList){
+
+	cout << endl << "****** FINDING MOST EXPRESSED GENES ******" << endl;
+
+	for (const auto &kv : controlNormalized){
+		string cancer = kv.first;
+		int numberOfPatients = kv.second[0].size();
+
+		if(numberOfPatients>0){
+			cout << cancer << "-Control : " << numberOfPatients<< " patients. Aggregating the scores... " << flush;
+
+			int numberOfGenes = kv.second.size();
+			vector<double> aggregation(numberOfGenes);
+			fill(aggregation.begin(), aggregation.end(), 0.0);
+			for(int i=0; i<numberOfGenes; i++){
+				for(int j=0; j < numberOfPatients; ++j){
+					aggregation[i] += kv.second[i][j];
+				}
+			}
+
+			cout << "Done." << endl;
+			cout << "Most expressed genes in the class : {";
+			vector<size_t> sortedIndexes = sort_indexes_decreasing(aggregation);
+			for(int i=0; i<10; ++i){
+				string geneSymbol = geneList[sortedIndexes[i]].first;
+				cout << " " << geneSymbol << "(" << aggregation[sortedIndexes[i]] << ") ";
+			}
+			cout << "}" << endl << endl;
+		}
+	}
+
+	for (const auto &kv : tumorNormalized){
+		string cancer = kv.first;
+		int numberOfPatients = kv.second[0].size();
+
+		if(numberOfPatients>0){
+			cout << cancer << "-Tumor : " << numberOfPatients<< " patients. Aggregating the scores... " << flush;
+
+			int numberOfGenes = kv.second.size();
+			vector<double> aggregation(numberOfGenes);
+			fill(aggregation.begin(), aggregation.end(), 0.0);
+			for(int i=0; i<numberOfGenes; i++){
+				for(int j=0; j < numberOfPatients; ++j){
+					aggregation[i] += kv.second[i][j];
+				}
+			}
+
+			cout << "Done." << endl;
+			cout << "Most expressed genes in the class : {";
+			vector<size_t> sortedIndexes = sort_indexes_decreasing(aggregation);
+			for(int i=0; i<10; ++i){
+				string geneSymbol = geneList[sortedIndexes[i]].first;
+				cout << " " << geneSymbol << "(" << aggregation[sortedIndexes[i]] << ") ";
+			}
+			cout << "}" << endl << endl;
+		}
 	}
 }

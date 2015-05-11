@@ -10,7 +10,7 @@ using namespace std;
 
 int main() {
 
-	normalizationTest1(3, 1000);
+	kMeansTest1(2, 100);
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

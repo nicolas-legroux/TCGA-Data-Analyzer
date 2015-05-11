@@ -8,10 +8,6 @@
 
 using namespace std;
 
-typedef unordered_map<string, vector<vector<double>>> RNASeqData;
-typedef unordered_map<string, vector<string>> PatientList;
-typedef std::vector<std::pair<std::string, int>> GeneList;
-
 vector<string> getCancerNames(const string &filename) {
 	ifstream input(filename);
 	vector<string> cancerNames;
