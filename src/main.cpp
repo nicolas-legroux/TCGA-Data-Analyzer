@@ -4,12 +4,13 @@
 #include "tests/general_test.hpp"
 #include "tests/lodePNG_test.hpp"
 #include "tests/patientUnsupervisedNormalization_test.hpp"
+#include "tests/dataReader_test.hpp"
 
 using namespace std;
 
 int main() {
 
-	kMeansTest1(2, 1000);
+	normalizationTest1(3, 1000);
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

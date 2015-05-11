@@ -149,20 +149,18 @@ void exportGeneralStats(const std::vector<double> &correlationMatrix,
 	for (int i = 0; i < n; ++i) {
 		for (int j = i; j < n; ++j) {
 			double sum = 0;
-			for (double I : dataTypeMapping.at(classes[i])) {
-				for (double J : dataTypeMapping.at(classes[j])) {
+			int count = 0;
+			for (int I : dataTypeMapping.at(classes[i])) {
+				for (int J : dataTypeMapping.at(classes[j])) {
+					//When I = J : we are comparing the same patients, we know the correlation is 1
 					if (I != J) {
+						count++;
 						sum += correlationMatrix[N * I + J];
 					}
 				}
 			}
-			int mi = dataTypeMapping.at(classes[i]).size();
-			int mj = dataTypeMapping.at(classes[j]).size();
-			if (i == j) {
-				sum /= (double) (mi * (mi - 1));
-			} else {
-				sum /= (double) (mi * mj);
-			}
+
+			sum /= (double)count;
 			mean_correlation[n * i + j] = sum;
 			mean_correlation[n * j + i] = sum;
 		}
