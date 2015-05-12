@@ -5,6 +5,7 @@
 #include "tests/lodePNG_test.hpp"
 #include "tests/patientUnsupervisedNormalization_test.hpp"
 #include "tests/dataReader_test.hpp"
+#include "tests/utilities_test.hpp"
 #include <limits>
 #include <typeinfo>
 
@@ -12,7 +13,7 @@ using namespace std;
 
 int main() {
 
-	spearmanCorrelationTest2();
+	exportDataTest1();
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

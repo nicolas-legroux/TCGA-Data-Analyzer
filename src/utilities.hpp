@@ -62,6 +62,10 @@ std::vector<size_t> get_rank_increasing(const std::vector<T> &v){
 	return ranks;
 }
 
+//Prints advancement of a task in %
 void printAdvancement(unsigned int currentCount, unsigned int totalCount);
+
+//Splits a string according to delimiters
+std::vector<std::string> split(const std::string &s, const std::vector<char> &delimiters);
 
 #endif /* SRC_UTILITIES_HPP_ */

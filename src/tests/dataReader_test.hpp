@@ -15,7 +15,7 @@ void exportDataTest1(){
 					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
 	readPatientData(filenameCancers, patientControlList, patientTumorList);
 	readRNASeqData(patientControlList, patientTumorList, geneMapping,
-			controlData, tumorData, 500);
+			controlData, tumorData, 5);
 
 	exportToMatrix(patientControlList, patientTumorList, controlData, tumorData, "data_matrix.out", "patients.out", geneMapping.size());
 }

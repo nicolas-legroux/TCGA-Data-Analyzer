@@ -1,10 +1,10 @@
-#include "dataReader.hpp"
-
 #include <fstream>
-#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <unordered_map>
 #include <algorithm>
+
+#include "dataReader.hpp"
+#include "utilities.hpp"
 
 using namespace std;
 
@@ -30,8 +30,8 @@ void buildPatientIDsFromFile(const std::string &cancerName,
 	int countTumor = 0;
 
 	while (input >> patientId) {
-		vector<string> strs;
-		boost::split(strs, patientId, boost::is_any_of("-."));
+		vector<string> strs = split(patientId, vector<char>{'-', '.'}) ;
+
 		if (strs.size() >= 4) {
 
 			string patientName = strs[0] + "-" + strs[1] + "-" + strs[2];
@@ -94,8 +94,7 @@ GeneList makeGeneMapping(const string &pathToFile) {
 	string geneId;
 	double score;
 	while (input >> geneId >> score) {
-		vector<string> strs;
-		boost::split(strs, geneId, boost::is_any_of("|"));
+		vector<string> strs = split(geneId, vector<char>{'|'});
 		string hgncSymbol = strs[0];
 		int entrezId = atoi(strs[1].c_str());
 		geneMapping.push_back(make_pair(hgncSymbol, entrezId));

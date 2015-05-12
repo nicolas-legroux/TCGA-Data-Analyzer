@@ -26,8 +26,8 @@ void makeHeatMap(const vector<double> &matrix, const char* filenameC){
 	string fileName("export/");
 	fileName += filenameC;
 
-	 unsigned error = lodepng::encode(fileName.c_str(), image, n, n);
+	unsigned error = lodepng::encode(fileName.c_str(), image, n, n);
 
-	 //if there's an error, display it
-	 if(error) std::cout << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
+	//if there's an error, display it
+	if(error) std::cout << "encoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
 }
