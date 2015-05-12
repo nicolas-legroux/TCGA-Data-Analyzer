@@ -11,77 +11,71 @@
 
 using namespace std;
 
+//Let's assume it wont't overflow
 double computeMean(const vector<double> &vec){
-    double mean = 0.0;
-    double n = vec.size();
-    for(double d : vec){
-        mean += d/n;
-    }
-    return mean;
+    double sum = accumulate(vec.cbegin(), vec.cend(), 0.0);
+    return sum/(double)vec.size();
 }
 
-double computeStandardDeviation(const vector<double> &vec){
-    vector<double> vecXvec;
-    for(double d : vec){
-        vecXvec.push_back(d*d);
+double computeStandardDeviation(const vector<double> &vec, bool correction){
+    double m = computeMean(vec);
+    double accum = 0.0;
+    for_each(vec.cbegin(), vec.cend(), [&](const double d){
+    	accum += (d-m)*(d-m);
+    });
+    if(correction){
+    	return sqrt(accum/(vec.size()-1));
     }
-    double mean = computeMean(vec);
-    return sqrt(computeMean(vecXvec)-mean*mean);
+    else{
+    	return sqrt(accum/vec.size());
+    }
 }
 
 double computeZeroPercentage(const vector<double> &vec){
-    int countZero = 0;
-    for(double d : vec){
-        if(d == 0.0){
-            countZero++;
-        }
-    }
-
-    return (double)countZero / (double)vec.size();
+    return (double)count(vec.cbegin(), vec.cend(), 0.0)/(double)vec.size();
 }
 
 double computePearsonCorrelation(const vector<double> &x, const vector<double> &y, double x_mean, double x_stddev, double y_mean, double y_stddev){
-	double sum = 0.0;
-	unsigned int N = x.size();
-    for(unsigned int i=0; i != N; ++i){
-        sum += ((x[i]-x_mean)*(y[i]-y_mean));
-    }
-    return sum/((double)N*(x_stddev*y_stddev));
+    double accum = 0.0;
+    for_each_two_ranges(x.cbegin(), x.cend(), y.cbegin(), [&accum, x_mean, y_mean](const double a, const double b){
+    	accum += (a-x_mean)*(b-y_mean);
+    });
+    return accum/(x.size()*x_stddev*y_stddev);
 }
 
 double computePearsonCorrelation(const vector<double> &x, const vector<double> &y){
-    vector<double> vec;
+    double accum = 0.0;
     double x_mean = computeMean(x);
-    double x_stddev = computeStandardDeviation(x);
     double y_mean = computeMean(y);
-    double y_stddev = computeStandardDeviation(y);
-    for(unsigned int i=0; i != x.size(); ++i){
-        vec.push_back((x[i]-x_mean)*(y[i]-y_mean));
-    }
-    return computeMean(vec)/(x_stddev*y_stddev);
+    for_each_two_ranges(x.cbegin(), x.cend(), y.cbegin(), [&accum, x_mean, y_mean](const double a, const double b){
+    	accum += (a-x_mean)*(b-y_mean);
+    });
+    double x_stddev = computeStandardDeviation(x, false);
+    double y_stddev = computeStandardDeviation(y, false);
+    return accum/(x.size()*x_stddev*y_stddev);
 }
 
 vector<double> computePearsonCorrelation(const vector<vector<double>> &M){
-	int N = M.size();
+	unsigned int N = M.size();
 	cout << endl << "Pearson correlation to be computed for " << N << " vectors..." << endl;
 	vector<double> correlationMatrix(N*N);
 	vector<double> means(N);
 	vector<double> standard_deviations(N);
 
 	cout << "Computing all means and standard deviations... " << flush;
-	for(int i=0; i<N; ++i){
-		means[i] = computeMean(M[i]);
-		standard_deviations[i] = computeStandardDeviation(M[i]);
-	}
+	transform(M.cbegin(), M.cend(), means.begin(), computeMean);
+	transform(M.cbegin(), M.cend(), standard_deviations.begin(), [](const vector<double> &vec){
+		return computeStandardDeviation(vec, false);
+	});
 	cout << "Done."  << endl;
 
-	int count = 0;
+	unsigned int count = 0;
 
 	cout << "Computing correlations for all pairs of vectors... " << endl;
-	for(int i=0; i<N; ++i){
-		cout << (100*count)/(N*(N-1)/2) << "% \r" << flush;
+	for(unsigned int i=0; i<N; ++i){
+		printAdvancement(count, (N*(N-1)/2));
 		correlationMatrix[i+N*i] = 1.0;
-		for(int j=i+1; j<N; ++j){
+		for(unsigned int j=i+1; j<N; ++j){
 			double cor = computePearsonCorrelation(M[i], M[j], means[i], standard_deviations[i], means[j], standard_deviations[j]);
 			correlationMatrix[i+N*j] = cor;
 			correlationMatrix[j+N*i] = cor;
@@ -98,20 +92,20 @@ void computeRankSorted(vector<double> &x){
 	unsigned int current = 0;
 	while(current != x.size()){
 		double d = x[current];
-		unsigned int i = current+1;
-		int sum = current+1;
+		unsigned int next = current+1;
+		int sum = current;
 		int count = 1;
-		while(i < x.size() && d == x[i]){
+		while(next < x.size() && d == x[next]){
 			++count;
-			sum += i+1;
-			++i;
+			sum += next;
+			++next;
 		}
 
-		for(unsigned int j=current; j<i; ++j){
+		for(unsigned int j=current; j<next; ++j){
 			x[j] = (double)sum/(double)count;
 		}
 
-		current = i;
+		current = next;
 	}
 }
 
@@ -125,10 +119,6 @@ void computeRank(vector<double> &x){
 	}
 }
 
-double computeSpearmanCorrelationRankedVectors(const vector<double> &rankedX, const vector<double> &rankedY){
-	return computePearsonCorrelation(rankedX, rankedY);
-}
-
 double computeSpearmanCorrelation(const vector<double> &x, const vector<double> &y){
 	vector<double> copyX(x);
 	vector<double> copyY(y);
@@ -139,9 +129,7 @@ double computeSpearmanCorrelation(const vector<double> &x, const vector<double> 
 
 vector<double> computeSpearmanCorrelation(const vector<vector<double>> &M){
 	vector<vector<double>> M_copy(M);
-	for(vector<double> &vec : M_copy){
-		computeRank(vec);
-	}
+	for_each(M_copy.begin(), M_copy.end(), computeRank);
 	return computePearsonCorrelation(M_copy);
 }
 

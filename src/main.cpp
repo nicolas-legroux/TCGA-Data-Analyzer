@@ -5,12 +5,14 @@
 #include "tests/lodePNG_test.hpp"
 #include "tests/patientUnsupervisedNormalization_test.hpp"
 #include "tests/dataReader_test.hpp"
+#include <limits>
+#include <typeinfo>
 
 using namespace std;
 
 int main() {
 
-	normalizationTestQuantile(0.999);
+	spearmanCorrelationTest2();
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
