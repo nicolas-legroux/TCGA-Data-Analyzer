@@ -1,42 +1,44 @@
-#include "correlationMatrix.hpp"
-#include "stats.hpp"
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <algorithm>
+
 #include "typedefs.hpp"
+#include "correlationMatrix.hpp"
+#include "stats.hpp"
 
 using namespace std;
 
 void prepareData(std::vector<std::vector<double>> &data,
-		std::vector<DataIdentifier> &dataIdentifiers,
-		DataTypeMapping &dataTypeMapping, const PatientList &patientControlList,
+		std::vector<SampleIdentifier> &sampleIdentifiers,
+		CancerPatientIDList &cancerPatientIDList,
+		const PatientList &patientControlList,
 		const PatientList &patientTumorList, const RNASeqData &controlData,
 		const RNASeqData &tumorData) {
 
-	cout << endl << "Preparing data for correlation computation... ";
+	cout << endl << "Preparing data for correlation computation... " << flush;
 
 	int countPatients = 0;
 
 	for (const auto &kv : tumorData) {
 		string cancerName = kv.first;
-		dataTypeMapping.insert(
+		cancerPatientIDList.insert(
 				make_pair(cancerName + "-" + "Tumor", vector<int>()));
-		dataTypeMapping.insert(
+		cancerPatientIDList.insert(
 				make_pair(cancerName + "-" + "Control", vector<int>()));
 
-		int numberOfGenes = kv.second.size();
+		unsigned int numberOfGenes = kv.second.size();
 
 		for (unsigned int j = 0; j < controlData.at(cancerName).at(0).size();
 				++j) {
 
-			dataTypeMapping[cancerName + "-" + "Control"].push_back(
+			cancerPatientIDList[cancerName + "-" + "Control"].push_back(
 					countPatients);
-			dataIdentifiers.push_back(
-					DataIdentifier(cancerName, false,
+			sampleIdentifiers.push_back(
+					SampleIdentifier(cancerName, false,
 							patientControlList.at(cancerName).at(j)));
 			vector<double> patientData(numberOfGenes);
-			for (int k = 0; k < numberOfGenes; ++k) {
+			for (unsigned int k = 0; k < numberOfGenes; ++k) {
 				patientData[k] = controlData.at(cancerName).at(k).at(j);
 			}
 			data.push_back(patientData);
@@ -46,10 +48,10 @@ void prepareData(std::vector<std::vector<double>> &data,
 		for (unsigned int j = 0; j < tumorData.at(cancerName).at(0).size();
 				++j) {
 
-			dataTypeMapping[cancerName + "-" + "Tumor"].push_back(
+			cancerPatientIDList[cancerName + "-" + "Tumor"].push_back(
 					countPatients);
-			dataIdentifiers.push_back(
-					DataIdentifier(cancerName, true,
+			sampleIdentifiers.push_back(
+					SampleIdentifier(cancerName, true,
 							patientTumorList.at(cancerName).at(j)));
 			vector<double> patientData(numberOfGenes);
 			for (int k = 0; k < numberOfGenes; ++k) {
@@ -74,16 +76,17 @@ std::vector<double> spearman(std::vector<std::vector<double>> &data) {
 }
 
 void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
-		const std::vector<DataIdentifier> &dataIdentifiers,
-		const std::string &filemaneMatrix, const std::string &patientsIds,
+		const std::vector<SampleIdentifier> &sampleIdentifiers,
+		const std::string &filemaneMatrix,
+		const std::string &filenamePatientsIDs,
 		const std::string &filenameHeatMapLabels) {
 
-	cout << endl << "Exporting Correlation matrix...";
+	cout << endl << "Exporting Correlation matrix..." << flush;
 
 	ofstream matrixOutputStream("export/" + filemaneMatrix);
-	ofstream patientsOutputStream("export/" + patientsIds);
+	ofstream patientsOutputStream("export/" + filenamePatientsIDs);
 
-	int N = dataIdentifiers.size();
+	int N = sampleIdentifiers.size();
 
 	for (int i = 0; i < N; ++i) {
 		for (int j = 0; j < N; ++j) {
@@ -96,84 +99,83 @@ void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 	int countCurrent = 0;
 	ofstream outputStreamLabels("export/" + filenameHeatMapLabels);
 
-	for (const DataIdentifier &dataIdentifier : dataIdentifiers) {
-		string newCurrent= dataIdentifier.cancerName + "-" + ((dataIdentifier.isTumor)? "Tumor" : "Control");
-		if(newCurrent != current){
-			if(countCurrent != 0){
+	for (const SampleIdentifier &sampleIdentifier : sampleIdentifiers) {
+		string newCurrent = sampleIdentifier.cancerName + "-"
+				+ ((sampleIdentifier.isTumor) ? "Tumor" : "Control");
+		if (newCurrent != current) {
+			if (countCurrent != 0) {
 				outputStreamLabels << current << " " << countCurrent << endl;
 			}
 			current = newCurrent;
-			countCurrent  = 1;
-		}
-		else{
+			countCurrent = 1;
+		} else {
 			countCurrent++;
 		}
-		patientsOutputStream << dataIdentifier.toString() << endl;
+		patientsOutputStream << sampleIdentifier.toString() << endl;
 	}
+
+	outputStreamLabels << current << " " << countCurrent << endl;
 
 	cout << " Done." << endl;
 }
 
-void exportGeneralStats(const std::vector<double> &correlationMatrix,
-		const DataTypeMapping &dataTypeMapping,
-		const string &filemaneCorrelationMeans, const string &filemaneClasses) {
+void exportClassStats(const std::vector<double> &correlationMatrix,
+		const CancerPatientIDList &cancerPatientIDList,
+		const string &filemaneCorrelationMeans) {
 
-	cout << endl;
+	cout << endl << "Exporting class stats..." << flush;
 
 	vector<string> classes;
-	int N = (int) sqrt(correlationMatrix.size());
+	unsigned int N = (int) sqrt(correlationMatrix.size());
 
-	for (const auto &kv : dataTypeMapping) {
-		string dataType = kv.first;
+	for (const auto &kv : cancerPatientIDList) {
+		string className = kv.first;
 		if (kv.second.size() > 0) {
-			classes.push_back(dataType);
+			classes.push_back(className);
 		}
 	}
 
 	sort(classes.begin(), classes.end());
 
-	ofstream outputStreamClasses("export/" + filemaneClasses);
-
-	for (const string &s : classes) {
-		outputStreamClasses << s << " " << dataTypeMapping.at(s).size() << endl;
-	}
-
-	outputStreamClasses.close();
-
-	int n = classes.size();
+	unsigned int n = classes.size();
 	vector<double> mean_correlation(n * n);
+	vector<double> standard_dev_correlation(n * n);
 
-	for (int i = 0; i < n; ++i) {
-		for (int j = i; j < n; ++j) {
-			double sum = 0;
-			int count = 0;
-			for (int I : dataTypeMapping.at(classes[i])) {
-				for (int J : dataTypeMapping.at(classes[j])) {
+	for (unsigned int i = 0; i < n; ++i) {
+		for (unsigned int j = i; j < n; ++j) {
+			vector<double> data;
+			for (int I : cancerPatientIDList.at(classes[i])) {
+				for (int J : cancerPatientIDList.at(classes[j])) {
 					//When I = J : we are comparing the same patients, we know the correlation is 1
 					if (I != J) {
-						count++;
-						sum += correlationMatrix[N * I + J];
+						data.push_back(correlationMatrix[N * I + J]);
 					}
 				}
 			}
 
-			sum /= (double)count;
-			mean_correlation[n * i + j] = sum;
-			mean_correlation[n * j + i] = sum;
+			double mean = computeMean(data);
+			double standard_dev = computeStandardDeviation(data);
+			mean_correlation[n * i + j] = mean;
+			mean_correlation[n * j + i] = mean;
+			standard_dev_correlation[n * i + j] = standard_dev;
+			standard_dev_correlation[n * j + i] = standard_dev;
 		}
 	}
 
 	ofstream outputStream("export/" + filemaneCorrelationMeans);
 	outputStream << "CLASSES";
 	for (const string &s : classes) {
-		outputStream << "\t" << s;
+		outputStream << "\t" << s << " (" << cancerPatientIDList.at(s).size()
+				<< ")";
 	}
 	outputStream << endl;
 
 	for (int i = 0; i < n; ++i) {
-		outputStream << classes[i];
+		outputStream << classes[i] << " ("
+				<< cancerPatientIDList.at(classes[i]).size() << ")";
 		for (int j = 0; j < n; ++j) {
-			outputStream << "\t" << mean_correlation[n * i + j];
+			outputStream << "\t" << mean_correlation[n * i + j] << " ("
+					<< standard_dev_correlation[n * i + j] << ")";
 		}
 		outputStream << endl;
 	}

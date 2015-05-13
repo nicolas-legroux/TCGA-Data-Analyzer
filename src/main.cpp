@@ -6,8 +6,6 @@
 #include "tests/patientUnsupervisedNormalization_test.hpp"
 #include "tests/dataReader_test.hpp"
 #include "tests/utilities_test.hpp"
-#include <limits>
-#include <typeinfo>
 
 using namespace std;
 
