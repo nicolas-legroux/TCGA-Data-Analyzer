@@ -111,7 +111,7 @@ void normalizeAndPrintMaxGenes(int K, int Nmax) {
 	normalizeKMeans(controlData, tumorData, K, Nmax);
 
 	//STEP 3 : PRINT MAX EXPRESSED GENES
-	printMaxExpressedGenes(controlData, tumorData, geneMapping);
+	printMaxExpressedGenes(controlData, tumorData, geneMapping, 10);
 }
 
 #endif /* SRC_TESTS_PATIENTUNSUPERVISEDNORMALIZATION_TEST_HPP_ */
