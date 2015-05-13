@@ -35,7 +35,7 @@ void initializeClustersRandomly(const vector<double> &data, vector<double> &mean
 	}
 }
 
-int findClosestCluster(const vector<double> &means, double dataPoint, int K){
+int findClosestClusterFromDataPoint(const vector<double> &means, double dataPoint, int K){
 	int closestCluster = 0;
 	double closestDistance = abs(dataPoint - means[0]);
 	for(int i=1; i<K; ++i){
@@ -49,7 +49,7 @@ int findClosestCluster(const vector<double> &means, double dataPoint, int K){
 	return closestCluster;
 }
 
-void computeNewMeans(const vector<double> &data, vector<double> &means, const vector<int> &clusters, int K){
+void recalculateMeans(const vector<double> &data, vector<double> &means, const vector<int> &clusters, int K){
 	vector<int> clusterSize(K, 0);
 	fill(means.begin(), means.end(), 0.0);
 	for(unsigned int i=0; i != clusters.size(); ++i){
@@ -62,50 +62,51 @@ void computeNewMeans(const vector<double> &data, vector<double> &means, const ve
 	}
 }
 
-bool recomputeClusters(const vector<double> &data, vector<double> &means, vector<int> &clusters, int K){
+bool kMeansIteration(const vector<double> &data, vector<double> &means, vector<int> &clusters, int K){
 	bool clustersChanged = false;
 
 	//Assign clusters
 	for(unsigned int i=0; i != data.size(); ++i){
-		int newCluster = findClosestCluster(means, data[i], K);
+		int newCluster = findClosestClusterFromDataPoint(means, data[i], K);
 		if(newCluster != clusters[i]){
 			clustersChanged = true;
 			clusters[i] = newCluster;
 		}
 	}
 
-	//Compute new means
-	computeNewMeans(data, means, clusters, K);
+	//Recalculate means
+	recalculateMeans(data, means, clusters, K);
 
 	return clustersChanged;
 }
 
-void sortClusters(vector<int> &clusters, const vector<int> &mapping){
+void assignSortedClusters(vector<int> &clusters, const vector<size_t> &clusterRanks){
 	for(unsigned int i=0; i != clusters.size(); ++i){
 		int currentCluster = clusters[i];
-		clusters[i] = mapping.at(currentCluster);
+		clusters[i] = clusterRanks.at(currentCluster);
 	}
 }
 
-vector<double> computeKMeans(const vector<double> &data, vector<int> &clusters, int K, int N){
+vector<double> computeKMeans(const vector<double> &data, vector<int> &clusters, int K, int Nmax){
 
+	//Initialize M-Means
 	vector<double> means(K);
 	initializeClustersRandomly(data, means, K);
 
+	//Iterate
 	int i = 0;
-	while(i<N && recomputeClusters(data, means, clusters, K)){
+	while(i<Nmax && kMeansIteration(data, means, clusters, K)){
 		++i;
 	}
 
-	vector<size_t> sortedClusterIndexes(sort_indexes_increasing<double>(means));
-
-	vector<int> sortingMapping(K);
-	for(int i=0; i!=K; ++i){
-		sortingMapping[sortedClusterIndexes[i]] = i;
-	}
-
-	sortClusters(clusters, sortingMapping);
+	//Sort the clusters
+	vector<size_t> clusterRanks(get_rank_increasing(means));
+	assignSortedClusters(clusters, clusterRanks);
 	sort(means.begin(), means.end());
+
+	if(i == Nmax){
+		cout << "K-Means did not converge." << endl;
+	}
 
 	//cout << "K-Means finished after " << i << " iterations." << endl;
 

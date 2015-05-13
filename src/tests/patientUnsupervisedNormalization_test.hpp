@@ -11,7 +11,7 @@
 #include "../correlationMatrix.hpp"
 #include "../dataReader.hpp"
 #include "../heatMap.hpp"
-#include "../patientUnsupervisedNormalization.hpp"
+#include "../unsupervisedNormalization.hpp"
 
 void normalizationTest1KMeans(int K, int Nmax) {
 	//STEP1 : read the data

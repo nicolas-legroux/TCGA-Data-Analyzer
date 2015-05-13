@@ -13,7 +13,7 @@ using namespace std;
 
 int main() {
 
-	exportDataTest1();
+	kMeansTest1(10, 500);
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

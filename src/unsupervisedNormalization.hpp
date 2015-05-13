@@ -5,8 +5,8 @@
  *      Author: nicolas
  */
 
-#ifndef SRC_PATIENTUNSUPERVISEDNORMALIZATION_HPP_
-#define SRC_PATIENTUNSUPERVISEDNORMALIZATION_HPP_
+#ifndef SRC_UNSUPERVISEDNORMALIZATION_HPP_
+#define SRC_UNSUPERVISEDNORMALIZATION_HPP_
 
 #include "typedefs.hpp"
 
@@ -17,4 +17,4 @@ void normalizeQuantile(RNASeqData &controlData, RNASeqData &tumorData,
 void printMaxExpressedGenes(const RNASeqData &controlNormalized,
 		const RNASeqData &tumorNormalized, const GeneList &geneList);
 
-#endif /* SRC_PATIENTUNSUPERVISEDNORMALIZATION_HPP_ */
+#endif /* SRC_UNSUPERVISEDNORMALIZATION_HPP_ */
