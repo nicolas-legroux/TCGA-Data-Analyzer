@@ -1,40 +1,12 @@
 project(CancerClustering)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+file(
+	GLOB_RECURSE
+	src/*
+)
+
 add_executable(
 	CancerClustering
-	src/correlationMatrix.cpp
-	src/correlationMatrix.hpp
-	src/dataReader.cpp
-	src/dataReader.hpp
-	src/heatMap.cpp
-	src/heatMap.hpp
-	src/k_means.cpp
-	src/k_means.hpp
-	src/main.cpp
-	src/stats.cpp
-	src/stats.hpp
-	src/typedefs.hpp
-	src/unsupervisedNormalization.cpp
-	src/unsupervisedNormalization.hpp
-	src/utilities.cpp
-	src/utilities.hpp
-	src/lodePNG/lodepng.cpp
-	src/lodePNG/lodepng.h
-	src/tests/correlationMatrix_test.cpp
-	src/tests/correlationMatrix_test.hpp
-	src/tests/dataReader_test.cpp
-	src/tests/dataReader_test.hpp
-	src/tests/general_test.cpp
-	src/tests/general_test.hpp
-	src/tests/k_means_test.cpp
-	src/tests/k_means_test.hpp
-	src/tests/lodePNG_test.cpp
-	src/tests/lodePNG_test.hpp
-	src/tests/stats_test.cpp
-	src/tests/stats_test.hpp
-	src/tests/unsupervisedNormalization_test.cpp
-	src/tests/unsupervisedNormalization_test.hpp
-	src/tests/utilities_test.cpp
-	src/tests/utilities_test.hpp
+	${source_files}
 )
