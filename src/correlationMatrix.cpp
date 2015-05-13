@@ -54,7 +54,7 @@ void prepareData(std::vector<std::vector<double>> &data,
 					SampleIdentifier(cancerName, true,
 							patientTumorList.at(cancerName).at(j)));
 			vector<double> patientData(numberOfGenes);
-			for (int k = 0; k < numberOfGenes; ++k) {
+			for (unsigned int k = 0; k < numberOfGenes; ++k) {
 				patientData[k] = tumorData.at(cancerName).at(k).at(j);
 			}
 			data.push_back(patientData);
@@ -170,13 +170,15 @@ void exportClassStats(const std::vector<double> &correlationMatrix,
 	}
 	outputStream << endl;
 
-	for (int i = 0; i < n; ++i) {
+	for (unsigned int i = 0; i < n; ++i) {
 		outputStream << classes[i] << " ("
 				<< cancerPatientIDList.at(classes[i]).size() << ")";
-		for (int j = 0; j < n; ++j) {
+		for (unsigned int j = 0; j < n; ++j) {
 			outputStream << "\t" << mean_correlation[n * i + j] << " ("
 					<< standard_dev_correlation[n * i + j] << ")";
 		}
 		outputStream << endl;
 	}
+
+	cout << " Done." << endl;
 }

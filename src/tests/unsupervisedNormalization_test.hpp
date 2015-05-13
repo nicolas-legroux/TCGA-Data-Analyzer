@@ -5,8 +5,8 @@
  *      Author: nicolas
  */
 
-#ifndef SRC_TESTS_PATIENTUNSUPERVISEDNORMALIZATION_TEST_HPP_
-#define SRC_TESTS_PATIENTUNSUPERVISEDNORMALIZATION_TEST_HPP_
+#ifndef SRC_TESTS_UNSUPERVISEDNORMALIZATION_TEST_HPP_
+#define SRC_TESTS_UNSUPERVISEDNORMALIZATION_TEST_HPP_
 
 #include "../correlationMatrix.hpp"
 #include "../dataReader.hpp"
@@ -45,12 +45,18 @@ void normalizationTest1KMeans(int K, int Nmax) {
 			"classes_correlation_pearson.out");
 	makeHeatMap(correlationMatrixPearson, "heat_map_pearson.png");
 
+	if(K==2) {
+		printMaxExpressedGenes(controlData, tumorData, geneMapping, 15);
+	}
+
+	/*
 	std::vector<double> correlationMatrixSpearman = spearman(data);
 	exportCorrelationMatrix(correlationMatrixSpearman, sampleIdentifiers,
 			"matrix.spearman", "patients.spearman", "labels.spearman");
 	exportClassStats(correlationMatrixSpearman, dataTypeMapping,
 			"classes_correlatio_spearman.out");
 	makeHeatMap(correlationMatrixSpearman, "heat_map_spearman.png");
+	*/
 }
 
 void normalizationTestQuantile(double cutPercentage) {
@@ -85,33 +91,16 @@ void normalizationTestQuantile(double cutPercentage) {
 			"classes_correlation_pearson.out");
 	makeHeatMap(correlationMatrixPearson, "heat_map_pearson.png");
 
+	printMaxExpressedGenes(controlData, tumorData, geneMapping, 15);
+
+	/*
 	std::vector<double> correlationMatrixSpearman = spearman(data);
 	exportCorrelationMatrix(correlationMatrixSpearman, sampleIdentifiers,
 			"matrix.spearman", "patients.spearman", "labels.spearman");
 	exportClassStats(correlationMatrixSpearman, dataTypeMapping,
 			"classes_correlatio_spearman.out");
 	makeHeatMap(correlationMatrixSpearman, "heat_map_spearman.png");
+	*/
 }
 
-void normalizeAndPrintMaxGenes(int K, int Nmax) {
-	//STEP1 : read the data
-	std::string filenameCancers = "cancer.list";
-	PatientList patientControlList;
-	PatientList patientTumorList;
-	RNASeqData controlData;
-	RNASeqData tumorData;
-	GeneList geneMapping(
-			makeGeneMapping(
-					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
-	readPatientData(filenameCancers, patientControlList, patientTumorList);
-	readRNASeqData(patientControlList, patientTumorList, geneMapping,
-			controlData, tumorData, 500);
-
-	//STEP2 : NORMALIZE
-	normalizeKMeans(controlData, tumorData, K, Nmax);
-
-	//STEP 3 : PRINT MAX EXPRESSED GENES
-	printMaxExpressedGenes(controlData, tumorData, geneMapping, 10);
-}
-
-#endif /* SRC_TESTS_PATIENTUNSUPERVISEDNORMALIZATION_TEST_HPP_ */
+#endif /* SRC_TESTS_UNSUPERVISEDNORMALIZATION_TEST_HPP_ */

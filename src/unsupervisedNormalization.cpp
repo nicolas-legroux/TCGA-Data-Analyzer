@@ -92,10 +92,10 @@ void RNASeqDataNormalizationQuantile(RNASeqData &rnaData,
 
 void normalizeQuantile(RNASeqData &controlData, RNASeqData &tumorData,
 		double cutPercentage) {
-	cout << "Normalizing control Data..." << endl;
+	cout << endl << "Normalizing control Data..." << endl;
 	RNASeqDataNormalizationQuantile(controlData, cutPercentage);
 
-	cout << "Normalizing tumor Data..." << endl;
+	cout << endl << "Normalizing tumor Data..." << endl;
 	RNASeqDataNormalizationQuantile(tumorData, cutPercentage);
 }
 
@@ -105,47 +105,54 @@ void normalizeQuantile(RNASeqData &controlData, RNASeqData &tumorData,
  *
  */
 
-void RNASeqPrintMostExpressedGenes(const RNASeqData &rnaData, bool isTumor,
-		const GeneList &geneList, unsigned int maxNumberGenes) {
-	for (const auto &kv : rnaData) {
-		string cancer = kv.first;
-		unsigned int numberOfPatients = kv.second[0].size();
+void RNASeqPrintMostExpressedGenes(const RNASeqData &rnaData,
+		const string &cancer, bool isTumor, const GeneList &geneList,
+		unsigned int maxNumberGenes) {
 
-		if (numberOfPatients > 0) {
-			cout << cancer;
-			if (isTumor) {
-				cout << "-Tumor : ";
-			} else {
-				cout << "-Control : ";
-			}
+	unsigned int numberOfPatients = rnaData.at(cancer)[0].size();
 
-			cout << numberOfPatients << " patients. " << endl;
-
-			unsigned int numberOfGenes = kv.second.size();
-			vector<double> aggregation(numberOfGenes);
-			fill(aggregation.begin(), aggregation.end(), 0.0);
-			for (unsigned int i = 0; i < numberOfGenes; i++) {
-				for (unsigned int j = 0; j < numberOfPatients; ++j) {
-					aggregation[i] += kv.second[i][j];
-				}
-			}
-
-			cout << "Most expressed genes in the class : {";
-			vector<size_t> sortedIndexes = sort_indexes_decreasing(aggregation);
-			for (int i = 0; i < maxNumberGenes; ++i) {
-				string geneSymbol = geneList[sortedIndexes[i]].first;
-				cout << " " << geneSymbol << "("
-						<< aggregation[sortedIndexes[i]] << ") ";
-			}
-			cout << "}" << endl << endl;
+	if (numberOfPatients > 0) {
+		cout << cancer;
+		if (isTumor) {
+			cout << "-Tumor : ";
+		} else {
+			cout << "-Control : ";
 		}
+
+		cout << numberOfPatients << " patients. " << endl;
+
+		unsigned int numberOfGenes = rnaData.at(cancer).size();
+		vector<double> aggregation(numberOfGenes);
+		fill(aggregation.begin(), aggregation.end(), 0.0);
+		for (unsigned int i = 0; i < numberOfGenes; i++) {
+			for (unsigned int j = 0; j < numberOfPatients; ++j) {
+				aggregation[i] += rnaData.at(cancer)[i][j];
+			}
+		}
+
+		cout << "Most expressed genes in the class : {";
+		vector<size_t> sortedIndexes = sort_indexes_decreasing(aggregation);
+		for (unsigned int i = 0; i < maxNumberGenes; ++i) {
+			string geneSymbol = geneList[sortedIndexes[i]].first;
+			cout << " " << geneSymbol << "("
+					<< 100.0 * aggregation[sortedIndexes[i]]
+							/ (double) numberOfPatients << "%) ";
+		}
+		cout << "}" << endl << endl;
 	}
 }
 
+//Assumes binary normalization
 void printMaxExpressedGenes(const RNASeqData &controlNormalized,
-		const RNASeqData &tumorNormalized, const GeneList &geneList, unsigned int maxNumberGenes) {
+		const RNASeqData &tumorNormalized, const GeneList &geneList,
+		unsigned int maxNumberGenes) {
 
 	cout << endl << "****** FINDING MOST EXPRESSED GENES ******" << endl;
-	RNASeqPrintMostExpressedGenes(controlNormalized, false, geneList, maxNumberGenes);
-	RNASeqPrintMostExpressedGenes(tumorNormalized, true, geneList, maxNumberGenes);
+	for(const auto &kv : tumorNormalized){
+		string cancer = kv.first;
+		RNASeqPrintMostExpressedGenes(controlNormalized, cancer, false, geneList,
+				maxNumberGenes);
+		RNASeqPrintMostExpressedGenes(tumorNormalized, cancer, true, geneList,
+				maxNumberGenes);
+	}
 }

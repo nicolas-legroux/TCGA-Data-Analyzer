@@ -3,15 +3,15 @@
 #include "tests/correlationMatrix_test.hpp"
 #include "tests/general_test.hpp"
 #include "tests/lodePNG_test.hpp"
-#include "tests/patientUnsupervisedNormalization_test.hpp"
 #include "tests/dataReader_test.hpp"
+#include "tests/unsupervisedNormalization_test.hpp"
 #include "tests/utilities_test.hpp"
 
 using namespace std;
 
 int main() {
 
-	kMeansTest1(10, 500);
+	normalizationTest1KMeans(2, 1000);
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
