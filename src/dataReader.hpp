@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include "typedefs.hpp"
 
+
 std::vector<std::string> getCancerNames(const std::string &filename);
 void buildPatientIDsFromFile(const std::string &cancerName,
 		PatientList &patientControlData, PatientList &patientTumorData);
