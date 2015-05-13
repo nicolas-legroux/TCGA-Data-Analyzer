@@ -12,5 +12,7 @@ outputs/*
 
 *.png
 Stage3A
-obj/*.o
 CancerClustering
+CMakeFiles/*
+CMakeLists.txt~
+cmake_install.cmake
