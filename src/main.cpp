@@ -11,7 +11,7 @@ using namespace std;
 
 int main() {
 
-	normalizationTest1KMeans(2, 1000);
+	 normalizationTestQuantile(0.1);
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

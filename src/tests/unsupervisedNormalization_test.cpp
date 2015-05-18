@@ -62,7 +62,7 @@ void normalizationTestQuantile(double cutPercentage) {
 					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
 	readPatientData(filenameCancers, patientControlList, patientTumorList);
 	readRNASeqData(patientControlList, patientTumorList, geneMapping,
-			controlData, tumorData, 500);
+			controlData, tumorData, 100);
 
 	//STEP2 : NORMALIZE
 	normalizeQuantile(controlData, tumorData, cutPercentage);
