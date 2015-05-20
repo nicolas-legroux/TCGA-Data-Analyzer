@@ -11,7 +11,8 @@ using namespace std;
 
 int main() {
 
-	 normalizationTestQuantile(0.1);
+	kMeansTest1(3, 100, "PRAD", 1);
+	iteratedBinaryKMeans_test(2, "PRAD", 1);
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

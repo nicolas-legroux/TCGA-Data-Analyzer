@@ -9,5 +9,6 @@
 #define SRC_TESTS_UTILITIES_TEST_HPP_
 
 void splitTest();
+void copy_if_two_ranges_test();
 
 #endif /* SRC_TESTS_UTILITIES_TEST_HPP_ */

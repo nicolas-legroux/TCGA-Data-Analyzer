@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <random>
+#include <iterator>
 
 #include "k_means.hpp"
 #include "stats.hpp"
@@ -10,8 +11,9 @@
 
 using namespace std;
 
-void initializeClusters(const vector<double> &data, vector<double> &means, int K) {
-	vector<double> copyData(data);
+void initializeClusters(const vector<double> &data, vector<double> &means, int K, const vector<bool> &dataToCluster) {
+	vector<double> copyData;
+	copy_if_two_ranges(data.cbegin(), data.cend(), dataToCluster.cbegin(), back_inserter(copyData));
 	auto it = unique(copyData.begin(), copyData.end());
 	int N_unique = it-copyData.begin();
 	int step = N_unique/(K+1);
@@ -20,16 +22,18 @@ void initializeClusters(const vector<double> &data, vector<double> &means, int K
 	}
 }
 
-void initializeClustersRandomly(const vector<double> &data, vector<double> &means, int K){
+void initializeClustersRandomly(const vector<double> &data, vector<double> &means, int K, const vector<bool> &dataToCluster){
 	default_random_engine generator;
 	uniform_int_distribution<int> distribution(0,data.size()-1);
 	for(int i=0; i<K; i++){
 		while(true){
 			int randomInt = distribution(generator);
-			double randomData = data[randomInt];
-			if(find(means.begin(), means.begin()+i, randomData) == (means.begin()+i)){
-				means[i] = randomData;
-				break;
+			if(dataToCluster[randomInt]){
+				double randomData = data[randomInt];
+				if(find(means.begin(), means.begin()+i, randomData) == (means.begin()+i)){
+					means[i] = randomData;
+					break;
+				}
 			}
 		}
 	}
@@ -54,8 +58,10 @@ void recalculateMeans(const vector<double> &data, vector<double> &means, const v
 	fill(means.begin(), means.end(), 0.0);
 	for(unsigned int i=0; i != clusters.size(); ++i){
 		int cluster = clusters[i];
-		++clusterSize[cluster];
-		means[cluster] += data[i];
+		if(cluster != -1){
+			++clusterSize[cluster];
+			means[cluster] += data[i];
+		}
 	}
 	for(int i=0; i<K; ++i){
 		means[i] /= (double)clusterSize[i];
@@ -67,10 +73,13 @@ bool kMeansIteration(const vector<double> &data, vector<double> &means, vector<i
 
 	//Assign clusters
 	for(unsigned int i=0; i != data.size(); ++i){
-		int newCluster = findClosestClusterFromDataPoint(means, data[i], K);
-		if(newCluster != clusters[i]){
-			clustersChanged = true;
-			clusters[i] = newCluster;
+		int oldCluster = clusters[i];
+		if(oldCluster != -1){
+			int newCluster = findClosestClusterFromDataPoint(means, data[i], K);
+			if(newCluster != clusters[i]){
+				clustersChanged = true;
+				clusters[i] = newCluster;
+			}
 		}
 	}
 
@@ -83,15 +92,22 @@ bool kMeansIteration(const vector<double> &data, vector<double> &means, vector<i
 void assignSortedClusters(vector<int> &clusters, const vector<size_t> &clusterRanks){
 	for(unsigned int i=0; i != clusters.size(); ++i){
 		int currentCluster = clusters[i];
-		clusters[i] = clusterRanks.at(currentCluster);
+		if(currentCluster != -1){
+			clusters[i] = clusterRanks.at(currentCluster);
+		}
 	}
 }
 
 vector<double> computeKMeans(const vector<double> &data, vector<int> &clusters, int K, int Nmax){
 
-	//Initialize M-Means
+	//Initialize data Structures
 	vector<double> means(K);
-	initializeClustersRandomly(data, means, K);
+	vector<bool> dataToCluster(data.size());
+	transform(clusters.cbegin(), clusters.cend(), dataToCluster.begin(), [](int cluster){
+			return (cluster != -1);
+	});
+
+	initializeClustersRandomly(data, means, K, dataToCluster);
 
 	//Iterate
 	int i = 0;
@@ -111,4 +127,17 @@ vector<double> computeKMeans(const vector<double> &data, vector<int> &clusters, 
 	//cout << "K-Means finished after " << i << " iterations." << endl;
 
 	return means;
+}
+
+void iteratedBinaryKMeans(const vector<double> &data, vector<int> &clusters, int N_iter){
+	vector<int> temporaryClusters(clusters.size(), 0);
+	for(int i=0; i<N_iter; ++i){
+		computeKMeans(data, temporaryClusters, 2, 1000); //1000 should be enough
+		transform(temporaryClusters.cbegin(), temporaryClusters.cend(), temporaryClusters.begin(), [](int cluster){
+			return (cluster == 0)? 0 : -1;
+		});
+	}
+	transform(temporaryClusters.cbegin(), temporaryClusters.cend(), clusters.begin(), [](int cluster){
+		return (cluster == 0)? 0 : 1;
+	});
 }

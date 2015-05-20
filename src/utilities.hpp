@@ -21,6 +21,16 @@ Function for_each_two_ranges(InputIter1 first1, InputIter1 last1, InputIter2 fir
     return f;
 }
 
+template<typename InputIter1, typename InputIter2, typename OutputIter>
+//The second range should correspond to a container of boolean values saying whether the value should be added to the output
+void copy_if_two_ranges(InputIter1 first1, InputIter1 last1, InputIter2 first2, OutputIter out) {
+    for (; first1 != last1; ++first1, ++first2) {
+        if(*first2){
+        	*out = *first1;
+        }
+    }
+}
+
 //Sort the indexes of a vector in decreasing order
 template <typename T>
 std::vector<size_t> sort_indexes_decreasing(const std::vector<T> &v) {
