@@ -11,7 +11,7 @@ using namespace std;
 
 int main() {
 
-	twodimensionalKmeans_test();
+	adjustedRandIndex_test();
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

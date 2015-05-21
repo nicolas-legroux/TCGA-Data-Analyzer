@@ -28,3 +28,7 @@ vector<string> split(const string &s, const vector<char> &delimiters){
 
 	return strs;
 }
+
+int numberOfPairs(int n){
+	return n*(n-1)/2;
+}

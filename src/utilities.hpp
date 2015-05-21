@@ -79,4 +79,7 @@ void printAdvancement(unsigned int currentCount, unsigned int totalCount);
 //Splits a string according to delimiters
 std::vector<std::string> split(const std::string &s, const std::vector<char> &delimiters);
 
+//Returns the number of pairs in a set of cardinal n
+int numberOfPairs(int n);
+
 #endif /* SRC_UTILITIES_HPP_ */

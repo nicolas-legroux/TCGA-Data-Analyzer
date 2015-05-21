@@ -3,7 +3,8 @@
 
 #include <vector>
 
-typedef double (*DistanceFunction)(const std::vector<double>&, const std::vector<double>&);
+typedef double (*DistanceFunction)(const std::vector<double>&,
+		const std::vector<double>&);
 
 /*
  *
@@ -22,7 +23,8 @@ void iteratedBinaryKMeans(const std::vector<double> &data,
  *
  */
 
-std::vector<std::vector<double>> computeKMeans(const std::vector<std::vector<double>> &data,
+std::vector<std::vector<double>> computeKMeans(
+		const std::vector<std::vector<double>> &data,
 		std::vector<int> &clusters, int K, int Nmax, DistanceFunction distance);
 
 /*
@@ -31,7 +33,20 @@ std::vector<std::vector<double>> computeKMeans(const std::vector<std::vector<dou
  *
  */
 
-double euclidianNorm(const std::vector<double> &a, const std::vector<double> &b);
+double euclidianNorm(const std::vector<double> &a,
+		const std::vector<double> &b);
 double norm1(const std::vector<double> &a, const std::vector<double> &b);
+
+/*
+ *
+ * CLUSTERING EVALUATION
+ *
+ */
+
+double randIndex(const std::vector<int> &clustering1,
+		const std::vector<int> &clustering2);
+
+double adjustedRandIndex(const std::vector<int> &clustering1,
+		const std::vector<int> &clustering2);
 
 #endif /* SRC_K_MEANS_HPP_ */

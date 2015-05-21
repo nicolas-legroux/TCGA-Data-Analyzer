@@ -4,6 +4,7 @@
 #include <iostream>
 #include <random>
 #include <iterator>
+#include <assert.h>
 
 #include "k_means.hpp"
 #include "stats.hpp"
@@ -295,4 +296,68 @@ double norm1(const std::vector<double> &a, const std::vector<double> &b) {
 				dist += abs(x-y);
 			});
 	return dist;
+}
+
+/*
+ *
+ * CLUSTERING EVALUATION
+ *
+ */
+
+double randIndex(const vector<int> &clustering1,
+		const vector<int> &clustering2) {
+	assert(clustering1.size() == clustering2.size());
+	unsigned int n = clustering1.size();
+	int count = 0;
+	for (unsigned int i = 0; i < n - 1; ++i) {
+		for (unsigned int j = i + 1; j < n; ++j) {
+			if ((clustering1[i] == clustering1[j])
+					&& clustering2[i] == clustering2[j]) {
+				count++;
+			} else if ((clustering1[i] != clustering1[j])
+					&& clustering2[i] != clustering2[j]) {
+				count++;
+			}
+		}
+	}
+
+	double number_of_pairs = (double) n * ((double) n - 1.0) * 0.5;
+	return (double) count / number_of_pairs;
+}
+
+//Assumes the cluster labels range from 0 to (K-1)
+double adjustedRandIndex(const std::vector<int> &clustering1,
+		const std::vector<int> &clustering2) {
+
+	assert(clustering1.size() == clustering2.size());
+	unsigned int n = clustering1.size();
+
+	int K1 = *max_element(clustering1.cbegin(), clustering1.cend()) + 1;
+	int K2 = *max_element(clustering2.cbegin(), clustering2.cend()) + 1;
+
+	vector<int> contingencyTable(K1 * K2, 0);
+	vector<int> count1(K1, 0);
+	vector<int> count2(K2, 0);
+
+	for (unsigned int i = 0; i != n; ++i) {
+		int c1 = clustering1[i];
+		int c2 = clustering2[i];
+		++contingencyTable[c1 * K2 + c2];
+		++count1[c1];
+		++count2[c2];
+	}
+
+	transform(contingencyTable.begin(), contingencyTable.end(),
+			contingencyTable.begin(), numberOfPairs);
+	transform(count1.begin(), count1.end(), count1.begin(), numberOfPairs);
+	transform(count2.begin(), count2.end(), count2.begin(), numberOfPairs);
+
+	double index = (double) accumulate(contingencyTable.cbegin(),
+			contingencyTable.cend(), 0);
+	double temp1 = (double) accumulate(count1.cbegin(), count1.cend(), 0.0);
+	double temp2 = (double) accumulate(count2.cbegin(), count2.cend(), 0.0);
+	double maxIndex = 0.5 * (temp1 + temp2);
+	double expectedIndex = temp1 * temp2 / (double) numberOfPairs(n);
+
+	return (index - expectedIndex) / (maxIndex - expectedIndex);
 }
