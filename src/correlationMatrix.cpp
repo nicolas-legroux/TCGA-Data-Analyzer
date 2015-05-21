@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cmath>
 #include <algorithm>
+#include <vector>
 
 #include "typedefs.hpp"
 #include "correlationMatrix.hpp"
@@ -121,6 +122,7 @@ void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 
 void exportClassStats(const std::vector<double> &correlationMatrix,
 		const CancerPatientIDList &cancerPatientIDList,
+		const vector<SampleIdentifier> &sampleIdentifiers,
 		const string &filemaneCorrelationMeans) {
 
 	cout << endl << "Exporting class stats..." << flush;
@@ -128,14 +130,18 @@ void exportClassStats(const std::vector<double> &correlationMatrix,
 	vector<string> classes;
 	unsigned int N = (int) sqrt(correlationMatrix.size());
 
-	for (const auto &kv : cancerPatientIDList) {
-		string className = kv.first;
-		if (kv.second.size() > 0) {
-			classes.push_back(className);
+	for (const auto &sampleIdentifer : sampleIdentifiers) {
+		string cancerName = sampleIdentifer.cancerName;
+		if(sampleIdentifer.isTumor){
+			classes.push_back(cancerName + "-Tumor");
+		}
+		else{
+			classes.push_back(cancerName + "-Control");
 		}
 	}
 
-	sort(classes.begin(), classes.end());
+	auto end_unique = unique(classes.begin(), classes.end());
+	classes.erase(end_unique, classes.end());
 
 	unsigned int n = classes.size();
 	vector<double> mean_correlation(n * n);

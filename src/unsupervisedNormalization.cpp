@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 #include "typedefs.hpp"
 #include "k_means.hpp"
@@ -107,19 +108,19 @@ void normalizeQuantile(RNASeqData &controlData, RNASeqData &tumorData,
 
 void RNASeqPrintMostExpressedGenes(const RNASeqData &rnaData,
 		const string &cancer, bool isTumor, const GeneList &geneList,
-		unsigned int maxNumberGenes) {
+		unsigned int maxNumberGenes, ofstream &outputStream) {
 
 	unsigned int numberOfPatients = rnaData.at(cancer)[0].size();
 
 	if (numberOfPatients > 0) {
-		cout << cancer;
+		outputStream << cancer;
 		if (isTumor) {
-			cout << "-Tumor : ";
+			outputStream << "-Tumor : ";
 		} else {
-			cout << "-Control : ";
+			outputStream << "-Control : ";
 		}
 
-		cout << numberOfPatients << " patients. " << endl;
+		outputStream << numberOfPatients << " patients. " << endl;
 
 		unsigned int numberOfGenes = rnaData.at(cancer).size();
 		vector<double> aggregation(numberOfGenes);
@@ -130,29 +131,31 @@ void RNASeqPrintMostExpressedGenes(const RNASeqData &rnaData,
 			}
 		}
 
-		cout << "Most expressed genes in the class : {";
+		outputStream << "Most expressed genes in the class : {";
 		vector<size_t> sortedIndexes = sort_indexes_decreasing(aggregation);
 		for (unsigned int i = 0; i < maxNumberGenes; ++i) {
 			string geneSymbol = geneList[sortedIndexes[i]].first;
-			cout << " " << geneSymbol << "("
+			outputStream << " " << geneSymbol << "("
 					<< 100.0 * aggregation[sortedIndexes[i]]
 							/ (double) numberOfPatients << "%) ";
 		}
-		cout << "}" << endl << endl;
+		outputStream << "}" << endl << endl;
 	}
 }
 
 //Assumes binary normalization
 void printMaxExpressedGenes(const RNASeqData &controlNormalized,
 		const RNASeqData &tumorNormalized, const GeneList &geneList,
-		unsigned int maxNumberGenes) {
+		unsigned int maxNumberGenes, const string &filename) {
+
+	ofstream outputStream("export/" + filename);
 
 	cout << endl << "****** FINDING MOST EXPRESSED GENES ******" << endl;
 	for(const auto &kv : tumorNormalized){
 		string cancer = kv.first;
 		RNASeqPrintMostExpressedGenes(controlNormalized, cancer, false, geneList,
-				maxNumberGenes);
+				maxNumberGenes, outputStream);
 		RNASeqPrintMostExpressedGenes(tumorNormalized, cancer, true, geneList,
-				maxNumberGenes);
+				maxNumberGenes, outputStream);
 	}
 }

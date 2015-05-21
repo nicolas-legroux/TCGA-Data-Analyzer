@@ -15,6 +15,7 @@ void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K,
 void normalizeQuantile(RNASeqData &controlData, RNASeqData &tumorData,
 		double cutPercentage);
 void printMaxExpressedGenes(const RNASeqData &controlNormalized,
-		const RNASeqData &tumorNormalized, const GeneList &geneList, unsigned int maxNumberGenes);
+		const RNASeqData &tumorNormalized, const GeneList &geneList,
+		unsigned int maxNumberGenes, const std::string &filename);
 
 #endif /* SRC_UNSUPERVISEDNORMALIZATION_HPP_ */

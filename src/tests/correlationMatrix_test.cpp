@@ -21,13 +21,13 @@ void correlationMatrixTest1() {
 
 	std::vector<std::vector<double>> data;
 	std::vector<SampleIdentifier> sampleIdentifiers;
-	CancerPatientIDList dataTypeMapping;
+	CancerPatientIDList cancerPatientIDList;
 
-	prepareData(data, sampleIdentifiers, dataTypeMapping, patientControlList,
+	prepareData(data, sampleIdentifiers, cancerPatientIDList, patientControlList,
 			patientTumorList, controlData, tumorData);
 
 	std::vector<double> correlationMatrix = pearson(data);
 	exportCorrelationMatrix(correlationMatrix, sampleIdentifiers, "matrix.pearson.out", "patients.out", "labels.pearson.out");
-	exportClassStats(correlationMatrix, dataTypeMapping, "classes_correlation_pearson.out");
+	exportClassStats(correlationMatrix, cancerPatientIDList, sampleIdentifiers, "classes_correlation_pearson.tsv");
 	makeHeatMap(correlationMatrix,"heatmap_pearson.png", buildClassDivision(sampleIdentifiers), 20);
 }

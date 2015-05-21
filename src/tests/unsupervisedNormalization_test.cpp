@@ -24,30 +24,23 @@ void normalizationTest1KMeans(int K, int Nmax) {
 	//STEP3 : COMPUTE CORRELATION
 	std::vector<std::vector<double>> data;
 	std::vector<SampleIdentifier> sampleIdentifiers;
-	CancerPatientIDList dataTypeMapping;
+	CancerPatientIDList cancerPatientIDList;
 
-	prepareData(data, sampleIdentifiers, dataTypeMapping, patientControlList,
-			patientTumorList, controlData, tumorData);
+	prepareData(data, sampleIdentifiers, cancerPatientIDList,
+			patientControlList, patientTumorList, controlData, tumorData);
 
 	std::vector<double> correlationMatrixPearson = pearson(data);
 	exportCorrelationMatrix(correlationMatrixPearson, sampleIdentifiers,
 			"matrix.pearson", "patients.pearson", "labels.pearson");
-	exportClassStats(correlationMatrixPearson, dataTypeMapping,
-			"classes_correlation_pearson.out");
-	//makeHeatMap(correlationMatrixPearson, "heat_map_pearson.png");
+	exportClassStats(correlationMatrixPearson, cancerPatientIDList,
+			sampleIdentifiers, "classes_correlation_pearson.tsv");
+	makeHeatMap(correlationMatrixPearson, "heat_map_pearson.png",
+			buildClassDivision(sampleIdentifiers), 20);
 
-	if(K==2) {
-		printMaxExpressedGenes(controlData, tumorData, geneMapping, 15);
+	if (K == 2) {
+		printMaxExpressedGenes(controlData, tumorData, geneMapping, 15,
+				"most_expressed_genes.out");
 	}
-
-	/*
-	std::vector<double> correlationMatrixSpearman = spearman(data);
-	exportCorrelationMatrix(correlationMatrixSpearman, sampleIdentifiers,
-			"matrix.spearman", "patients.spearman", "labels.spearman");
-	exportClassStats(correlationMatrixSpearman, dataTypeMapping,
-			"classes_correlatio_spearman.out");
-	makeHeatMap(correlationMatrixSpearman, "heat_map_spearman.png");
-	*/
 }
 
 void normalizationTestQuantile(double cutPercentage) {
@@ -70,26 +63,19 @@ void normalizationTestQuantile(double cutPercentage) {
 	//STEP3 : COMPUTE CORRELATION
 	std::vector<std::vector<double>> data;
 	std::vector<SampleIdentifier> sampleIdentifiers;
-	CancerPatientIDList dataTypeMapping;
+	CancerPatientIDList cancerPatientIDList;
 
-	prepareData(data, sampleIdentifiers, dataTypeMapping, patientControlList,
-			patientTumorList, controlData, tumorData);
+	prepareData(data, sampleIdentifiers, cancerPatientIDList,
+			patientControlList, patientTumorList, controlData, tumorData);
 
 	std::vector<double> correlationMatrixPearson = pearson(data);
 	exportCorrelationMatrix(correlationMatrixPearson, sampleIdentifiers,
 			"matrix.pearson", "patients.pearson", "labels.pearson");
-	exportClassStats(correlationMatrixPearson, dataTypeMapping,
-			"classes_correlation_pearson.out");
-	//makeHeatMap(correlationMatrixPearson, "heat_map_pearson.png");
+	exportClassStats(correlationMatrixPearson, cancerPatientIDList,
+			sampleIdentifiers, "classes_correlation_pearson.tsv");
+	makeHeatMap(correlationMatrixPearson, "heat_map_pearson.png",
+			buildClassDivision(sampleIdentifiers), 20);
 
-	printMaxExpressedGenes(controlData, tumorData, geneMapping, 15);
-
-	/*
-	std::vector<double> correlationMatrixSpearman = spearman(data);
-	exportCorrelationMatrix(correlationMatrixSpearman, sampleIdentifiers,
-			"matrix.spearman", "patients.spearman", "labels.spearman");
-	exportClassStats(correlationMatrixSpearman, dataTypeMapping,
-			"classes_correlatio_spearman.out");
-	makeHeatMap(correlationMatrixSpearman, "heat_map_spearman.png");
-	*/
+	printMaxExpressedGenes(controlData, tumorData, geneMapping, 15,
+			"most_expressed_genes.out");
 }

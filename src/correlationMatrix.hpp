@@ -30,6 +30,7 @@ void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 
 void exportClassStats(const std::vector<double> &correlationMatrix,
 		const CancerPatientIDList &cancerPatientIDList,
+		const std::vector<SampleIdentifier> &sampleIdentifiers,
 		const std::string &filemaneCorrelationMeans);
 
 #endif /* SRC_CORRELATIONMATRIX_HPP_ */
