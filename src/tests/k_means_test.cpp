@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include "../dataReader.hpp"
 #include "../k_means.hpp"
 #include "k_means_test.hpp"
@@ -76,5 +77,27 @@ void iteratedBinaryKMeans_test(int N_iter, string cancerName, int patientId) {
 	for (int i = 0; i != 2; ++i) {
 		std::cout << "Cluster " << (i + 1) << ": size=" << clusterCount[i]
 				<< std::endl;
+	}
+}
+
+void twodimensionalKmeans_test(){
+	unsigned int K = 2;
+	vector<double> vec1{0,0};
+	vector<double> vec2{1,1};
+	vector<double> vec3{0,1};
+	vector<double> vec4{8,7};
+	vector<double> vec5{8,8};
+	vector<vector<double>> data{vec1, vec2, vec3, vec4, vec5};
+	vector<int> clusters(data.size(), 0);
+	vector<vector<double>> means = computeKMeans(data, clusters, K, 10, euclidianNorm);
+	std::vector<int> clusterCount(K, 0);
+	for (int i : clusters) {
+		clusterCount[i]++;
+	}
+
+	for (unsigned int i = 0; i != K; ++i) {
+		cout << "Cluster " << (i + 1) << ": { ";
+		for_each(means[i].cbegin(), means[i].cend(), [](double d){ cout << d << " ";});
+		cout << "}, size=" << clusterCount[i] << endl;
 	}
 }
