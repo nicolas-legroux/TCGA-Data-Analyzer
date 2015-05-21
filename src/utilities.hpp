@@ -11,6 +11,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <assert.h>
 
 //Iterate on two ranges and call a binary-op function
 template<typename InputIter1, typename InputIter2, typename Function>

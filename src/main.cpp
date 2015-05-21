@@ -11,8 +11,6 @@ using namespace std;
 
 int main() {
 
-	normalizationTest1KMeans(2, 100);
-
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
 	 computeZScore(tumorData, test);
