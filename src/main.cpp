@@ -11,8 +11,7 @@ using namespace std;
 
 int main() {
 
-	kMeansTest1(3, 100, "PRAD", 1);
-	iteratedBinaryKMeans_test(2, "PRAD", 1);
+	correlationMatrixTest1();
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

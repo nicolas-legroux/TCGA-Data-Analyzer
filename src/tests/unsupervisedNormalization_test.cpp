@@ -34,7 +34,7 @@ void normalizationTest1KMeans(int K, int Nmax) {
 			"matrix.pearson", "patients.pearson", "labels.pearson");
 	exportClassStats(correlationMatrixPearson, dataTypeMapping,
 			"classes_correlation_pearson.out");
-	makeHeatMap(correlationMatrixPearson, "heat_map_pearson.png");
+	//makeHeatMap(correlationMatrixPearson, "heat_map_pearson.png");
 
 	if(K==2) {
 		printMaxExpressedGenes(controlData, tumorData, geneMapping, 15);
@@ -80,7 +80,7 @@ void normalizationTestQuantile(double cutPercentage) {
 			"matrix.pearson", "patients.pearson", "labels.pearson");
 	exportClassStats(correlationMatrixPearson, dataTypeMapping,
 			"classes_correlation_pearson.out");
-	makeHeatMap(correlationMatrixPearson, "heat_map_pearson.png");
+	//makeHeatMap(correlationMatrixPearson, "heat_map_pearson.png");
 
 	printMaxExpressedGenes(controlData, tumorData, geneMapping, 15);
 
