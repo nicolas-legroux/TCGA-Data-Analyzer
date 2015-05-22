@@ -1,13 +1,26 @@
 #include <iostream>
 #include <vector>
-#include "../stats.hpp"
+
 #include "stats_test.hpp"
+#include "../stats.hpp"
+#include "../utilities.hpp"
+
+using namespace std;
 
 //R output is 4.666667
 void meanTest(){
-	std::vector<double> x { 1, 2, 4, 5, 6, 7, -2, 9, 10 };
+	vector<double> x { 1, 2, 4, 5, 6, 7, -2, 9, 10 };
 	double mean = computeMean(x);
-	std::cout << "Mean = " << mean << std::endl;
+	cout << "Mean = " << mean << endl;
+}
+
+void meanVectorTest(){
+	std::vector<double> x { 0,0,0 };
+	std::vector<double> y { 2,0,3 };
+	std::vector<double> z { 1,1,6 };
+	std::vector<std::vector<double>> data{x, y, z};
+	std::vector<double> mean = computeMeanVector(data);
+	print_vector(mean);
 }
 
 //R output is 3.872983

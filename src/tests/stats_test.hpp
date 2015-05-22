@@ -2,6 +2,7 @@
 #define SRC_TESTS_STATS_TEST_HPP_
 
 void meanTest();
+void meanVectorTest();
 void standardDeviationTest();
 void pearsonCorrelationTest1();
 void pearsonCorrelationTest2();

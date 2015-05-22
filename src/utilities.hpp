@@ -32,6 +32,14 @@ void copy_if_two_ranges(InputIter1 first1, InputIter1 last1, InputIter2 first2, 
     }
 }
 
+//Print a vector
+template <typename T>
+void print_vector(const std::vector<T> &v) {
+	std::cout << "{ ";
+	for_each(v.cbegin(), v.cend(), [](const T &data){ std::cout << data << " ";});
+	std::cout << "}" << std::endl;
+}
+
 //Sort the indexes of a vector in decreasing order
 template <typename T>
 std::vector<size_t> sort_indexes_decreasing(const std::vector<T> &v) {

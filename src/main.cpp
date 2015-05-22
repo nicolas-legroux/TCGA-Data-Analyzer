@@ -12,8 +12,6 @@ using namespace std;
 
 int main() {
 
-	exportData_test();
-
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
 	 computeZScore(tumorData, test);
