@@ -275,31 +275,6 @@ vector<vector<double>> computeKMeans(const vector<vector<double>> &data,
 
 /*
  *
- * DISTANCE MEASURES
- *
- */
-
-double euclidianNorm(const std::vector<double> &a,
-		const std::vector<double> &b) {
-	double dist = 0.0;
-	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
-			[&dist](double x, double y) {
-				dist += (x-y)*(x-y);
-			});
-	return sqrt(dist);
-}
-
-double norm1(const std::vector<double> &a, const std::vector<double> &b) {
-	double dist = 0.0;
-	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
-			[&dist](double x, double y) {
-				dist += abs(x-y);
-			});
-	return dist;
-}
-
-/*
- *
  * CLUSTERING EVALUATION
  *
  */

@@ -82,4 +82,14 @@ std::vector<std::string> split(const std::string &s, const std::vector<char> &de
 //Returns the number of pairs in a set of cardinal n
 int numberOfPairs(int n);
 
+/*
+ *
+ * DISTANCE MEASURES
+ *
+ */
+
+double euclideanDistance(const std::vector<double> &a,
+		const std::vector<double> &b);
+double manhattanDistance(const std::vector<double> &a, const std::vector<double> &b);
+
 #endif /* SRC_UTILITIES_HPP_ */

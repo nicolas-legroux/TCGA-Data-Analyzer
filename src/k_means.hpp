@@ -29,16 +29,6 @@ std::vector<std::vector<double>> computeKMeans(
 
 /*
  *
- * DISTANCE MEASURES
- *
- */
-
-double euclidianNorm(const std::vector<double> &a,
-		const std::vector<double> &b);
-double norm1(const std::vector<double> &a, const std::vector<double> &b);
-
-/*
- *
  * CLUSTERING EVALUATION
  *
  */

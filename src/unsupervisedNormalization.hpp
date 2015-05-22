@@ -12,6 +12,7 @@
 
 void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K,
 		int Nmax);
+void normalizeIteratedBinaryKMeans(RNASeqData &controlData, RNASeqData &tumorData, int Niter);
 void normalizeQuantile(RNASeqData &controlData, RNASeqData &tumorData,
 		double cutPercentage);
 void printMaxExpressedGenes(const RNASeqData &controlNormalized,

@@ -55,7 +55,48 @@ void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K,
 
 /*
  *
- *  METHOD 2 : QUANTILE
+ *  METHOD 2 : ITERATED BINARY K MEANS
+ *
+ */
+
+void individualNormalizationIteratedBinaryKMeans(const string &cancer, RNASeqData &rnaData,
+		int patientId, int Niter) {
+	unsigned int numberOfGenes = rnaData[cancer].size();
+	vector<double> data(numberOfGenes);
+	for (unsigned int i = 0; i < numberOfGenes; ++i) {
+		data[i] = rnaData[cancer][i][patientId];
+	}
+
+	vector<int> clusters(numberOfGenes);
+
+	iteratedBinaryKMeans(data, clusters, Niter);
+
+	for (unsigned int i = 0; i < numberOfGenes; ++i) {
+		rnaData[cancer][i][patientId] = (double) clusters[i];
+	}
+}
+
+void RNASeqDataNormalizationIteratedBinaryKMeans(RNASeqData &rnaData, int Niter) {
+	for (auto &mappedData : rnaData) {
+		string cancer = mappedData.first;
+		cout << "\t" << cancer << "... " << flush;
+		for (unsigned int i = 0; i < mappedData.second[0].size(); ++i) {
+			individualNormalizationIteratedBinaryKMeans(cancer, rnaData, i, Niter);
+		}
+		cout << "Done." << endl;
+	}
+}
+
+void normalizeIteratedBinaryKMeans(RNASeqData &controlData, RNASeqData &tumorData, int Niter) {
+	cout << "Normalizing control Data..." << endl;
+	RNASeqDataNormalizationIteratedBinaryKMeans(controlData, Niter);
+	cout << "Normalizing tumor Data..." << endl;
+	RNASeqDataNormalizationIteratedBinaryKMeans(tumorData, Niter);
+}
+
+/*
+ *
+ *  METHOD 3 : QUANTILE
  *
  */
 

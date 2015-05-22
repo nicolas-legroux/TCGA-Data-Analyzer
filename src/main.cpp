@@ -11,7 +11,7 @@ using namespace std;
 
 int main() {
 
-	adjustedRandIndex_test();
+	no_normalization_euclidean_test();
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

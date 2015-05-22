@@ -32,3 +32,28 @@ vector<string> split(const string &s, const vector<char> &delimiters){
 int numberOfPairs(int n){
 	return n*(n-1)/2;
 }
+
+/*
+ *
+ * DISTANCE MEASURES
+ *
+ */
+
+double euclideanDistance(const std::vector<double> &a,
+		const std::vector<double> &b) {
+	double dist = 0.0;
+	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
+			[&dist](double x, double y) {
+				dist += (x-y)*(x-y);
+			});
+	return sqrt(dist);
+}
+
+double manhattanDistance(const std::vector<double> &a, const std::vector<double> &b) {
+	double dist = 0.0;
+	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
+			[&dist](double x, double y) {
+				dist += abs(x-y);
+			});
+	return dist;
+}

@@ -22,6 +22,9 @@ void prepareData(std::vector<std::vector<double>> &data,
 std::vector<double> pearson(std::vector<std::vector<double>> &data);
 std::vector<double> spearman(std::vector<std::vector<double>> &data);
 
+std::vector<double> euclidean(std::vector<std::vector<double>> &data);
+std::vector<double> manhattan(std::vector<std::vector<double>> &data);
+
 void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 		const std::vector<SampleIdentifier> &sampleIdentifiers,
 		const std::string &filemaneMatrix,

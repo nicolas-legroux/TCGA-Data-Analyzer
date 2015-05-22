@@ -4,7 +4,10 @@
 #include <algorithm>
 #include "../dataReader.hpp"
 #include "../k_means.hpp"
+#include "../utilities.hpp"
 #include "k_means_test.hpp"
+#include "../unsupervisedNormalization.hpp"
+#include "../correlationMatrix.hpp"
 
 using namespace std;
 
@@ -80,6 +83,32 @@ void iteratedBinaryKMeans_test(int N_iter, string cancerName, int patientId) {
 	}
 }
 
+void kMeansAfterNormalizationTest(int K, int Nmax){
+	//STEP1 : read the data
+	std::string filenameCancers = "cancer.list";
+	PatientList patientControlList;
+	PatientList patientTumorList;
+	RNASeqData controlData;
+	RNASeqData tumorData;
+	GeneList geneMapping(
+			makeGeneMapping(
+					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
+	readPatientData(filenameCancers, patientControlList, patientTumorList);
+	readRNASeqData(patientControlList, patientTumorList, geneMapping,
+			controlData, tumorData, 500);
+
+	//STEP2 : NORMALIZE
+	normalizeKMeans(controlData, tumorData, K, Nmax);
+
+	//STEP3 : COMPUTE CORRELATION
+	std::vector<std::vector<double>> data;
+	std::vector<SampleIdentifier> sampleIdentifiers;
+	CancerPatientIDList cancerPatientIDList;
+
+	prepareData(data, sampleIdentifiers, cancerPatientIDList,
+			patientControlList, patientTumorList, controlData, tumorData);
+}
+
 void twodimensionalKmeans_test() {
 	unsigned int K = 2;
 	vector<double> vec1 { 0, 0 };
@@ -90,7 +119,7 @@ void twodimensionalKmeans_test() {
 	vector<vector<double>> data { vec1, vec2, vec3, vec4, vec5 };
 	vector<int> clusters(data.size(), 0);
 	vector<vector<double>> means = computeKMeans(data, clusters, K, 10,
-			euclidianNorm);
+			euclideanDistance);
 	std::vector<int> clusterCount(K, 0);
 	for (int i : clusters) {
 		clusterCount[i]++;

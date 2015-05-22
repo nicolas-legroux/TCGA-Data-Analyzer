@@ -133,6 +133,52 @@ vector<double> computeSpearmanCorrelation(const vector<vector<double>> &M){
 	return computePearsonCorrelation(M_copy);
 }
 
+vector<double> computePairwiseEuclideanDistance(const vector<vector<double>> &M){
+	unsigned int N = M.size();
+	cout << endl << "Pairwise distances to be computed for " << N << " vectors..." << endl;
+	vector<double> distanceMatrix(N*N);
+
+	unsigned int count = 0;
+
+	cout << "Computing distances for all pairs of vectors... " << endl;
+	for(unsigned int i=0; i<N; ++i){
+		printAdvancement(count, (N*(N-1)/2));
+		distanceMatrix[i+N*i] = 0.0;
+		for(unsigned int j=i+1; j<N; ++j){
+			double distance = euclideanDistance(M[i], M[j]);
+			distanceMatrix[i+N*j] = distance;
+			distanceMatrix[j+N*i] = distance;
+		}
+		count += N-i+1;
+	}
+	cout << "Done. " << endl << flush;
+
+	return distanceMatrix;
+}
+
+vector<double> computePairwiseManhattanDistance(const vector<vector<double>> &M){
+	unsigned int N = M.size();
+	cout << endl << "Pairwise distances to be computed for " << N << " vectors..." << endl;
+	vector<double> distanceMatrix(N*N);
+
+	unsigned int count = 0;
+
+	cout << "Computing distances for all pairs of vectors... " << endl;
+	for(unsigned int i=0; i<N; ++i){
+		printAdvancement(count, (N*(N-1)/2));
+		distanceMatrix[i+N*i] = 0.0;
+		for(unsigned int j=i+1; j<N; ++j){
+			double distance = manhattanDistance(M[i], M[j]);
+			distanceMatrix[i+N*j] = distance;
+			distanceMatrix[j+N*i] = distance;
+		}
+		count += N-i+1;
+	}
+	cout << "Done. " << endl << flush;
+
+	return distanceMatrix;
+}
+
 unordered_map<string, vector<pair<double, double>>> computeControlDistribution(const RNASeqData &controlData){
 
     unordered_map<string, vector<pair<double, double>>> controlDistributionParameters;

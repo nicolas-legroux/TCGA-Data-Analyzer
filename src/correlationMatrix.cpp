@@ -76,6 +76,14 @@ std::vector<double> spearman(std::vector<std::vector<double>> &data) {
 	return computeSpearmanCorrelation(data);
 }
 
+std::vector<double> euclidean(std::vector<std::vector<double>> &data) {
+	return computePairwiseEuclideanDistance(data);
+}
+
+std::vector<double> manhattan(std::vector<std::vector<double>> &data) {
+	return computePairwiseManhattanDistance(data);
+}
+
 void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 		const std::vector<SampleIdentifier> &sampleIdentifiers,
 		const std::string &filemaneMatrix,

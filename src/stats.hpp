@@ -17,6 +17,9 @@ std::vector<double> computePearsonCorrelation(const std::vector<std::vector<doub
 double computeSpearmanCorrelation(const std::vector<double> &x, const std::vector<double> &y);
 std::vector<double> computeSpearmanCorrelation(const std::vector<std::vector<double>> &M);
 
+std::vector<double> computePairwiseEuclideanDistance(const std::vector<std::vector<double>> &M);
+std::vector<double> computePairwiseManhattanDistance(const std::vector<std::vector<double>> &M);
+
 std::unordered_map<std::string, std::vector<std::pair<double, double>>> computeControlDistribution(const RNASeqData &controlData);
 void computeZScore(RNASeqData &tumorData, const std::unordered_map<std::string, std::vector<std::pair<double, double>>> &controlDistributionParameters);
 
