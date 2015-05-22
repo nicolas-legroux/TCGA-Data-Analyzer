@@ -10,8 +10,9 @@
 #include "../correlationMatrix.hpp"
 
 using namespace std;
-
+/*
 void kMeansTest1(int K, int Nmax, string cancerName, int patientId) {
+
 
 	vector<string> cancers { cancerName };
 	PatientList patientControlList;

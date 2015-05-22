@@ -9,8 +9,10 @@
 #define SRC_CLUSTERING_HPP_
 
 #include <vector>
+#include "typedefs.hpp"
 
-std::vector<int> getRealClusters();
+std::vector<int> getRealClusters(std::vector<SampleIdentifier> &sampleIdentifiers);
+std::vector<int> clusterWithKMeans(const std::vector<std::vector<double>> &data, int K, int Nmax);
 
 
 

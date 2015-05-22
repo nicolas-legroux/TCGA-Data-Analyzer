@@ -8,8 +8,14 @@
 
 using namespace std;
 
+/*
+ *
+ * FUNCTIONS TO READ DATA FROM TCGA FILES
+ *
+ */
+
 vector<string> getCancerNames(const string &filename) {
-	ifstream input(filename);
+	ifstream input("data/" + filename);
 	vector<string> cancerNames;
 	string cancerName;
 	while (input >> cancerName) {
@@ -18,8 +24,8 @@ vector<string> getCancerNames(const string &filename) {
 	return cancerNames;
 }
 
-void buildPatientIDsFromFile(const std::string &cancerName,
-		PatientList &patientControlData, PatientList &patientTumorData) {
+void readPatientNameByCancer(const std::string &cancerName,
+		PatientList &controlPatientList, PatientList &tumorPatientList) {
 	cout << "**** Processing " << cancerName << " Patients ****" << endl;
 	string patientListFilename = "data/" + cancerName
 			+ "-normalized/patient.list";
@@ -30,17 +36,14 @@ void buildPatientIDsFromFile(const std::string &cancerName,
 	int countTumor = 0;
 
 	while (input >> patientId) {
-		vector<string> strs = split(patientId, vector<char>{'-', '.'}) ;
-
+		vector<string> strs = split(patientId, vector<char> { '-', '.' });
 		if (strs.size() >= 4) {
-
 			string patientName = strs[0] + "-" + strs[1] + "-" + strs[2];
-
 			if (strs[3] == "01") {
-				patientTumorData[cancerName].push_back(patientName);
+				tumorPatientList[cancerName].push_back(patientName);
 				++countTumor;
 			} else if (strs[3] == "11") {
-				patientControlData[cancerName].push_back(patientName);
+				controlPatientList[cancerName].push_back(patientName);
 				++countControl;
 			} else {
 				cout << "Did not process " << patientId << endl;
@@ -53,11 +56,10 @@ void buildPatientIDsFromFile(const std::string &cancerName,
 	cout << "11 (Control) --> " << countControl << endl;
 
 	//Checking that for normal samples we have the corresponding cancer sample
-
-	for (const string &s : patientControlData[cancerName]) {
-		if (find(patientTumorData[cancerName].begin(),
-				patientTumorData[cancerName].end(), s)
-				== patientTumorData[cancerName].end()) {
+	for (const string &s : controlPatientList[cancerName]) {
+		if (find(tumorPatientList[cancerName].begin(),
+				tumorPatientList[cancerName].end(), s)
+				== tumorPatientList[cancerName].end()) {
 			cout
 					<< "Did not find a matching tumor sample for the control sample "
 					<< s << endl;
@@ -67,40 +69,29 @@ void buildPatientIDsFromFile(const std::string &cancerName,
 	cout << "*************************" << endl << endl;
 }
 
-void readPatientData(const std::string &filename,
-		PatientList &patientControlData, PatientList &patientTumorData) {
-	vector<string> cancerNames(getCancerNames("data/" + filename));
-	for (const string &cancer : cancerNames) {
-		patientControlData.insert(make_pair(cancer, vector<string>()));
-		patientTumorData.insert(make_pair(cancer, vector<string>()));
-		buildPatientIDsFromFile(cancer, patientControlData, patientTumorData);
+void readPatientList(const vector<string> &cancers, Data &data) {
+	for (const string &cancer : cancers) {
+		data.controlPatientList.insert(make_pair(cancer, vector<string>()));
+		data.tumorPatientList.insert(make_pair(cancer, vector<string>()));
+		readPatientNameByCancer(cancer, data.controlPatientList,
+				data.tumorPatientList);
 	}
 }
 
-void readPatientData(const vector<string> &cancerNames,
-		PatientList &patientControlData, PatientList &patientTumorData) {
-	for (const string &cancer : cancerNames) {
-		patientControlData.insert(make_pair(cancer, vector<string>()));
-		patientTumorData.insert(make_pair(cancer, vector<string>()));
-		buildPatientIDsFromFile(cancer, patientControlData, patientTumorData);
-	}
-}
-
-GeneList makeGeneMapping(const string &pathToFile) {
-	GeneList geneMapping;
+void readGeneList(const string &cancer, const string &patient, Data &data) {
+	string pathToFile = "data/" + cancer + "-normalized/" + patient
+			+ "-01.genes.normalized.results";
 	fstream input(pathToFile);
 	string firstLine;
 	getline(input, firstLine);
 	string geneId;
 	double score;
 	while (input >> geneId >> score) {
-		vector<string> strs = split(geneId, vector<char>{'|'});
+		vector<string> strs = split(geneId, vector<char> { '|' });
 		string hgncSymbol = strs[0];
 		int entrezId = atoi(strs[1].c_str());
-		geneMapping.push_back(make_pair(hgncSymbol, entrezId));
+		data.geneList.push_back(make_pair(hgncSymbol, entrezId));
 	}
-
-	return geneMapping;
 }
 
 void readRNASeqFromFile(const string &cancerName, const string& dataType,
@@ -165,54 +156,75 @@ void readRNASeqData(const PatientList &patientData, const GeneList &geneMapping,
 	}
 }
 
-void readRNASeqData(const PatientList &patientControlData,
-		const PatientList &patientTumorData, const GeneList &geneMapping,
-		RNASeqData &controlData, RNASeqData &tumorData, int maxPatients) {
-	readRNASeqData(patientControlData, geneMapping, controlData, false,
-			maxPatients);
-	readRNASeqData(patientTumorData, geneMapping, tumorData, true, maxPatients);
+void readRNASeqData(Data &data, int maxControl, int maxTumor) {
+	readRNASeqData(data.controlPatientList, data.geneList,
+			data.controlRNASeqData, false, maxControl);
+	readRNASeqData(data.tumorPatientList, data.geneList, data.tumorRNASeqData,
+			true, maxTumor);
 }
 
-void exportDataToFile(const PatientList &patientControlData,
-		const PatientList &patientTumorData, int numberOfProteins,
-		const RNASeqData &controlSeqData, const RNASeqData &cancerSeqData,
-		const string &fileName) {
+void readData(const vector<string> &cancers, Data &data, int maxControl,
+		int maxTumor) {
+	//Load Patient Data
+	readPatientList(cancers, data);
+	//Load GeneList
+	string firstCancer = (*data.tumorPatientList.begin()).first;
+	string firstPatient = *(*data.tumorPatientList.begin()).second.begin();
+	readGeneList(firstCancer, firstPatient, data);
+	//Load RNASeq Data
+	readRNASeqData(data, maxControl, maxTumor);
+}
+
+void readData(const string &filename, Data &data, int maxControl,
+		int maxTumor) {
+	vector<string> cancers = getCancerNames(filename);
+	readData(cancers, data, maxControl, maxTumor);
+}
+
+/*
+ *
+ * FUNCTION TO EXPORT TCGA DATA IN ONE BIG FILE
+ *
+ */
+
+void exportDataToFile(const Data &data, const string &filename) {
 
 	cout << endl << "-------- Exporting data to file --------" << endl;
 
-	ofstream outputStream("export/" + fileName);
+	ofstream outputStream("export/" + filename);
 
 	//Print number of cancers
-	outputStream << patientTumorData.size() << endl;
+	outputStream << data.tumorPatientList.size() << endl;
 
-	for (const auto &mappedPatientData : patientTumorData) {
+	for (const auto &mappedPatientData : data.tumorPatientList) {
 		string cancerName = mappedPatientData.first;
 		//print cancer, number of control samples, number of tumor samples
 		outputStream << cancerName << " "
-				<< patientControlData.at(cancerName).size() << " "
-				<< patientTumorData.at(cancerName).size() << endl;
+				<< data.controlPatientList.at(cancerName).size() << " "
+				<< data.tumorPatientList.at(cancerName).size() << endl;
 
 		//Start by writing the control sample names, then the tumor sample names
-		for (const string &s : patientControlData.at(cancerName)) {
+		for (const string &s : data.controlPatientList.at(cancerName)) {
 			outputStream << s << endl;
 		}
-		for (const string &s : patientTumorData.at(cancerName)) {
+		for (const string &s : data.tumorPatientList.at(cancerName)) {
 			outputStream << s << endl;
 		}
 	}
 
-	// Number of proteins
-	outputStream << numberOfProteins << endl;
+	// Number of genes
+	int numberOfGenes = (*data.tumorRNASeqData.begin()).second.size();
+	outputStream << numberOfGenes << endl;
 
 	//Write the control Data
-	for (const auto &mappedData : controlSeqData) {
-		const string &cancerName = mappedData.first;
-		const vector<vector<double>> &data = mappedData.second;
+	for (const auto &kv : data.controlRNASeqData) {
+		const string &cancerName = kv.first;
+		const vector<vector<double>> &rnaSeqData = kv.second;
 		cout << "Exporting " << cancerName << " control data..." << endl;
-		outputStream << cancerName << " " << data[0].size() << endl;
-		if (data[0].size() > 0) {
-			for (const vector<double> &seqData : data) {
-				for (double d : seqData) {
+		outputStream << cancerName << " " << rnaSeqData[0].size() << endl;
+		if (rnaSeqData[0].size() > 0) {
+			for (const vector<double> &geneData : rnaSeqData) {
+				for (double d : geneData) {
 					outputStream << d << " ";
 				}
 				outputStream << endl;
@@ -221,14 +233,14 @@ void exportDataToFile(const PatientList &patientControlData,
 	}
 
 	//Write the tumor data
-	for (const auto &mappedData : cancerSeqData) {
-		const string &cancerName = mappedData.first;
-		const vector<vector<double>> &data = mappedData.second;
+	for (const auto &kv : data.tumorRNASeqData) {
+		const string &cancerName = kv.first;
+		const vector<vector<double>> &rnaSeqData = kv.second;
 		cout << "Exporting " << cancerName << " tumor data..." << endl;
-		outputStream << cancerName << " " << data[0].size() << endl;
-		if (data[0].size() > 0) {
-			for (const vector<double> &seqData : data) {
-				for (double d : seqData) {
+		outputStream << cancerName << " " << rnaSeqData[0].size() << endl;
+		if (rnaSeqData[0].size() > 0) {
+			for (const vector<double> &geneData : rnaSeqData) {
+				for (double d : geneData) {
 					outputStream << d << " ";
 				}
 				outputStream << endl;
@@ -241,6 +253,12 @@ void exportDataToFile(const PatientList &patientControlData,
 	outputStream.close();
 }
 
+/*
+ *
+ * FUNCTIONS TO IMPORT DATA FROM FILE (QUICKER THAN READING TCGA FILES)
+ *
+ */
+
 void importSampleNames(ifstream &inputStream, PatientList &patientData,
 		const string &cancerName, int numberOfSamples) {
 
@@ -251,10 +269,10 @@ void importSampleNames(ifstream &inputStream, PatientList &patientData,
 	}
 }
 
-void importSeqData(ifstream &inputStream, const string& cancerName,
-		RNASeqData &seqData, int numberOfProteins, int numberOfSamples) {
+void importRNASeqData(ifstream &inputStream, const string& cancerName,
+		RNASeqData &seqData, int numberOfGenes, int numberOfSamples) {
 	double d;
-	for (int i = 0; i < numberOfProteins; ++i) {
+	for (int i = 0; i < numberOfGenes; ++i) {
 		for (int j = 0; j < numberOfSamples; ++j) {
 			inputStream >> d;
 			seqData[cancerName][i].push_back(d);
@@ -262,14 +280,13 @@ void importSeqData(ifstream &inputStream, const string& cancerName,
 	}
 }
 
-void importDataFromFile(PatientList &patientControlData,
-		PatientList &patientTumorData, RNASeqData &controlSeqData,
-		RNASeqData &cancerSeqData, const string &fileName) {
+void importDataFromFile(Data &data, const string &filename) {
 
 	cout << endl << "****** IMPORTING DATA FROM FILE ******" << endl;
 	int numberCancers;
-	ifstream inputStream("export/" + fileName);
+	ifstream inputStream("export/" + filename);
 
+	//Import patient list data
 	inputStream >> numberCancers;
 	for (int i = 0; i < numberCancers; ++i) {
 		string cancerName;
@@ -279,94 +296,109 @@ void importDataFromFile(PatientList &patientControlData,
 		inputStream >> cancerName >> numberOfControlSamples
 				>> numberOfTumorSamples;
 
-		patientControlData.insert(make_pair(cancerName, vector<string>()));
-		patientTumorData.insert(make_pair(cancerName, vector<string>()));
+		data.controlPatientList.insert(make_pair(cancerName, vector<string>()));
+		data.tumorPatientList.insert(make_pair(cancerName, vector<string>()));
 
 		cout << "Processing " << cancerName << " Sample Names..." << endl;
-		importSampleNames(inputStream, patientControlData, cancerName,
+		importSampleNames(inputStream, data.controlPatientList, cancerName,
 				numberOfControlSamples);
-		importSampleNames(inputStream, patientTumorData, cancerName,
+		importSampleNames(inputStream, data.tumorPatientList, cancerName,
 				numberOfTumorSamples);
 	}
 
-	int numberOfProteins;
-	inputStream >> numberOfProteins;
-	cout << "Number of proteins : " << numberOfProteins << endl;
+	int numberOfGenes;
+	inputStream >> numberOfGenes;
+	cout << "Number of proteins : " << numberOfGenes << endl;
 
-	///Import control data
+	//Import control RNASeq data
 	for (int i = 0; i < numberCancers; ++i) {
 		string cancerName;
 		int numberOfSamples;
 		inputStream >> cancerName >> numberOfSamples;
 		cout << "Importing " << cancerName << " control samples ("
 				<< numberOfSamples << ")" << endl;
-		controlSeqData.insert(make_pair(cancerName, vector<vector<double>>()));
+		data.controlRNASeqData.insert(
+				make_pair(cancerName, vector<vector<double>>()));
 		if (numberOfSamples > 0) {
-			controlSeqData[cancerName].resize(numberOfProteins);
-			importSeqData(inputStream, cancerName, controlSeqData,
-					numberOfProteins, numberOfSamples);
+			data.controlRNASeqData[cancerName].resize(numberOfGenes);
+			importRNASeqData(inputStream, cancerName, data.controlRNASeqData,
+					numberOfGenes, numberOfSamples);
 		}
 	}
 
+	//Import tumor RNASeq Data
 	for (int i = 0; i < numberCancers; ++i) {
 		string cancerName;
 		int numberOfSamples;
 		inputStream >> cancerName >> numberOfSamples;
 		cout << "Importing " << cancerName << " tumor samples ("
 				<< numberOfSamples << ")" << endl;
-		cancerSeqData.insert(make_pair(cancerName, vector<vector<double>>()));
+		data.tumorRNASeqData.insert(
+				make_pair(cancerName, vector<vector<double>>()));
 		if (numberOfSamples > 0) {
-			cancerSeqData[cancerName].resize(numberOfProteins);
-			importSeqData(inputStream, cancerName, cancerSeqData,
-					numberOfProteins, numberOfSamples);
+			data.tumorRNASeqData[cancerName].resize(numberOfGenes);
+			importRNASeqData(inputStream, cancerName, data.tumorRNASeqData,
+					numberOfGenes, numberOfSamples);
 		}
 	}
+
+	//Build gene list
+	string firstCancer = (*data.tumorPatientList.begin()).first;
+	string firstPatient = *(*data.tumorPatientList.begin()).second.begin();
+	readGeneList(firstCancer, firstPatient, data);
 
 	cout << "**************************************" << endl;
 }
 
-void exportToMatrix(const PatientList &patientControlData,
-		const PatientList &patientTumorData, const RNASeqData &controlSeqData,
-		const RNASeqData &tumorSeqData, const string &matrixFileName,
-		const string &patientListFileName, int numberOfGenes) {
+/*
+ *
+ * FUNCTION TO EXPORT DATA TO ONE BIG TSV MATRIX
+ * LINES = GENES
+ * COLUMNS = PATIENTS
+ *
+ */
+
+void exportToMatrix(const Data &data, const string &matrixFilename,
+		const string &patientListFilename) {
 
 	cout << endl << "****** Exporting raw matrix ******" << endl;
+	ofstream matrixOutputStream("export/" + matrixFilename);
+	ofstream patientsOutputStream("export/" + patientListFilename);
 
-	ofstream matrixOutputStream("export/" + matrixFileName);
-	ofstream patientsOutputStream("export/" + patientListFileName);
+	int numberOfGenes = (*data.tumorRNASeqData.begin()).second.size();
 
 	for (int i = 0; i < numberOfGenes; ++i) {
-
-		if (i%1000 == 0){
-			cout << (100*i)/numberOfGenes << "%..." << endl;
+		if (i % 1000 == 0) {
+			printAdvancement(i, numberOfGenes);
 		}
-
-		for (const auto &kv : tumorSeqData) {
+		for (const auto &kv : data.tumorRNASeqData) {
 			string cancerName = kv.first;
-
-			for (unsigned int j = 0; j < controlSeqData.at(cancerName).at(0).size();
+			for (unsigned int j = 0;
+					j < data.controlRNASeqData.at(cancerName).at(0).size();
 					++j) {
-				if(i == 0){
+				if (i == 0) {
 					patientsOutputStream << cancerName << "-Control ("
-							<< patientControlData.at(cancerName).at(j) << ")" << endl;
+							<< data.controlPatientList.at(cancerName).at(j)
+							<< ")" << endl;
 				}
-
-				matrixOutputStream << controlSeqData.at(cancerName).at(i).at(j) << "\t";
+				matrixOutputStream
+						<< data.controlRNASeqData.at(cancerName).at(i).at(j)
+						<< "\t";
 			}
 
-			for (unsigned int j = 0; j < tumorSeqData.at(cancerName).at(0).size();
-					++j) {
-				if(i == 0){
+			for (unsigned int j = 0;
+					j < data.tumorRNASeqData.at(cancerName).at(0).size(); ++j) {
+				if (i == 0) {
 					patientsOutputStream << cancerName << "-Tumor ("
-							<< patientTumorData.at(cancerName).at(j) << ")" << endl;
+							<< data.tumorPatientList.at(cancerName).at(j) << ")"
+							<< endl;
 				}
-
-				matrixOutputStream << tumorSeqData.at(cancerName).at(i).at(j) << "\t";
+				matrixOutputStream
+						<< data.tumorRNASeqData.at(cancerName).at(i).at(j)
+						<< "\t";
 			}
 		}
-
 		matrixOutputStream << endl;
 	}
-
 	cout << "********* Done exporting *********" << endl;
 }

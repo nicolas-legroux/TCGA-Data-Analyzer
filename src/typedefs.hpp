@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 
-// cancerName -> geneID -> patientID -> RNASeq
+// cancerName -> geneID -> patientID -> RNASeq value
 typedef std::unordered_map<std::string, std::vector<std::vector<double>>> RNASeqData;
 // cancerName -> patientID -> patientName
 typedef std::unordered_map<std::string, std::vector<std::string>> PatientList;
@@ -35,6 +35,14 @@ struct SampleIdentifier {
 		return cancerName + "-" + ((isTumor) ? "Tumor" : "Control") + " ("
 				+ patientId + ")";
 	}
+};
+
+struct Data {
+	PatientList controlPatientList;
+	PatientList tumorPatientList;
+	GeneList geneList;
+	RNASeqData controlRNASeqData;
+	RNASeqData tumorRNASeqData;
 };
 
 #endif /* SRC_TYPEDEFS_HPP_ */

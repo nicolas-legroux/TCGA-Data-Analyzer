@@ -6,12 +6,13 @@
 #include "tests/dataReader_test.hpp"
 #include "tests/unsupervisedNormalization_test.hpp"
 #include "tests/utilities_test.hpp"
+#include "tests/clustering_test.hpp"
 
 using namespace std;
 
 int main() {
 
-	no_normalization_euclidean_test();
+	exportData_test();
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

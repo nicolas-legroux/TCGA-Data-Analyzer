@@ -6,6 +6,7 @@
 using namespace std;
 
 void correlationMatrixTest1() {
+	/*
 	std::string filenameCancers = "cancer.list";
 	vector<string> cancers{"BRCA","THCA"};
 	PatientList patientControlList;
@@ -30,4 +31,5 @@ void correlationMatrixTest1() {
 	exportCorrelationMatrix(correlationMatrix, sampleIdentifiers, "matrix.pearson.out", "patients.out", "labels.pearson.out");
 	exportClassStats(correlationMatrix, cancerPatientIDList, sampleIdentifiers, "classes_correlation_pearson.tsv");
 	makeHeatMap(correlationMatrix,"heatmap_pearson.png", buildClassDivision(sampleIdentifiers), 20);
+	*/
 }

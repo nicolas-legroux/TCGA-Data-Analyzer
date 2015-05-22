@@ -5,6 +5,7 @@
 #include "unsupervisedNormalization_test.hpp"
 
 void normalizationTest1KMeans(int K, int Nmax) {
+	/*
 	//STEP1 : read the data
 	std::string filenameCancers = "cancer.list";
 	PatientList patientControlList;
@@ -16,7 +17,7 @@ void normalizationTest1KMeans(int K, int Nmax) {
 					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
 	readPatientData(filenameCancers, patientControlList, patientTumorList);
 	readRNASeqData(patientControlList, patientTumorList, geneMapping,
-			controlData, tumorData, 500);
+			controlData, tumorData, 100);
 
 	//STEP2 : NORMALIZE
 	normalizeKMeans(controlData, tumorData, K, Nmax);
@@ -135,10 +136,10 @@ void no_normalization_euclidean_test() {
 
 	std::vector<double> euclideanDistanceMatrix = euclidean(data);
 	exportCorrelationMatrix(euclideanDistanceMatrix, sampleIdentifiers,
-			"matrix.manhattan", "patients.manhattan", "labels.manhattan");
+			"matrix.euclidean", "patients.euclidean", "labels.euclidean");
 	exportClassStats(euclideanDistanceMatrix, cancerPatientIDList,
-			sampleIdentifiers, "classes_manhattan.tsv");
-	makeHeatMap(euclideanDistanceMatrix, "heat_map_manhattan.png",
+			sampleIdentifiers, "classes_euclidean.tsv");
+	makeHeatMap(euclideanDistanceMatrix, "heat_map_euclidean.png",
 			buildClassDivision(sampleIdentifiers), 3);
 }
 
@@ -177,4 +178,5 @@ void normalizationTestQuantile(double cutPercentage) {
 
 	printMaxExpressedGenes(controlData, tumorData, geneMapping, 15,
 			"most_expressed_genes.out");
+			*/
 }
