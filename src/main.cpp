@@ -12,7 +12,8 @@ using namespace std;
 
 int main() {
 
-	kMeansTest1(4, 100, "THCA", 10);
+	kMeansTest1(3, 100, "THCA", 10);
+	iteratedBinaryKMeans_test(2, "THCA", 10);
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

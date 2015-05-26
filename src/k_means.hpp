@@ -139,7 +139,19 @@ public:
 
 	void computeIteratedBinaryKMeans(int Niteration){
 		assert(K == 2);
+
+		for (int i = 0; i < Niteration; ++i) {
+			compute(); //1000 should be enough
+			transform(clusters.cbegin(), clusters.cend(),
+					clusters.begin(), [](int cluster) {
+						return (cluster == 0)? 0 : -1;
+					});
+		}
+		transform(clusters.cbegin(), clusters.cend(),
+				clusters.begin(), [](int cluster) {
+					return (cluster == 0)? 0 : 1;
+				});
 	}
 };
 
-#endif /* SRC_K_MEANS_HPP_ */
+#endif /* SRC_K_MEANS_HstPP_ */
