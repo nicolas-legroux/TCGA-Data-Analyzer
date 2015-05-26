@@ -1,6 +1,5 @@
 #include "tests/stats_test.hpp"
 #include "tests/k_means_test.hpp"
-#include "tests/correlationMatrix_test.hpp"
 #include "tests/general_test.hpp"
 #include "tests/lodePNG_test.hpp"
 #include "tests/dataReader_test.hpp"

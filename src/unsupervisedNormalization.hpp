@@ -11,7 +11,7 @@
 #include "typedefs.hpp"
 
 enum UnsupervisedNormalizationMethod {
-	KMEANS, BINARY_ITERATED_KMEANS, BINARY_QUANTILE
+	KMEANS, BINARY_ITERATED_KMEANS, BINARY_QUANTILE, NO_NORMALIZATION
 };
 
 struct UnsupervisedNormalizationParameters {

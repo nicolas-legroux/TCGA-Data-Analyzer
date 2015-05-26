@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <cassert>
 
 #include "typedefs.hpp"
 #include "k_means.hpp"
@@ -77,6 +78,10 @@ void individualNormalization(Data &data, const string &cancer, int patientId,
 				}
 			}
 		}
+	}
+
+	else {
+		assert(method == UnsupervisedNormalizationMethod::NO_NORMALIZATION);
 	}
 }
 
@@ -165,4 +170,3 @@ void printMaxExpressedGenes(const Data &data, unsigned int maxNumberGenes,
 				data.geneList, maxNumberGenes, outputStream);
 	}
 }
-
