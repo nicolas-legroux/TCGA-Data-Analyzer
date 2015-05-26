@@ -6,9 +6,10 @@
 #include "k_means_test.hpp"
 #include "../dataReader.hpp"
 #include "../k_means.hpp"
+
+#include "../distanceMatrix.hpp"
 #include "../utilities.hpp"
 #include "../unsupervisedNormalization.hpp"
-#include "../correlationMatrix.hpp"
 
 using namespace std;
 

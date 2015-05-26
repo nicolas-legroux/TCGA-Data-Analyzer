@@ -3,10 +3,11 @@
 #include <iostream>
 #include <algorithm>
 #include "clustering_test.hpp"
-#include "../correlationMatrix.hpp"
 #include "../dataReader.hpp"
 #include "../heatMap.hpp"
 #include "../clustering.hpp"
+
+#include "../distanceMatrix.hpp"
 #include "../unsupervisedNormalization.hpp"
 #include "../k_means.hpp"
 

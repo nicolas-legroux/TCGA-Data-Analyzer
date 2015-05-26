@@ -1,6 +1,6 @@
 #include "correlationMatrix_test.hpp"
-#include "../correlationMatrix.hpp"
 #include "../dataReader.hpp"
+#include "../distanceMatrix.hpp"
 #include "../heatMap.hpp"
 
 using namespace std;

@@ -3,88 +3,33 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
+#include <cassert>
 
+#include "distanceMatrix.hpp"
 #include "typedefs.hpp"
-#include "correlationMatrix.hpp"
 #include "stats.hpp"
 
 using namespace std;
 
-void prepareData(std::vector<std::vector<double>> &data,
-		std::vector<SampleIdentifier> &sampleIdentifiers,
-		CancerPatientIDList &cancerPatientIDList,
-		const PatientList &patientControlList,
-		const PatientList &patientTumorList, const RNASeqData &controlData,
-		const RNASeqData &tumorData) {
-
-	cout << endl << "Preparing data for correlation computation... " << flush;
-
-	int countPatients = 0;
-
-	for (const auto &kv : tumorData) {
-		string cancerName = kv.first;
-		cancerPatientIDList.insert(
-				make_pair(cancerName + "-" + "Tumor", vector<int>()));
-		cancerPatientIDList.insert(
-				make_pair(cancerName + "-" + "Control", vector<int>()));
-
-		unsigned int numberOfGenes = kv.second.size();
-
-		for (unsigned int j = 0; j < controlData.at(cancerName).at(0).size();
-				++j) {
-
-			cancerPatientIDList[cancerName + "-" + "Control"].push_back(
-					countPatients);
-			sampleIdentifiers.push_back(
-					SampleIdentifier(cancerName, false,
-							patientControlList.at(cancerName).at(j)));
-			vector<double> patientData(numberOfGenes);
-			for (unsigned int k = 0; k < numberOfGenes; ++k) {
-				patientData[k] = controlData.at(cancerName).at(k).at(j);
-			}
-			data.push_back(patientData);
-			countPatients++;
-		}
-
-		for (unsigned int j = 0; j < tumorData.at(cancerName).at(0).size();
-				++j) {
-
-			cancerPatientIDList[cancerName + "-" + "Tumor"].push_back(
-					countPatients);
-			sampleIdentifiers.push_back(
-					SampleIdentifier(cancerName, true,
-							patientTumorList.at(cancerName).at(j)));
-			vector<double> patientData(numberOfGenes);
-			for (unsigned int k = 0; k < numberOfGenes; ++k) {
-				patientData[k] = tumorData.at(cancerName).at(k).at(j);
-			}
-			data.push_back(patientData);
-			countPatients++;
-		}
+std::vector<double> computeDistanceMatrix(
+		const std::vector<std::vector<double>> &data, DistanceMethod method) {
+	cout << endl << "Computing Distace Matrix... " << flush;
+	if(method == DistanceMethod::PEARSON_CORRELATION){
+		return computePearsonCorrelation(data);
 	}
-
-	cout << "Done." << endl;
+	else if(method == DistanceMethod::SPEARMAN_CORRELATION){
+		return computeSpearmanCorrelation(data);
+	}
+	else if(method==DistanceMethod::EUCLIDEAN_DISTANCE){
+		return computePairwiseEuclideanDistance(data);
+	}
+	else{
+		assert(method==DistanceMethod::MANHATTAN_DISTANCE);
+		return computePairwiseManhattanDistance(data);
+	}
 }
 
-std::vector<double> pearson(std::vector<std::vector<double>> &data) {
-	cout << endl << "Computing Pearson Correlation... " << flush;
-	return computePearsonCorrelation(data);
-}
-
-std::vector<double> spearman(std::vector<std::vector<double>> &data) {
-	cout << endl << "Computing Spearman Correlation... " << flush;
-	return computeSpearmanCorrelation(data);
-}
-
-std::vector<double> euclidean(std::vector<std::vector<double>> &data) {
-	return computePairwiseEuclideanDistance(data);
-}
-
-std::vector<double> manhattan(std::vector<std::vector<double>> &data) {
-	return computePairwiseManhattanDistance(data);
-}
-
-void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
+void exportDistanceMatrix(const std::vector<double> &distanceMatrix,
 		const std::vector<SampleIdentifier> &sampleIdentifiers,
 		const std::string &filemaneMatrix,
 		const std::string &filenamePatientsIDs,
@@ -99,7 +44,7 @@ void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 
 	for (int i = 0; i < N; ++i) {
 		for (int j = 0; j < N; ++j) {
-			matrixOutputStream << correlationMatrix[i * N + j] << "\t";
+			matrixOutputStream << distanceMatrix[i * N + j] << "\t";
 		}
 		matrixOutputStream << endl;
 	}
@@ -128,7 +73,7 @@ void exportCorrelationMatrix(const std::vector<double> &correlationMatrix,
 	cout << " Done." << endl;
 }
 
-void exportClassStats(const std::vector<double> &correlationMatrix,
+void exportClassStats(const std::vector<double> &distanceMatrix,
 		const CancerPatientIDList &cancerPatientIDList,
 		const vector<SampleIdentifier> &sampleIdentifiers,
 		const string &filemaneCorrelationMeans) {
@@ -136,14 +81,13 @@ void exportClassStats(const std::vector<double> &correlationMatrix,
 	cout << endl << "Exporting class stats..." << flush;
 
 	vector<string> classes;
-	unsigned int N = (int) sqrt(correlationMatrix.size());
+	unsigned int N = (int) sqrt(distanceMatrix.size());
 
 	for (const auto &sampleIdentifer : sampleIdentifiers) {
 		string cancerName = sampleIdentifer.cancerName;
-		if(sampleIdentifer.isTumor){
+		if (sampleIdentifer.isTumor) {
 			classes.push_back(cancerName + "-Tumor");
-		}
-		else{
+		} else {
 			classes.push_back(cancerName + "-Control");
 		}
 	}
@@ -162,7 +106,7 @@ void exportClassStats(const std::vector<double> &correlationMatrix,
 				for (int J : cancerPatientIDList.at(classes[j])) {
 					//When I = J : we are comparing the same patients, we know the correlation is 1
 					if (I != J) {
-						data.push_back(correlationMatrix[N * I + J]);
+						data.push_back(distanceMatrix[N * I + J]);
 					}
 				}
 			}

@@ -1,8 +1,8 @@
-#include "../correlationMatrix.hpp"
 #include "../dataReader.hpp"
 #include "../heatMap.hpp"
 #include "../unsupervisedNormalization.hpp"
 #include "unsupervisedNormalization_test.hpp"
+#include "../distanceMatrix.hpp"
 
 void normalizationTest1KMeans(int K, int Nmax) {
 	/*
