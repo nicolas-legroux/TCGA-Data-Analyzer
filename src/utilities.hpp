@@ -15,67 +15,72 @@
 
 //Iterate on two ranges and call a binary-op function
 template<typename InputIter1, typename InputIter2, typename Function>
-Function for_each_two_ranges(InputIter1 first1, InputIter1 last1, InputIter2 first2, Function f) {
-    for (; first1 != last1; ++first1, ++first2) {
-        f(*first1, *first2);
-    }
-    return f;
+Function for_each_two_ranges(InputIter1 first1, InputIter1 last1,
+		InputIter2 first2, Function f) {
+	for (; first1 != last1; ++first1, ++first2) {
+		f(*first1, *first2);
+	}
+	return f;
 }
 
 template<typename InputIter1, typename InputIter2, typename OutputIter>
 //The second range should correspond to a container of boolean values saying whether the value should be added to the output
-void copy_if_two_ranges(InputIter1 first1, InputIter1 last1, InputIter2 first2, OutputIter out) {
-    for (; first1 != last1; ++first1, ++first2) {
-        if(*first2){
-        	*out = *first1;
-        }
-    }
+void copy_if_two_ranges(InputIter1 first1, InputIter1 last1, InputIter2 first2,
+		OutputIter out) {
+	for (; first1 != last1; ++first1, ++first2) {
+		if (*first2) {
+			*out = *first1;
+		}
+	}
 }
 
 //Print a vector
-template <typename T>
+template<typename T>
 void print_vector(const std::vector<T> &v) {
 	std::cout << "{ ";
-	for_each(v.cbegin(), v.cend(), [](const T &data){ std::cout << data << " ";});
+	for_each(v.cbegin(), v.cend(),
+			[](const T &data) {std::cout << data << " ";});
 	std::cout << "}" << std::endl;
 }
 
 //Sort the indexes of a vector in decreasing order
-template <typename T>
+template<typename T>
 std::vector<size_t> sort_indexes_decreasing(const std::vector<T> &v) {
 
-  // initialize original index locations
-  std::vector<size_t> idx(v.size());
-  for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+	// initialize original index locations
+	std::vector<size_t> idx(v.size());
+	for (size_t i = 0; i != idx.size(); ++i)
+		idx[i] = i;
 
-  // sort indexes based on comparing values in v
-  sort(idx.begin(), idx.end(),
-       [&v](size_t i1, size_t i2) {return v[i1] > v[i2];});
+	// sort indexes based on comparing values in v
+	sort(idx.begin(), idx.end(),
+			[&v](size_t i1, size_t i2) {return v[i1] > v[i2];});
 
-  return idx;
+	return idx;
 }
 
 //Sort the indexes of an array in increasing order
-template <typename T>
+template<typename T>
 std::vector<size_t> sort_indexes_increasing(const std::vector<T> &v) {
 
-  // initialize original index locations
-  std::vector<size_t> idx(v.size());
-  for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+	// initialize original index locations
+	std::vector<size_t> idx(v.size());
+	for (size_t i = 0; i != idx.size(); ++i)
+		idx[i] = i;
 
-  // sort indexes based on comparing values in v
-  sort(idx.begin(), idx.end(),
-       [&v](size_t i1, size_t i2) {return v[i1] < v[i2];});
+	// sort indexes based on comparing values in v
+	sort(idx.begin(), idx.end(),
+			[&v](size_t i1, size_t i2) {return v[i1] < v[i2];});
 
-  return idx;
+	return idx;
 }
 
 //Get the rank of each value of an array, where the rank is taken in increasing order
-template <typename T>
-std::vector<size_t> get_rank_increasing(const std::vector<T> &v){
-	std::vector<size_t> sortedIdx{sort_indexes_increasing(v)};
+template<typename T>
+std::vector<size_t> get_rank_increasing(const std::vector<T> &v) {
+	std::vector<size_t> sortedIdx { sort_indexes_increasing(v) };
 	std::vector<size_t> ranks(sortedIdx.size());
-	for(size_t i = 0; i != ranks.size(); ++i){
+	for (size_t i = 0; i != ranks.size(); ++i) {
 		ranks[sortedIdx[i]] = i;
 	}
 	return ranks;
@@ -85,7 +90,8 @@ std::vector<size_t> get_rank_increasing(const std::vector<T> &v){
 void printAdvancement(unsigned int currentCount, unsigned int totalCount);
 
 //Splits a string according to delimiters
-std::vector<std::string> split(const std::string &s, const std::vector<char> &delimiters);
+std::vector<std::string> split(const std::string &s,
+		const std::vector<char> &delimiters);
 
 //Returns the number of pairs in a set of cardinal n
 int numberOfPairs(int n);
@@ -96,8 +102,21 @@ int numberOfPairs(int n);
  *
  */
 
+double distanceDouble(const double &x, const double &y);
 double euclideanDistance(const std::vector<double> &a,
 		const std::vector<double> &b);
-double manhattanDistance(const std::vector<double> &a, const std::vector<double> &b);
+double manhattanDistance(const std::vector<double> &a,
+		const std::vector<double> &b);
+
+/*
+ *
+ * UTILITIES FOR GENERIC K MEANS
+ *
+ */
+
+void addToDouble(double &d, const double &x);
+void divideDoubleByConstant(double &d, double c);
+void addToVector(std::vector<double> &v, const std::vector<double> &x);
+void divideVectorByConstant(std::vector<double> &v, double c);
 
 #endif /* SRC_UTILITIES_HPP_ */

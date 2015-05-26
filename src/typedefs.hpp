@@ -43,6 +43,19 @@ struct Data {
 	GeneList geneList;
 	RNASeqData controlRNASeqData;
 	RNASeqData tumorRNASeqData;
+
+	int getNumberOfProteins(){
+		return geneList.size();
+	}
+
+	std::vector<double> getPatientTumorData(std::string &cancer, int patientId){
+		int numberOfProteins = getNumberOfProteins();
+		std::vector<double> data(numberOfProteins);
+		for (int i = 0; i < numberOfProteins; ++i) {
+			data[i] = tumorRNASeqData.at(cancer).at(i).at(patientId);
+		}
+		return data;
+	}
 };
 
 #endif /* SRC_TYPEDEFS_HPP_ */

@@ -72,3 +72,18 @@ void clustering_test() {
 	cout << "Adjusted Rand Index : " << adjustedRandIndex(computedClusters, clustersCOL1A1) << endl;
 	*/
 }
+
+/* R Code :
+ r1 <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1)
+ r2 <- c(1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1)
+ library(mclust)
+ adjustedRandIndex(r1,r2)
+ R output is 0.2737606
+ */
+
+void adjustedRandIndex_test() {
+	vector<int> clustering1 { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 };
+	vector<int> clustering2 { 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1 };
+	cout << "AdjustedRandIndex = "
+			<< adjustedRandIndex(clustering1, clustering2);
+}

@@ -17,6 +17,8 @@ using namespace std;
  *
  */
 
+/*
+
 void individualNormalizationKMeans(const string &cancer, RNASeqData &rnaData,
 		int patientId, int K, int Nmax) {
 	unsigned int numberOfGenes = rnaData[cancer].size();
@@ -59,6 +61,8 @@ void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K,
  *
  */
 
+/*
+
 void individualNormalizationIteratedBinaryKMeans(const string &cancer, RNASeqData &rnaData,
 		int patientId, int Niter) {
 	unsigned int numberOfGenes = rnaData[cancer].size();
@@ -100,6 +104,7 @@ void normalizeIteratedBinaryKMeans(RNASeqData &controlData, RNASeqData &tumorDat
  *
  */
 
+/*
 void individualNormalizationQuantile(const string &cancer, RNASeqData &rnaData,
 		int patientId, double cutPercentage) {
 
@@ -146,6 +151,8 @@ void normalizeQuantile(RNASeqData &controlData, RNASeqData &tumorData,
  * PRINTS MOST EXPRESSED GENES PER CLASS
  *
  */
+
+/*
 
 void RNASeqPrintMostExpressedGenes(const RNASeqData &rnaData,
 		const string &cancer, bool isTumor, const GeneList &geneList,
@@ -200,3 +207,4 @@ void printMaxExpressedGenes(const RNASeqData &controlNormalized,
 				maxNumberGenes, outputStream);
 	}
 }
+*/
