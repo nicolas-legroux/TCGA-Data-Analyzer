@@ -12,12 +12,14 @@
 
 #include "typedefs.hpp"
 
-enum DistanceMethod {
+enum DistanceMetric {
 	PEARSON_CORRELATION, SPEARMAN_CORRELATION, EUCLIDEAN_DISTANCE, MANHATTAN_DISTANCE
 };
 
+std::string distanceMetricName(const DistanceMetric &distanceMetric);
+
 std::vector<double> computeDistanceMatrix(
-		const std::vector<std::vector<double>> &data, DistanceMethod method);
+		const std::vector<std::vector<double>> &data, DistanceMetric method);
 
 void exportDistanceMatrix(const std::vector<double> &distanceMatrix,
 		const std::vector<SampleIdentifier> &sampleIdentifiers,

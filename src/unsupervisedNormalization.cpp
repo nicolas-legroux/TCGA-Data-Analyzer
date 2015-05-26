@@ -88,7 +88,7 @@ void individualNormalization(Data &data, const string &cancer, int patientId,
 void unsupervisedNormalization(Data &data,
 		const UnsupervisedNormalizationMethod &method,
 		const UnsupervisedNormalizationParameters &parameters) {
-	cout << "Normalizing control Data..." << endl;
+	cout << endl << "Normalizing control Data..." << endl;
 	for (auto &kv : data.controlRNASeqData) {
 		string cancer = kv.first;
 		cout << "\t" << cancer << "... " << flush;

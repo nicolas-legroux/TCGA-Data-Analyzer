@@ -1,18 +1,28 @@
 #include "tests/stats_test.hpp"
 #include "tests/k_means_test.hpp"
-#include "tests/general_test.hpp"
 #include "tests/lodePNG_test.hpp"
 #include "tests/dataReader_test.hpp"
 #include "tests/unsupervisedNormalization_test.hpp"
 #include "tests/utilities_test.hpp"
 #include "tests/clustering_test.hpp"
 
+#include "unsupervisedNormalization.hpp"
+#include "distanceMatrix.hpp"
+
 using namespace std;
 
 int main() {
 
-	kMeansTest1(3, 100, "THCA", 10);
-	iteratedBinaryKMeans_test(2, "THCA", 10);
+	UnsupervisedNormalizationMethod method = UnsupervisedNormalizationMethod::KMEANS;
+	UnsupervisedNormalizationParameters parameters;
+	parameters.setKMeansParameters(2, 100);
+	DistanceMetric distanceMetric = DistanceMetric::PEARSON_CORRELATION;
+
+	unsupervisedNormalization_test(method, parameters, distanceMetric);
+
+
+
+
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

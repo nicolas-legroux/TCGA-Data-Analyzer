@@ -98,4 +98,3 @@ double adjustedRandIndex(const std::vector<int> &clustering1,
 
 	return (index - expectedIndex) / (maxIndex - expectedIndex);
 }
-

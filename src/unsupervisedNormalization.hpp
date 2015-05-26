@@ -41,7 +41,7 @@ struct UnsupervisedNormalizationParameters {
 
 void unsupervisedNormalization(Data &data,
 		const UnsupervisedNormalizationMethod &method,
-		UnsupervisedNormalizationParameters &parameters);
+		const UnsupervisedNormalizationParameters &parameters);
 
 void printMaxExpressedGenes(const Data &data, unsigned int maxNumberGenes,
 		const std::string &filename);

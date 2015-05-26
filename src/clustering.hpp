@@ -1,10 +1,3 @@
-/*
- * clustering.hpp
- *
- *  Created on: May 22, 2015
- *      Author: nicolas
- */
-
 #ifndef SRC_CLUSTERING_HPP_
 #define SRC_CLUSTERING_HPP_
 
@@ -25,7 +18,5 @@ double randIndex(const std::vector<int> &clustering1,
 
 double adjustedRandIndex(const std::vector<int> &clustering1,
 		const std::vector<int> &clustering2);
-
-
 
 #endif /* SRC_CLUSTERING_HPP_ */

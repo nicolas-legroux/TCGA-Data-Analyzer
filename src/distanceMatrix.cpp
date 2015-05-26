@@ -11,20 +11,35 @@
 
 using namespace std;
 
+string distanceMetricName(const DistanceMetric &distanceMetric){
+	switch(distanceMetric){
+	case DistanceMetric::PEARSON_CORRELATION:
+		return "pearson-correlation";
+	case DistanceMetric::SPEARMAN_CORRELATION:
+		return "spearman-correlation";
+	case DistanceMetric::EUCLIDEAN_DISTANCE:
+		return "euclidean-distance";
+	case DistanceMetric::MANHATTAN_DISTANCE:
+		return "manhattan-distance";
+	default:
+		return "unknown";
+	}
+}
+
 std::vector<double> computeDistanceMatrix(
-		const std::vector<std::vector<double>> &data, DistanceMethod method) {
+		const std::vector<std::vector<double>> &data, DistanceMetric method) {
 	cout << endl << "Computing Distace Matrix... " << flush;
-	if(method == DistanceMethod::PEARSON_CORRELATION){
+	if(method == DistanceMetric::PEARSON_CORRELATION){
 		return computePearsonCorrelation(data);
 	}
-	else if(method == DistanceMethod::SPEARMAN_CORRELATION){
+	else if(method == DistanceMetric::SPEARMAN_CORRELATION){
 		return computeSpearmanCorrelation(data);
 	}
-	else if(method==DistanceMethod::EUCLIDEAN_DISTANCE){
+	else if(method==DistanceMetric::EUCLIDEAN_DISTANCE){
 		return computePairwiseEuclideanDistance(data);
 	}
 	else{
-		assert(method==DistanceMethod::MANHATTAN_DISTANCE);
+		assert(method==DistanceMetric::MANHATTAN_DISTANCE);
 		return computePairwiseManhattanDistance(data);
 	}
 }
