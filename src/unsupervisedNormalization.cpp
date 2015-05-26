@@ -11,139 +11,100 @@
 
 using namespace std;
 
-/*
- *
- *  METHOD 1 : K MEANS
- *
- */
+void individualNormalization(Data &data, const string &cancer, int patientId,
+		bool isTumor, const UnsupervisedNormalizationMethod &method,
+		const UnsupervisedNormalizationParameters &parameters) {
 
-/*
-
-void individualNormalizationKMeans(const string &cancer, RNASeqData &rnaData,
-		int patientId, int K, int Nmax) {
-	unsigned int numberOfGenes = rnaData[cancer].size();
-	vector<double> data(numberOfGenes);
+	unsigned int numberOfGenes = data.getNumberOfProteins();
+	vector<double> dataToNormalize(numberOfGenes);
 	for (unsigned int i = 0; i < numberOfGenes; ++i) {
-		data[i] = rnaData[cancer][i][patientId];
-	}
-
-	vector<int> clusters(numberOfGenes);
-
-	computeKMeans(data, clusters, K, Nmax);
-
-	for (unsigned int i = 0; i < numberOfGenes; ++i) {
-		rnaData[cancer][i][patientId] = (double) clusters[i];
-	}
-}
-
-void RNASeqDataNormalizationKMeans(RNASeqData &rnaData, int K, int Nmax) {
-	for (auto &mappedData : rnaData) {
-		string cancer = mappedData.first;
-		cout << "\t" << cancer << "... " << flush;
-		for (unsigned int i = 0; i < mappedData.second[0].size(); ++i) {
-			individualNormalizationKMeans(cancer, rnaData, i, K, Nmax);
-		}
-		cout << "Done." << endl;
-	}
-}
-
-void normalizeKMeans(RNASeqData &controlData, RNASeqData &tumorData, int K,
-		int Nmax) {
-	cout << "Normalizing control Data..." << endl;
-	RNASeqDataNormalizationKMeans(controlData, K, Nmax);
-	cout << "Normalizing tumor Data..." << endl;
-	RNASeqDataNormalizationKMeans(tumorData, K, Nmax);
-}
-
-/*
- *
- *  METHOD 2 : ITERATED BINARY K MEANS
- *
- */
-
-/*
-
-void individualNormalizationIteratedBinaryKMeans(const string &cancer, RNASeqData &rnaData,
-		int patientId, int Niter) {
-	unsigned int numberOfGenes = rnaData[cancer].size();
-	vector<double> data(numberOfGenes);
-	for (unsigned int i = 0; i < numberOfGenes; ++i) {
-		data[i] = rnaData[cancer][i][patientId];
-	}
-
-	vector<int> clusters(numberOfGenes);
-
-	iteratedBinaryKMeans(data, clusters, Niter);
-
-	for (unsigned int i = 0; i < numberOfGenes; ++i) {
-		rnaData[cancer][i][patientId] = (double) clusters[i];
-	}
-}
-
-void RNASeqDataNormalizationIteratedBinaryKMeans(RNASeqData &rnaData, int Niter) {
-	for (auto &mappedData : rnaData) {
-		string cancer = mappedData.first;
-		cout << "\t" << cancer << "... " << flush;
-		for (unsigned int i = 0; i < mappedData.second[0].size(); ++i) {
-			individualNormalizationIteratedBinaryKMeans(cancer, rnaData, i, Niter);
-		}
-		cout << "Done." << endl;
-	}
-}
-
-void normalizeIteratedBinaryKMeans(RNASeqData &controlData, RNASeqData &tumorData, int Niter) {
-	cout << "Normalizing control Data..." << endl;
-	RNASeqDataNormalizationIteratedBinaryKMeans(controlData, Niter);
-	cout << "Normalizing tumor Data..." << endl;
-	RNASeqDataNormalizationIteratedBinaryKMeans(tumorData, Niter);
-}
-
-/*
- *
- *  METHOD 3 : QUANTILE
- *
- */
-
-/*
-void individualNormalizationQuantile(const string &cancer, RNASeqData &rnaData,
-		int patientId, double cutPercentage) {
-
-	int numberOfGenes = rnaData[cancer].size();
-	vector<double> data(numberOfGenes);
-	for (int i = 0; i < numberOfGenes; ++i) {
-		data[i] = rnaData[cancer][i][patientId];
-	}
-
-	vector<size_t> rank = get_rank_increasing(data);
-	for (int i = 0; i < numberOfGenes; ++i) {
-		double p = (double) rank[i] / (double) numberOfGenes;
-		if (p >= cutPercentage) {
-			rnaData[cancer][i][patientId] = 1.0;
+		if (isTumor) {
+			dataToNormalize[i] = data.tumorRNASeqData[cancer][i][patientId];
 		} else {
-			rnaData[cancer][i][patientId] = 0.0;
+			dataToNormalize[i] = data.controlRNASeqData[cancer][i][patientId];
+		}
+	}
+
+	if (method == UnsupervisedNormalizationMethod::KMEANS) {
+		vector<int> clusters(numberOfGenes, 0);
+		K_Means<double> kMeans(dataToNormalize, clusters, parameters.K,
+				parameters.Nmax, distanceDouble, addToDouble,
+				divideDoubleByConstant, 0.0);
+		kMeans.compute();
+		for (unsigned int i = 0; i < numberOfGenes; ++i) {
+			if (isTumor) {
+				data.tumorRNASeqData[cancer][i][patientId] =
+						(double) clusters[i];
+			} else {
+				data.controlRNASeqData[cancer][i][patientId] =
+						(double) clusters[i];
+			}
+		}
+	}
+
+	else if (method
+			== UnsupervisedNormalizationMethod::BINARY_ITERATED_KMEANS) {
+		vector<int> clusters(numberOfGenes, 0);
+		K_Means<double> kMeans(dataToNormalize, clusters, 2, 100,
+				distanceDouble, addToDouble, divideDoubleByConstant, 0.0);
+		kMeans.computeIteratedBinaryKMeans(parameters.Niteration);
+		for (unsigned int i = 0; i < numberOfGenes; ++i) {
+			if (isTumor) {
+				data.tumorRNASeqData[cancer][i][patientId] =
+						(double) clusters[i];
+			} else {
+				data.controlRNASeqData[cancer][i][patientId] =
+						(double) clusters[i];
+			}
+		}
+	}
+
+	else if (method == UnsupervisedNormalizationMethod::BINARY_QUANTILE) {
+		vector<size_t> rank = get_rank_increasing(dataToNormalize);
+		for (unsigned int i = 0; i < numberOfGenes; ++i) {
+			double p = (double) rank[i] / (double) numberOfGenes;
+			if (p >= parameters.cutPercentage) {
+				if (isTumor) {
+					data.tumorRNASeqData[cancer][i][patientId] = 1.0;
+				} else {
+					data.controlRNASeqData[cancer][i][patientId] = 1.0;
+				}
+			} else {
+				if (isTumor) {
+					data.tumorRNASeqData[cancer][i][patientId] = 0.0;
+				} else {
+					data.controlRNASeqData[cancer][i][patientId] = 0.0;
+				}
+			}
 		}
 	}
 }
 
-void RNASeqDataNormalizationQuantile(RNASeqData &rnaData,
-		double cutPercentage) {
-	for (auto &mappedData : rnaData) {
-		string cancer = mappedData.first;
+void unsupervisedNormalization(Data &data,
+		const UnsupervisedNormalizationMethod &method,
+		const UnsupervisedNormalizationParameters &parameters) {
+	cout << "Normalizing control Data..." << endl;
+	for (auto &kv : data.controlRNASeqData) {
+		string cancer = kv.first;
 		cout << "\t" << cancer << "... " << flush;
-		for (unsigned int i = 0; i < mappedData.second[0].size(); ++i) {
-			individualNormalizationQuantile(cancer, rnaData, i, cutPercentage);
+		for (unsigned int patientId = 0; patientId < kv.second[0].size();
+				++patientId) {
+			individualNormalization(data, cancer, patientId, false, method,
+					parameters);
 		}
 		cout << "Done." << endl;
 	}
-}
-
-void normalizeQuantile(RNASeqData &controlData, RNASeqData &tumorData,
-		double cutPercentage) {
-	cout << endl << "Normalizing control Data..." << endl;
-	RNASeqDataNormalizationQuantile(controlData, cutPercentage);
-
-	cout << endl << "Normalizing tumor Data..." << endl;
-	RNASeqDataNormalizationQuantile(tumorData, cutPercentage);
+	cout << "Normalizing tumor Data..." << endl;
+	for (auto &kv : data.tumorRNASeqData) {
+		string cancer = kv.first;
+		cout << "\t" << cancer << "... " << flush;
+		for (unsigned int patientId = 0; patientId < kv.second[0].size();
+				++patientId) {
+			individualNormalization(data, cancer, patientId, true, method,
+					parameters);
+		}
+		cout << "Done." << endl;
+	}
 }
 
 /*
@@ -151,8 +112,6 @@ void normalizeQuantile(RNASeqData &controlData, RNASeqData &tumorData,
  * PRINTS MOST EXPRESSED GENES PER CLASS
  *
  */
-
-/*
 
 void RNASeqPrintMostExpressedGenes(const RNASeqData &rnaData,
 		const string &cancer, bool isTumor, const GeneList &geneList,
@@ -192,19 +151,18 @@ void RNASeqPrintMostExpressedGenes(const RNASeqData &rnaData,
 }
 
 //Assumes binary normalization
-void printMaxExpressedGenes(const RNASeqData &controlNormalized,
-		const RNASeqData &tumorNormalized, const GeneList &geneList,
-		unsigned int maxNumberGenes, const string &filename) {
+void printMaxExpressedGenes(const Data &data, unsigned int maxNumberGenes,
+		const string &filename) {
 
 	ofstream outputStream("export/" + filename);
 
 	cout << endl << "****** FINDING MOST EXPRESSED GENES ******" << endl;
-	for(const auto &kv : tumorNormalized){
+	for (const auto &kv : data.tumorRNASeqData) {
 		string cancer = kv.first;
-		RNASeqPrintMostExpressedGenes(controlNormalized, cancer, false, geneList,
-				maxNumberGenes, outputStream);
-		RNASeqPrintMostExpressedGenes(tumorNormalized, cancer, true, geneList,
-				maxNumberGenes, outputStream);
+		RNASeqPrintMostExpressedGenes(data.controlRNASeqData, cancer, false,
+				data.geneList, maxNumberGenes, outputStream);
+		RNASeqPrintMostExpressedGenes(data.tumorRNASeqData, cancer, true,
+				data.geneList, maxNumberGenes, outputStream);
 	}
 }
-*/
+

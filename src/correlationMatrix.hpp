@@ -12,13 +12,6 @@
 
 #include "typedefs.hpp"
 
-void prepareData(std::vector<std::vector<double>> &data,
-		std::vector<SampleIdentifier> &sampleIdentifiers,
-		CancerPatientIDList &cancerPatientIDList,
-		const PatientList &patientControlList,
-		const PatientList &patientTumorList, const RNASeqData &controlData,
-		const RNASeqData &tumorData);
-
 std::vector<double> pearson(std::vector<std::vector<double>> &data);
 std::vector<double> spearman(std::vector<std::vector<double>> &data);
 
