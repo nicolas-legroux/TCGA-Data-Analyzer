@@ -23,3 +23,9 @@ void copy_if_two_ranges_test(){
 	copy_if_two_ranges(data.cbegin(), data.cend(), mustCopy.cbegin(), back_inserter(dataCopy));
 	for_each(dataCopy.cbegin(), dataCopy.cend(), [](double d){ cout << d << " "; });
 }
+
+void cosineSimilarityTest(){
+	vector<double> x{0,1};
+	vector<double> y{1,0};
+	cout << cosineSimilarity(x, y) << endl;
+}

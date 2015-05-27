@@ -13,12 +13,15 @@ using namespace std;
 
 int main() {
 
-	UnsupervisedNormalizationMethod method = UnsupervisedNormalizationMethod::KMEANS;
+	/*
+	UnsupervisedNormalizationMethod method = UnsupervisedNormalizationMethod::NO_NORMALIZATION;
 	UnsupervisedNormalizationParameters parameters;
 	parameters.setKMeansParameters(2, 100);
 	DistanceMetric distanceMetric = DistanceMetric::PEARSON_CORRELATION;
 
 	unsupervisedNormalization_test(method, parameters, distanceMetric);
+	*/
+	cosineSimilarityTest();
 
 
 

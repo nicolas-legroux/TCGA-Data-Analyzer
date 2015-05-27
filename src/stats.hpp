@@ -27,25 +27,18 @@ double computeZeroPercentage(const std::vector<double> &vec);
 double computePearsonCorrelation(const std::vector<double> &x,
 		const std::vector<double> &y);
 
-//Compute the pearson correlation matrix (output in 1D) between a range of vectors
-std::vector<double> computePearsonCorrelation(
-		const std::vector<std::vector<double>> &M);
+double computePearsonCorrelation(const std::vector<double> &x,
+		const std::vector<double> &y, double x_mean, double x_stddev, double y_mean,
+		double y_stddev);
+
+//utility for Spearman
+void computeRank(std::vector<double> &x);
 
 //Compute the spearman correlation between two vectors
 double computeSpearmanCorrelation(const std::vector<double> &x,
 		const std::vector<double> &y);
 
-//Compute the spearman correlation matrix (output in 1D) between a range of vectors
-std::vector<double> computeSpearmanCorrelation(
-		const std::vector<std::vector<double>> &M);
 
-//Compute the euclidean distance matrix between a range of vectors
-std::vector<double> computePairwiseEuclideanDistance(
-		const std::vector<std::vector<double>> &M);
-
-//Compute the manhattan distance matrix between a range of vectors
-std::vector<double> computePairwiseManhattanDistance(
-		const std::vector<std::vector<double>> &M);
 
 std::unordered_map<std::string, std::vector<std::pair<double, double>>>computeControlDistribution(const RNASeqData &controlData);
 void computeZScore(RNASeqData &tumorData,

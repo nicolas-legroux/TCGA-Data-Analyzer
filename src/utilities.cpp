@@ -39,10 +39,6 @@ int numberOfPairs(int n) {
  *
  */
 
-double distanceDouble(const double &x, const double &y) {
-	return abs(x - y);
-}
-
 double euclideanDistance(const std::vector<double> &a,
 		const std::vector<double> &b) {
 	double dist = 0.0;
@@ -63,17 +59,35 @@ double manhattanDistance(const std::vector<double> &a,
 	return dist;
 }
 
+double cosineSimilarity(const std::vector<double> &a,
+		const std::vector<double> &b) {
+	double product = 0.0;
+	double normA = 0.0;
+	double normB = 0.0;
+	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
+			[&product,&normA,&normB](double ai, double bi) {
+				product += ai*bi;
+				normA += ai*ai;
+				normB += bi*bi;
+			});
+	return product / (sqrt(normA)*sqrt(normB));
+}
+
 /*
  *
  * UTILITIES FOR GENERIC K MEANS
  *
  */
 
+double distanceDouble(const double &x, const double &y) {
+	return abs(x - y);
+}
+
 void addToDouble(double &d, const double &x) {
 	d += x;
 }
 
-void divideDoubleByConstant(double &d, double c){
+void divideDoubleByConstant(double &d, double c) {
 	d /= c;
 }
 

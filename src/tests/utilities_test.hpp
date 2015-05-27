@@ -10,5 +10,6 @@
 
 void splitTest();
 void copy_if_two_ranges_test();
+void cosineSimilarityTest();
 
 #endif /* SRC_TESTS_UTILITIES_TEST_HPP_ */

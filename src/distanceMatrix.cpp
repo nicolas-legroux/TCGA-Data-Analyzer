@@ -6,6 +6,7 @@
 #include <cassert>
 
 #include "distanceMatrix.hpp"
+#include "distanceMetrics.hpp"
 #include "typedefs.hpp"
 #include "stats.hpp"
 
@@ -30,10 +31,10 @@ std::vector<double> computeDistanceMatrix(
 		const std::vector<std::vector<double>> &data, DistanceMetric method) {
 	cout << endl << "Computing Distace Matrix... " << flush;
 	if(method == DistanceMetric::PEARSON_CORRELATION){
-		return computePearsonCorrelation(data);
+		return computePairwisePearsonCorrelation(data);
 	}
 	else if(method == DistanceMetric::SPEARMAN_CORRELATION){
-		return computeSpearmanCorrelation(data);
+		return computePairwiseSpearmanCorrelation(data);
 	}
 	else if(method==DistanceMetric::EUCLIDEAN_DISTANCE){
 		return computePairwiseEuclideanDistance(data);
