@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 #include <cassert>
+#include <stdexcept>
 
 #include "distanceMatrix.hpp"
 #include "distanceMetrics.hpp"
@@ -12,8 +13,8 @@
 
 using namespace std;
 
-string distanceMetricName(const DistanceMetric &distanceMetric){
-	switch(distanceMetric){
+string distanceMetricName(const DistanceMetric &distanceMetric) {
+	switch (distanceMetric) {
 	case DistanceMetric::PEARSON_CORRELATION:
 		return "pearson-correlation";
 	case DistanceMetric::SPEARMAN_CORRELATION:
@@ -22,6 +23,8 @@ string distanceMetricName(const DistanceMetric &distanceMetric){
 		return "euclidean-distance";
 	case DistanceMetric::MANHATTAN_DISTANCE:
 		return "manhattan-distance";
+	case DistanceMetric::COSINE_SIMILARITY:
+		return "cosine-similarity";
 	default:
 		return "unknown";
 	}
@@ -29,19 +32,20 @@ string distanceMetricName(const DistanceMetric &distanceMetric){
 
 std::vector<double> computeDistanceMatrix(
 		const std::vector<std::vector<double>> &data, DistanceMetric method) {
-	cout << endl << "Computing Distace Matrix... " << flush;
-	if(method == DistanceMetric::PEARSON_CORRELATION){
+
+	switch (method) {
+	case DistanceMetric::PEARSON_CORRELATION:
 		return computePairwisePearsonCorrelation(data);
-	}
-	else if(method == DistanceMetric::SPEARMAN_CORRELATION){
+	case DistanceMetric::SPEARMAN_CORRELATION:
 		return computePairwiseSpearmanCorrelation(data);
-	}
-	else if(method==DistanceMetric::EUCLIDEAN_DISTANCE){
+	case DistanceMetric::EUCLIDEAN_DISTANCE:
 		return computePairwiseEuclideanDistance(data);
-	}
-	else{
-		assert(method==DistanceMetric::MANHATTAN_DISTANCE);
+	case DistanceMetric::MANHATTAN_DISTANCE:
 		return computePairwiseManhattanDistance(data);
+	case DistanceMetric::COSINE_SIMILARITY:
+		return computePairwiseCosineSimilarity(data);
+	default:
+		throw invalid_argument("Unknown distance measure.");
 	}
 }
 

@@ -39,6 +39,14 @@ int numberOfPairs(int n) {
  *
  */
 
+double euclideanNorm(const std::vector<double> &x) {
+	double norm = 0.0;
+	for_each(x.cbegin(), x.cend(), [&](double xi) {
+		norm += xi*xi;
+	});
+	return sqrt(norm);
+}
+
 double euclideanDistance(const std::vector<double> &a,
 		const std::vector<double> &b) {
 	double dist = 0.0;
@@ -60,17 +68,26 @@ double manhattanDistance(const std::vector<double> &a,
 }
 
 double cosineSimilarity(const std::vector<double> &a,
+		const std::vector<double> &b, double normA, double normB) {
+	double product = 0.0;
+	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
+			[&product](double ai, double bi) {
+				product += ai*bi;});
+	return product / (normA * normB);
+}
+
+double cosineSimilarity(const std::vector<double> &a,
 		const std::vector<double> &b) {
 	double product = 0.0;
 	double normA = 0.0;
 	double normB = 0.0;
 	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
-			[&product,&normA,&normB](double ai, double bi) {
+			[&product, &normA, &normB](double ai, double bi) {
 				product += ai*bi;
 				normA += ai*ai;
 				normB += bi*bi;
 			});
-	return product / (sqrt(normA)*sqrt(normB));
+	return product / (sqrt(normA) * sqrt(normB));
 }
 
 /*

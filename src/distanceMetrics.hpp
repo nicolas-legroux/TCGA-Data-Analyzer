@@ -19,6 +19,9 @@ std::vector<double> computePairwiseEuclideanDistance(
 std::vector<double> computePairwiseManhattanDistance(
 		const std::vector<std::vector<double>> &M);
 
+std::vector<double> computePairwiseCosineSimilarity(
+		const std::vector<std::vector<double>> &M);
+
 
 
 

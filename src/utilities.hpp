@@ -102,11 +102,16 @@ int numberOfPairs(int n);
  *
  */
 
+double euclideanNorm(const std::vector<double> &x);
+
 double euclideanDistance(const std::vector<double> &a,
 		const std::vector<double> &b);
 
 double manhattanDistance(const std::vector<double> &a,
 		const std::vector<double> &b);
+
+double cosineSimilarity(const std::vector<double> &a,
+		const std::vector<double> &b, double normA, double normB);
 
 double cosineSimilarity(const std::vector<double> &a,
 		const std::vector<double> &b);
