@@ -11,5 +11,6 @@
 void splitTest();
 void copy_if_two_ranges_test();
 void cosineSimilarityTest();
+void buildIndexMap_test();
 
 #endif /* SRC_TESTS_UTILITIES_TEST_HPP_ */

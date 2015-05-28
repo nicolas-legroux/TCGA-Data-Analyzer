@@ -26,7 +26,7 @@ string distanceMetricName(const DistanceMetric &distanceMetric) {
 	case DistanceMetric::COSINE_SIMILARITY:
 		return "cosine-similarity";
 	default:
-		return "unknown";
+		throw invalid_argument("Unknown distance measure.");
 	}
 }
 

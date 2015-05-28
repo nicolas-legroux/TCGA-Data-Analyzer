@@ -11,6 +11,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <map>
 #include <assert.h>
 
 //Iterate on two ranges and call a binary-op function
@@ -40,6 +41,15 @@ void print_vector(const std::vector<T> &v) {
 	std::cout << "{ ";
 	for_each(v.cbegin(), v.cend(),
 			[](const T &data) {std::cout << data << " ";});
+	std::cout << "}" << std::endl;
+}
+
+//Print a map
+template<typename T1, typename T2>
+void print_map(const std::map<T1, T2> &m) {
+	std::cout << "{ ";
+	for_each(m.cbegin(), m.cend(),
+			[](const std::pair<T1, T2> &data) {std::cout << data.first << "->" << data.second << " ";});
 	std::cout << "}" << std::endl;
 }
 
@@ -84,6 +94,19 @@ std::vector<size_t> get_rank_increasing(const std::vector<T> &v) {
 		ranks[sortedIdx[i]] = i;
 	}
 	return ranks;
+}
+
+//Build a map from a range
+template<typename T, typename InputIterator>
+std::map<T, unsigned int> buildIndexMap(InputIterator first,
+		InputIterator last) {
+	std::map<T, unsigned int> indexMap;
+	unsigned int count = 0;
+	for_each(first, last, [&indexMap, &count](const T &data) {
+		indexMap.insert(std::make_pair(data, count));
+		++count;
+	});
+	return indexMap;
 }
 
 //Prints advancement of a task in %

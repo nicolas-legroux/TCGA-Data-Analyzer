@@ -16,7 +16,7 @@ void unsupervisedNormalization_test(
 	//STEP1 : READ DATA
 	string filenameCancers = "cancer.list";
 	Data data;
-	readData(filenameCancers, data);
+	readData(filenameCancers, data, 100, 1000);
 
 	//STEP2 : NORMALIZE
 	unsupervisedNormalization(data, method, parameters);
@@ -36,7 +36,7 @@ void unsupervisedNormalization_test(
 	string heatMapFilename = "heatmap_" + distanceMetricName(distanceMetric)
 			+ ".png";
 
-	int divisionThickness = (int) (0.006 * (double) rawData.size()) + 1;
+	int divisionThickness = (int) (0.004 * (double) rawData.size()) + 1;
 
 	makeHeatMap(distanceMatrix, heatMapFilename.c_str(),
 			buildClassDivision(sampleIdentifiers), divisionThickness);

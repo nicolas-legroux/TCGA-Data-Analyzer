@@ -5,6 +5,7 @@
 #include "tests/unsupervisedNormalization_test.hpp"
 #include "tests/utilities_test.hpp"
 #include "tests/clustering_test.hpp"
+#include "tests/hierarchicalClustering_test.hpp"
 
 #include "unsupervisedNormalization.hpp"
 #include "distanceMatrix.hpp"
@@ -12,19 +13,14 @@
 using namespace std;
 
 int main() {
-
 	/*
 	UnsupervisedNormalizationMethod method = UnsupervisedNormalizationMethod::NO_NORMALIZATION;
 	UnsupervisedNormalizationParameters parameters;
 	parameters.setKMeansParameters(2, 100);
-	DistanceMetric distanceMetric = DistanceMetric::PEARSON_CORRELATION;
-
+	DistanceMetric distanceMetric = DistanceMetric::EUCLIDEAN_DISTANCE;
 	unsupervisedNormalization_test(method, parameters, distanceMetric);
 	*/
-	cosineSimilarityTest();
-
-
-
+	hierarchicalClusteringTest();
 
 
 	/*
