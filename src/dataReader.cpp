@@ -136,6 +136,10 @@ void readRNASeqData(const PatientList &patientData, const GeneList &geneMapping,
 		int i = 0;
 
 		for (const string &patientName : pairedData.second) {
+			if (i >= maxPatients) {
+				break;
+			}
+
 			if (isTumorData) {
 				readRNASeqFromFile(cancerName, "01", patientName, geneMapping,
 						rnaSeqData);
@@ -145,10 +149,6 @@ void readRNASeqData(const PatientList &patientData, const GeneList &geneMapping,
 			}
 
 			i++;
-
-			if (i >= maxPatients) {
-				break;
-			}
 		}
 
 		cout << "Found " << rnaSeqData[cancerName][0].size() << " patients."

@@ -3,6 +3,7 @@
 #include "utilities.hpp"
 #include "typedefs.hpp"
 #include "k_means.hpp"
+#include "hierarchical_clustering.hpp"
 
 using namespace std;
 
@@ -26,14 +27,48 @@ vector<int> getRealClusters(vector<SampleIdentifier> &sampleIdentifiers) {
 	return realClusters;
 }
 
-vector<int> clusterWithKMeans(const vector<vector<double>> &data, int K, int Nmax){
+vector<int> cluster_KMeans(const vector<vector<double>> &data, int K,
+		int Nmax) {
 	vector<int> clusters(data.size(), 0);
 	K_Means<vector<double>> kMeans(data, clusters, K, Nmax, euclideanDistance,
-				addToVector, divideVectorByConstant, vector<double>(data[0].size(), 0.0));
+			addToVector, divideVectorByConstant,
+			vector<double>(data[0].size(), 0.0));
 
 	kMeans.compute();
 	return clusters;
 }
+
+vector<int> cluster_Hierarchical(const vector<double> &matrix,
+		const DistanceMetric &distanceMetric,
+		const LinkageMethod &linkageMethod, int K) {
+
+	MatrixType matrixType;
+	switch (distanceMetric) {
+	case DistanceMetric::PEARSON_CORRELATION:
+		matrixType = MatrixType::SIMILARITY;
+		break;
+	case DistanceMetric::SPEARMAN_CORRELATION:
+		matrixType = MatrixType::SIMILARITY;
+		break;
+	case DistanceMetric::EUCLIDEAN_DISTANCE:
+		matrixType = MatrixType::DISTANCE;
+		break;
+	case DistanceMetric::MANHATTAN_DISTANCE:
+		matrixType = MatrixType::DISTANCE;
+		break;
+	case DistanceMetric::COSINE_SIMILARITY:
+		matrixType = MatrixType::SIMILARITY;
+		break;
+	default:
+		throw invalid_argument("Unknown distance measure.");
+	}
+
+	Hierarchical_Clustering hierarchicalClustering(matrix, linkageMethod, matrixType);
+	vector<int> clusters = hierarchicalClustering.compute(K);
+
+	return clusters;
+}
+
 
 /*
  *

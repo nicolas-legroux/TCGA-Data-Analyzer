@@ -4,74 +4,83 @@
 #include <algorithm>
 #include "clustering_test.hpp"
 #include "../dataReader.hpp"
-#include "../heatMap.hpp"
 #include "../clustering.hpp"
-
 #include "../distanceMatrix.hpp"
 #include "../unsupervisedNormalization.hpp"
-#include "../k_means.hpp"
 
 using namespace std;
 
-void clustering_test() {
-	/*
+void clustering_KMeans_test(const UnsupervisedNormalizationMethod &method,
+		const UnsupervisedNormalizationParameters &parameters) {
+	//STEP 1 : READ DATA
 	string filenameCancers = "cancer.list";
-	vector<string> cancers {"BRCA"};
-	PatientList patientControlList;
-	PatientList patientTumorList;
-	RNASeqData controlData;
-	RNASeqData tumorData;
-	GeneList geneMapping(
-			makeGeneMapping(
-					"data/BRCA-normalized/TCGA-A1-A0SJ-01.genes.normalized.results"));
-	readPatientData(cancers, patientControlList, patientTumorList);
-	readRNASeqData(patientControlList, patientTumorList, geneMapping,
-			controlData, tumorData, 500);
+	vector<string> cancers { "LUSC", "LUAD" };
+	Data data;
+	readData(cancers, data, 0, 50);
 
-	vector<double> COL1A1;
+	//STEP 2 : NORMALIZE
+	unsupervisedNormalization(data, method, parameters);
 
-	cout << geneMapping[4041].first << endl;
-
-	//normalizeKMeans(controlData, tumorData, 2, 1000);
-
-	std::vector<std::vector<double>> data;
+	//STEP3 : PREPARE DATA FOR CLUSTERING
+	std::vector<std::vector<double>> transposedData;
 	std::vector<SampleIdentifier> sampleIdentifiers;
 	CancerPatientIDList cancerPatientIDList;
+	data.transposeData(transposedData, sampleIdentifiers, cancerPatientIDList);
 
-	prepareData(data, sampleIdentifiers, cancerPatientIDList,
-			patientControlList, patientTumorList, controlData, tumorData);
-
-	for(int i=0; i<data.size(); ++i){
-		COL1A1.push_back(data[i][4041]);
-	}
-
-	vector<double> col1a1Control;
-	vector<double> col1a1Tumor;
-
-
-
-	vector<int> clustersCOL1A1(data.size(), 0);
-	computeKMeans(COL1A1, clustersCOL1A1, 2, 1000);
-	for_each(clustersCOL1A1.cbegin(), clustersCOL1A1.cend(),
-			[](int i) {cout << i << " ";});
-	cout << endl;
-
+	//STEP4 : CLUSTER
 	vector<int> realClusters = getRealClusters(sampleIdentifiers);
 	for_each(realClusters.cbegin(), realClusters.cend(),
 			[](int i) {cout << i << " ";});
 	cout << endl;
 
-	vector<int> computedClusters = clusterWithKMeans(data, 2, 1000);
+	vector<int> computedClusters = cluster_KMeans(transposedData, 2, 1000);
 
 	for_each(computedClusters.cbegin(), computedClusters.cend(),
 			[](int i) {cout << i << " ";});
 
 	cout << endl;
 
-	cout << "Adjusted Rand Index : " << adjustedRandIndex(realClusters, computedClusters) << endl;
-	cout << "Adjusted Rand Index : " << adjustedRandIndex(realClusters, clustersCOL1A1) << endl;
-	cout << "Adjusted Rand Index : " << adjustedRandIndex(computedClusters, clustersCOL1A1) << endl;
-	*/
+	cout << "Adjusted Rand Index : "
+			<< adjustedRandIndex(realClusters, computedClusters) << endl;
+}
+
+void clustering_Hierarchical_test(const UnsupervisedNormalizationMethod &method,
+		const UnsupervisedNormalizationParameters &parameters,
+		const DistanceMetric &distanceMetric, const LinkageMethod &linkageMethod) {
+	//STEP 1 : READ DATA
+	string filenameCancers = "cancer.list";
+	vector<string> cancers { "KIRC" };
+	Data data;
+	readData(cancers, data, 50, 50);
+
+	//STEP 2 : NORMALIZE
+	unsupervisedNormalization(data, method, parameters);
+
+	//STEP3 : PREPARE DATA FOR CLUSTERING
+	std::vector<std::vector<double>> transposedData;
+	std::vector<SampleIdentifier> sampleIdentifiers;
+	CancerPatientIDList cancerPatientIDList;
+	data.transposeData(transposedData, sampleIdentifiers, cancerPatientIDList);
+
+	//STEP4: COMPUTE DISTANCE MATRIX
+	std::vector<double> distanceMatrix = computeDistanceMatrix(transposedData,
+			distanceMetric);
+
+	//STEP5 : CLUSTER
+	vector<int> realClusters = getRealClusters(sampleIdentifiers);
+	for_each(realClusters.cbegin(), realClusters.cend(),
+			[](int i) {cout << i << " ";});
+	cout << endl;
+
+	vector<int> computedClusters = cluster_Hierarchical(distanceMatrix, distanceMetric, linkageMethod , 2);
+
+	for_each(computedClusters.cbegin(), computedClusters.cend(),
+			[](int i) {cout << i << " ";});
+
+	cout << endl;
+
+	cout << "Adjusted Rand Index : "
+			<< adjustedRandIndex(realClusters, computedClusters) << endl;
 }
 
 /* R Code :
