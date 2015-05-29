@@ -14,9 +14,9 @@ void clustering_KMeans_test(const UnsupervisedNormalizationMethod &method,
 		const UnsupervisedNormalizationParameters &parameters) {
 	//STEP 1 : READ DATA
 	string filenameCancers = "cancer.list";
-	vector<string> cancers { "LUSC", "LUAD" };
+	vector<string> cancers { "BRCA", "KIRC", "OV", "LUAD", "GBM", "THCA" };
 	Data data;
-	readData(cancers, data, 0, 50);
+	readData(cancers, data, 50, 300);
 
 	//STEP 2 : NORMALIZE
 	unsupervisedNormalization(data, method, parameters);
@@ -33,7 +33,7 @@ void clustering_KMeans_test(const UnsupervisedNormalizationMethod &method,
 			[](int i) {cout << i << " ";});
 	cout << endl;
 
-	vector<int> computedClusters = cluster_KMeans(transposedData, 2, 1000);
+	vector<int> computedClusters = cluster_KMeans(transposedData, 10, 1000);
 
 	for_each(computedClusters.cbegin(), computedClusters.cend(),
 			[](int i) {cout << i << " ";});
@@ -46,12 +46,13 @@ void clustering_KMeans_test(const UnsupervisedNormalizationMethod &method,
 
 void clustering_Hierarchical_test(const UnsupervisedNormalizationMethod &method,
 		const UnsupervisedNormalizationParameters &parameters,
-		const DistanceMetric &distanceMetric, const LinkageMethod &linkageMethod) {
+		const DistanceMetric &distanceMetric,
+		const LinkageMethod &linkageMethod) {
 	//STEP 1 : READ DATA
 	string filenameCancers = "cancer.list";
-	vector<string> cancers { "KIRC" };
+	vector<string> cancers { "BRCA", "KIRC", "OV", "LUAD", "GBM", "THCA" };
 	Data data;
-	readData(cancers, data, 50, 50);
+	readData(cancers, data, 50, 300);
 
 	//STEP 2 : NORMALIZE
 	unsupervisedNormalization(data, method, parameters);
@@ -72,7 +73,8 @@ void clustering_Hierarchical_test(const UnsupervisedNormalizationMethod &method,
 			[](int i) {cout << i << " ";});
 	cout << endl;
 
-	vector<int> computedClusters = cluster_Hierarchical(distanceMatrix, distanceMetric, linkageMethod , 2);
+	vector<int> computedClusters = cluster_Hierarchical(distanceMatrix,
+			distanceMetric, linkageMethod, 10);
 
 	for_each(computedClusters.cbegin(), computedClusters.cend(),
 			[](int i) {cout << i << " ";});

@@ -11,6 +11,7 @@ vector<int> getRealClusters(vector<SampleIdentifier> &sampleIdentifiers) {
 	vector<int> realClusters;
 	SampleIdentifier prev = sampleIdentifiers[0];
 	int currentCluster = 0;
+	cout << currentCluster << " -> " << prev.toString() << endl;
 	realClusters.push_back(currentCluster);
 
 	for (auto it = sampleIdentifiers.begin() + 1; it != sampleIdentifiers.end();
@@ -19,6 +20,7 @@ vector<int> getRealClusters(vector<SampleIdentifier> &sampleIdentifiers) {
 		if (prev.cancerName != next.cancerName
 				|| prev.isTumor != next.isTumor) {
 			++currentCluster;
+			cout << currentCluster << " -> " << next.toString() << endl;
 		}
 		realClusters.push_back(currentCluster);
 		prev = next;

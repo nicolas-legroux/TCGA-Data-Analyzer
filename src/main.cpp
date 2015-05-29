@@ -6,6 +6,7 @@
 #include "tests/utilities_test.hpp"
 #include "tests/clustering_test.hpp"
 #include "tests/hierarchicalClustering_test.hpp"
+#include <limits>
 
 #include "unsupervisedNormalization.hpp"
 #include "distanceMatrix.hpp"
@@ -13,16 +14,18 @@
 using namespace std;
 
 int main() {
-
 	UnsupervisedNormalizationMethod method = UnsupervisedNormalizationMethod::KMEANS;
 	UnsupervisedNormalizationParameters parameters;
 	parameters.setKMeansParameters(2, 1000);
-	parameters.setBinaryQuantileParameters(0.998);
-	DistanceMetric distanceMetric = DistanceMetric::PEARSON_CORRELATION;
+	parameters.setBinaryQuantileParameters(0.3);
+	DistanceMetric distanceMetric = DistanceMetric::SPEARMAN_CORRELATION;
 	//unsupervisedNormalization_test(method, parameters, distanceMetric);
+
 
 	//clustering_KMeans_test(method, parameters);
 	clustering_Hierarchical_test(method, parameters, distanceMetric, LinkageMethod::COMPLETE);
+
+
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);

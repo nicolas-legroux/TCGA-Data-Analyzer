@@ -26,11 +26,7 @@ Hierarchical_Clustering::Hierarchical_Clustering(const vector<double> &matrix,
 
 	for (unsigned int i = 0; i < n; ++i) {
 		for (unsigned int j = 0; j <= i; ++j) {
-			if (i == j) {
-				data.push_back(worstPossibleDistance());
-			} else {
-				data.push_back(matrix[i * n + j]);
-			}
+			data.push_back(matrix[i * n + j]);
 		}
 	}
 
@@ -47,9 +43,9 @@ double& Hierarchical_Clustering::getDistance(int i, int j) {
 double Hierarchical_Clustering::worstPossibleDistance() {
 	switch (matrixType) {
 	case MatrixType::SIMILARITY:
-		return numeric_limits<double>::min();
+		return -1.0*std::numeric_limits<double>::infinity();
 	case MatrixType::DISTANCE:
-		return numeric_limits<double>::max();
+		return std::numeric_limits<double>::infinity();
 	default:
 		throw invalid_argument("Unknown matrix type");
 	}
@@ -72,10 +68,12 @@ pair<int, int> Hierarchical_Clustering::findClustersToMerge() {
 	double bestDistance = worstPossibleDistance();
 	for (int i : clusterRepresentatives) {
 		for (int j : clusterRepresentatives) {
-			double d = getDistance(i, j);
-			if (isBetterDistance(bestDistance, d)) {
-				bestDistance = d;
-				clustersToMerge = make_pair(i, j);
+			if(i != j){
+				double d = getDistance(i, j);
+				if (isBetterDistance(bestDistance, d)) {
+					bestDistance = d;
+					clustersToMerge = make_pair(i, j);
+				}
 			}
 		}
 	}
@@ -148,7 +146,8 @@ vector<int> Hierarchical_Clustering::compute(unsigned int k) {
 		pair<int, int> clusterToMerge = findClustersToMerge();
 		int i = clusterToMerge.first;
 		int j = clusterToMerge.second;
-		cout << "Merging " << i << " and " << j << endl;
+		assert(i >= 0 && j >= 0);
+		//cout << "Merging " << i << " and " << j << endl;
 		mergeClusters(i, j);
 	}
 
