@@ -10,22 +10,39 @@
 
 #include "unsupervisedNormalization.hpp"
 #include "distanceMatrix.hpp"
+#include "normedSpace.hpp"
+
+#include <iostream>
+#include <climits>
 
 using namespace std;
 
 int main() {
-	UnsupervisedNormalizationMethod method = UnsupervisedNormalizationMethod::KMEANS;
-	UnsupervisedNormalizationParameters parameters;
-	parameters.setKMeansParameters(2, 1000);
-	parameters.setBinaryQuantileParameters(0.3);
-	DistanceMetric distanceMetric = DistanceMetric::SPEARMAN_CORRELATION;
-	//unsupervisedNormalization_test(method, parameters, distanceMetric);
+
+	vector<double> x1 = { 0, 1, 2.2, 3, 4, 5 };
+	vector<double> x2 = { 0, 1, 0, 1, 0, 1 };
+
+	ManhattanSpace<double> test(6);
+	cout << test.distance(x1, x2) << endl;
+	test.addTo(x1, x2);
+	print_vector(x1);
+	test.multiplyByConstant(x1, 1.5);
+	print_vector(x1);
+	test.substractFrom(x2, x2);
+	print_vector(x2);
+
+	/*
+	 UnsupervisedNormalizationMethod method = UnsupervisedNormalizationMethod::KMEANS;
+	 UnsupervisedNormalizationParameters parameters;
+	 parameters.setKMeansParameters(2, 1000);
+	 parameters.setBinaryQuantileParameters(0.3);
+	 DistanceMetric distanceMetric = DistanceMetric::SPEARMAN_CORRELATION;
+	 //unsupervisedNormalization_test(method, parameters, distanceMetric);
 
 
-	//clustering_KMeans_test(method, parameters);
-	clustering_Hierarchical_test(method, parameters, distanceMetric, LinkageMethod::COMPLETE);
-
-
+	 //clustering_KMeans_test(method, parameters);
+	 clustering_Hierarchical_test(method, parameters, distanceMetric, LinkageMethod::COMPLETE);
+	 */
 
 	/*
 	 unordered_map<string, vector<pair<double, double>>> test = computeControlDistribution(controlData);
