@@ -1,10 +1,3 @@
-/*
- * utilities.hpp
- *
- *  Created on: May 11, 2015
- *      Author: nicolas
- */
-
 #ifndef SRC_UTILITIES_HPP_
 #define SRC_UTILITIES_HPP_
 

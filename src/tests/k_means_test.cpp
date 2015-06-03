@@ -21,8 +21,7 @@ void kMeansTest1(int K, int Nmax, string cancerName, int patientId) {
 			data.getPatientTumorData(cancerName, patientId));
 	std::vector<int> clusters(dataToCluster.size(), 0);
 
-	K_Means<double> kMeans(dataToCluster, clusters, K, Nmax, distanceDouble,
-			addToDouble, divideDoubleByConstant, 0.0);
+	K_Means<double> kMeans(dataToCluster, clusters, K, Nmax, NormedVectorSpace<double>());
 
 	std::vector<double> means = kMeans.compute();
 
@@ -45,8 +44,7 @@ void iteratedBinaryKMeans_test(int N_iter, string cancerName, int patientId) {
 			data.getPatientTumorData(cancerName, patientId));
 	std::vector<int> clusters(dataToCluster.size(), 0);
 
-	K_Means<double> kMeans(dataToCluster, clusters, 2, 100, distanceDouble,
-			addToDouble, divideDoubleByConstant, 0.0);
+	K_Means<double> kMeans(dataToCluster, clusters, 2, 100, NormedVectorSpace<double>());
 
 	kMeans.computeIteratedBinaryKMeans(N_iter);
 
@@ -72,9 +70,7 @@ void twodimensionalKmeans_test() {
 	vector<vector<double>> data { vec1, vec2, vec3, vec4, vec5 };
 	vector<int> clusters(data.size(), 0);
 
-	K_Means<vector<double>> kMeans(data, clusters, K, Nmax, euclideanDistance,
-			addToVector, divideVectorByConstant,
-			vector<double>(vec1.size(), 0.0));
+	K_Means<vector<double>> kMeans(data, clusters, K, Nmax, EuclideanSpace<double>(data[0].size()));
 
 	vector<vector<double>> means = kMeans.compute();
 	std::vector<int> clusterCount(K, 0);

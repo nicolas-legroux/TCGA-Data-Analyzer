@@ -32,9 +32,7 @@ vector<int> getRealClusters(vector<SampleIdentifier> &sampleIdentifiers) {
 vector<int> cluster_KMeans(const vector<vector<double>> &data, int K,
 		int Nmax) {
 	vector<int> clusters(data.size(), 0);
-	K_Means<vector<double>> kMeans(data, clusters, K, Nmax, euclideanDistance,
-			addToVector, divideVectorByConstant,
-			vector<double>(data[0].size(), 0.0));
+	K_Means<vector<double>> kMeans(data, clusters, K, Nmax, EuclideanSpace<double>(data[0].size()));
 
 	kMeans.compute();
 	return clusters;

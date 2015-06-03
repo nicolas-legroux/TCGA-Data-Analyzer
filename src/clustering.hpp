@@ -6,7 +6,7 @@
 #include "hierarchical_clustering.hpp"
 #include "distanceMatrix.hpp"
 
-//Function to get real labels
+// Function to get real labels
 std::vector<int> getRealClusters(
 		std::vector<SampleIdentifier> &sampleIdentifiers);
 

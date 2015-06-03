@@ -9,6 +9,7 @@
 #include "typedefs.hpp"
 #include "k_means.hpp"
 #include "utilities.hpp"
+#include "normedSpace.hpp"
 
 using namespace std;
 
@@ -29,8 +30,7 @@ void individualNormalization(Data &data, const string &cancer, int patientId,
 	if (method == UnsupervisedNormalizationMethod::KMEANS) {
 		vector<int> clusters(numberOfGenes, 0);
 		K_Means<double> kMeans(dataToNormalize, clusters, parameters.K,
-				parameters.Nmax, distanceDouble, addToDouble,
-				divideDoubleByConstant, 0.0);
+				parameters.Nmax, NormedVectorSpace<double>());
 		kMeans.compute();
 		for (unsigned int i = 0; i < numberOfGenes; ++i) {
 			if (isTumor) {
@@ -47,7 +47,7 @@ void individualNormalization(Data &data, const string &cancer, int patientId,
 			== UnsupervisedNormalizationMethod::BINARY_ITERATED_KMEANS) {
 		vector<int> clusters(numberOfGenes, 0);
 		K_Means<double> kMeans(dataToNormalize, clusters, 2, 100,
-				distanceDouble, addToDouble, divideDoubleByConstant, 0.0);
+				NormedVectorSpace<double>());
 		kMeans.computeIteratedBinaryKMeans(parameters.Niteration);
 		for (unsigned int i = 0; i < numberOfGenes; ++i) {
 			if (isTumor) {

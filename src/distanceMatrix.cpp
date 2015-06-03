@@ -124,7 +124,8 @@ void exportClassStats(const std::vector<double> &distanceMatrix,
 			vector<double> data;
 			for (int I : cancerPatientIDList.at(classes[i])) {
 				for (int J : cancerPatientIDList.at(classes[j])) {
-					//When I = J : we are comparing the same patients, we know the correlation is 1
+					// When I = J : we are comparing the same patients,
+                  //  we know the correlation is 1
 					if (I != J) {
 						data.push_back(distanceMatrix[N * I + J]);
 					}
