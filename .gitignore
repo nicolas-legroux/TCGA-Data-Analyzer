@@ -9,10 +9,16 @@ outputs/*
 .cproject
 /Debug/
 /Release/
+.settings/*
 
 *.png
+
+#Executable names
 Stage3A
 CancerClustering
+TCGA-Clusterer
+
+#Cmake files
 CMakeFiles/*
 CMakeLists.txt~
 cmake_install.cmake
