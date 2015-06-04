@@ -90,34 +90,3 @@ double cosineSimilarity(const std::vector<double> &a,
 	return product / (sqrt(normA) * sqrt(normB));
 }
 
-/*
- *
- * UTILITIES FOR GENERIC K MEANS
- *
- */
-
-double distanceDouble(const double &x, const double &y) {
-	return abs(x - y);
-}
-
-void addToDouble(double &d, const double &x) {
-	d += x;
-}
-
-void divideDoubleByConstant(double &d, double c) {
-	d /= c;
-}
-
-void addToVector(std::vector<double> &v, const std::vector<double> &x) {
-	assert(x.size() == v.size());
-	for_each_two_ranges(v.begin(), v.end(), x.cbegin(),
-			[](double &vd, double xd) {
-				vd += xd;
-			});
-}
-
-void divideVectorByConstant(std::vector<double> &v, double c) {
-	for_each(v.begin(), v.end(), [c](double &vd) {
-		vd /= c;
-	});
-}

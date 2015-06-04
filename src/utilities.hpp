@@ -132,16 +132,4 @@ double cosineSimilarity(const std::vector<double> &a,
 double cosineSimilarity(const std::vector<double> &a,
 		const std::vector<double> &b);
 
-/*
- *
- * UTILITIES FOR GENERIC K MEANS
- *
- */
-
-double distanceDouble(const double &x, const double &y);
-void addToDouble(double &d, const double &x);
-void divideDoubleByConstant(double &d, double c);
-void addToVector(std::vector<double> &v, const std::vector<double> &x);
-void divideVectorByConstant(std::vector<double> &v, double c);
-
 #endif /* SRC_UTILITIES_HPP_ */
