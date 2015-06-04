@@ -7,7 +7,7 @@
 using namespace std;
 
 void printAdvancement(unsigned int currentCount, unsigned int totalCount) {
-	cout << (100 * currentCount) / (totalCount) << "% \r" << flush;
+	cout << (100.0 * (double)currentCount) / (double)(totalCount) << "% \r" << flush;
 }
 
 vector<string> split(const string &s, const vector<char> &delimiters) {

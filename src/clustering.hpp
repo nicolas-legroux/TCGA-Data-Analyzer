@@ -16,15 +16,13 @@ std::map<int, std::string> getRealLabelsMap(
 
 //Functions to compute clusters
 std::vector<int> cluster_KMeans(const std::vector<std::vector<double>> &data,
-		int K, int Nmax);
+		int K, int Nmax, bool verbose = false);
 std::vector<int> cluster_Hierarchical(const std::vector<double> &matrix,
 		const DistanceMetric &distanceMetric,
-		const LinkageMethod &linkageMethod, int K);
+		const LinkageMethod &linkageMethod, int K, bool verbose = false);
 
-//Functions to export to dot format for visualization with Graphviz
-void exportToGraphviz(const std::map<int, std::string> &labelsMap,
-		const std::vector<int> &computedClusters);
-
+void printClustering(const std::map<int, std::string> &labelsMap,
+		const std::vector<int> &realClusters, const std::vector<int> &computedClusters);
 /*
  *
  * CLUSTERING EVALUATION

@@ -15,13 +15,12 @@ using std::string;
 using std::cout;
 using std::endl;
 
-void clustering_KMeans_test(const UnsupervisedNormalizationMethod &method,
+void clustering_KMeans_test(const vector<string> &cancers, int maxControl,
+		int maxTumor, const UnsupervisedNormalizationMethod &method,
 		const UnsupervisedNormalizationParameters &parameters) {
 	//STEP 1 : READ DATA
-	string filenameCancers = "cancer.list";
-	vector<string> cancers { "BRCA", "KIRC", "OV", "LUAD", "GBM", "THCA"};
 	Data data;
-	readData(cancers, data, 50, 300);
+	readData(cancers, data, maxControl, maxTumor);
 
 	//STEP 2 : NORMALIZE
 	unsupervisedNormalization(data, method, parameters);
@@ -34,57 +33,48 @@ void clustering_KMeans_test(const UnsupervisedNormalizationMethod &method,
 
 	//STEP4 : CLUSTER
 	map<int, string> labelsMap = getRealLabelsMap(sampleIdentifiers);
-	cout << endl << "Labels Map : ";
-	print_map(labelsMap);
-
 	vector<int> realClusters = getRealClusters(sampleIdentifiers);
-	print_vector(realClusters);
+	vector<int> computedClusters = cluster_KMeans(transposedData,
+			labelsMap.size(), 1000, true);
 
-	vector<int> computedClusters = cluster_KMeans(transposedData, labelsMap.size(), 1000);
-	print_vector(computedClusters);
+	printClustering(labelsMap, realClusters, computedClusters);
 
-	cout << "Adjusted Rand Index : "
+	cout << endl << "Adjusted Rand Index : "
 			<< adjustedRandIndex(realClusters, computedClusters) << endl;
 }
 
-void clustering_Hierarchical_test(const UnsupervisedNormalizationMethod &method,
+void clustering_Hierarchical_test(const vector<string> &cancers, int maxControl,
+		int maxTumor, const UnsupervisedNormalizationMethod &method,
 		const UnsupervisedNormalizationParameters &parameters,
 		const DistanceMetric &distanceMetric,
 		const LinkageMethod &linkageMethod) {
-	//STEP 1 : READ DATA
+	// STEP 1 : READ DATA
 	string filenameCancers = "cancer.list";
-	vector<string> cancers { "BRCA", "KIRC", "OV", "LUAD", "GBM", "THCA" };
 	Data data;
-	readData(cancers, data, 50, 300);
+	readData(cancers, data, maxControl, maxTumor);
 
-	//STEP 2 : NORMALIZE
+	// STEP 2 : NORMALIZE
 	unsupervisedNormalization(data, method, parameters);
 
-	//STEP3 : PREPARE DATA FOR CLUSTERING
+	// STEP3 : PREPARE DATA FOR CLUSTERING
 	std::vector<std::vector<double>> transposedData;
 	std::vector<SampleIdentifier> sampleIdentifiers;
 	CancerPatientIDList cancerPatientIDList;
 	data.transposeData(transposedData, sampleIdentifiers, cancerPatientIDList);
 
-	//STEP4: COMPUTE DISTANCE MATRIX
+	// STEP4: COMPUTE DISTANCE MATRIX
 	std::vector<double> distanceMatrix = computeDistanceMatrix(transposedData,
 			distanceMetric);
 
-	//STEP5 : CLUSTER
+	// STEP5 : CLUSTER
+	map<int, string> labelsMap = getRealLabelsMap(sampleIdentifiers);
 	vector<int> realClusters = getRealClusters(sampleIdentifiers);
-	for_each(realClusters.cbegin(), realClusters.cend(),
-			[](int i) {cout << i << " ";});
-	cout << endl;
-
 	vector<int> computedClusters = cluster_Hierarchical(distanceMatrix,
-			distanceMetric, linkageMethod, 10);
+			distanceMetric, linkageMethod, labelsMap.size(), true);
 
-	for_each(computedClusters.cbegin(), computedClusters.cend(),
-			[](int i) {cout << i << " ";});
-
-	cout << endl;
-
-	cout << "Adjusted Rand Index : "
+	// STEP6 : PRINT RESULTS
+	printClustering(labelsMap, realClusters, computedClusters);
+	cout << endl << "Adjusted Rand Index : "
 			<< adjustedRandIndex(realClusters, computedClusters) << endl;
 }
 

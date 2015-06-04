@@ -17,14 +17,26 @@
 #include "normedVectorSpace.hpp"
 #include "utilities.hpp"
 
+using std::vector;
+using std::string;
+
 int main() {
 
-	UnsupervisedNormalizationMethod method = UnsupervisedNormalizationMethod::BINARY_QUANTILE;
+	vector<string> cancers = { "BRCA" };
+	int maxControl = 50;
+	int maxTumor = 200;
+
+	UnsupervisedNormalizationMethod method =
+			UnsupervisedNormalizationMethod::BINARY_QUANTILE;
 	UnsupervisedNormalizationParameters parameters;
 	parameters.setBinaryQuantileParameters(0.4);
+	parameters.setKMeansParameters(2, 1000);
 
-	clustering_KMeans_test(method, parameters);
+	// clustering_KMeans_test(cancers, maxControl, maxTumor, method, parameters);
 
+	clustering_Hierarchical_test(cancers, maxControl, maxTumor, method,
+			parameters, DistanceMetric::EUCLIDEAN_DISTANCE,
+			LinkageMethod::COMPLETE);
 
 	return 0;
 }

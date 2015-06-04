@@ -7,10 +7,14 @@
 
 void clustering_KMeans_test();
 
-void clustering_KMeans_test(const UnsupervisedNormalizationMethod &method,
+void clustering_KMeans_test(const std::vector<std::string> &cancers,
+		int maxControl, int maxTumor,
+		const UnsupervisedNormalizationMethod &method,
 		const UnsupervisedNormalizationParameters &parameters);
 
-void clustering_Hierarchical_test(const UnsupervisedNormalizationMethod &method,
+void clustering_Hierarchical_test(const std::vector<std::string> &cancers,
+		int maxControl, int maxTumor,
+		const UnsupervisedNormalizationMethod &method,
 		const UnsupervisedNormalizationParameters &parameters,
 		const DistanceMetric &distanceMetric,
 		const LinkageMethod &linkageMethod);

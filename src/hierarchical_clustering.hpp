@@ -31,6 +31,8 @@ class Hierarchical_Clustering {
   std::vector<double> data;
   unsigned int n;
 
+  bool verbose;
+
   // Utility functions
   double& getDistance(int i, int j);
   double worstPossibleDistance();
@@ -44,7 +46,7 @@ class Hierarchical_Clustering {
 
  public:
   Hierarchical_Clustering(const std::vector<double> &matrix,
-      LinkageMethod _linkageMethod, MatrixType _matrixType);
+      LinkageMethod _linkageMethod, MatrixType _matrixType, bool _verbose = false);
   std::vector<int> compute(unsigned int k);
 };
 

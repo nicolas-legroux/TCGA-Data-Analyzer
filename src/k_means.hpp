@@ -18,15 +18,17 @@ private:
 
 	NormedVectorSpace<T, K> normedVectorSpace;
 
+	bool verbose;
+
 	std::vector<T> means;
 	std::vector<bool> dataToCluster;
 
 	void initializeClustersRandomly() {
-		std::default_random_engine generator;
+		std::default_random_engine engine(std::random_device{}());
 		std::uniform_int_distribution<int> distribution(0, data.size() - 1);
 		for (unsigned int i = 0; i < K_param; i++) {
 			while (true) {
-				int randomInt = distribution(generator);
+				int randomInt = distribution(engine);
 				if (dataToCluster[randomInt]) {
 					T randomData(data[randomInt]);
 					if (find(means.begin(), means.begin() + i, randomData)
@@ -68,22 +70,22 @@ private:
 		}
 	}
 
-	bool kMeansIteration() {
-		bool clustersChanged = false;
+	int kMeansIteration() {
+		bool numberClusterChange = 0;
 		// Assign clusters
 		for (unsigned int i = 0; i != data.size(); ++i) {
 			int oldCluster = clusters[i];
 			if (oldCluster != -1) {
 				int newCluster = findClosestClusterFromDataPoint(data[i]);
 				if (newCluster != clusters[i]) {
-					clustersChanged = true;
+					numberClusterChange++;
 					clusters[i] = newCluster;
 				}
 			}
 		}
 		// Recalculate means
 		recalculateMeans();
-		return clustersChanged;
+		return numberClusterChange;
 	}
 
 	void assignSortedClusters(const std::vector<size_t> &clusterRanks) {
@@ -98,9 +100,9 @@ private:
 public:
 	K_Means(const std::vector<T> &_data, std::vector<int> &_clusters,
 			unsigned int _K, int _Nmax,
-			const NormedVectorSpace<T, K> &_normedVectorSpace) :
+			const NormedVectorSpace<T, K> &_normedVectorSpace, bool _verbose = false) :
 			data(_data), clusters(_clusters), K_param(_K), Nmax(_Nmax), normedVectorSpace(
-					_normedVectorSpace) {
+					_normedVectorSpace), verbose(_verbose) {
 	}
 
 	std::vector<T> compute() {
@@ -115,9 +117,18 @@ public:
 		initializeClustersRandomly();
 
 		// Iterate
-		int i = 0;
-		while (i < Nmax && kMeansIteration()) {
-			++i;
+		if(verbose){
+			std::cout << "Percentage of points that switched between clusters : ";
+		}
+
+		int numberOfPoints = kMeansIteration();
+		int iterations = 1;
+		while (iterations < Nmax && numberOfPoints > 0) {
+			++iterations;
+			numberOfPoints = kMeansIteration();
+			if(verbose){
+				printAdvancement(numberOfPoints, data.size());
+			}
 		}
 
 		// Sort the clusters
@@ -125,7 +136,7 @@ public:
 		assignSortedClusters(clusterRanks);
 		sort(means.begin(), means.end());
 
-		if (i == Nmax) {
+		if (iterations == Nmax) {
 			std::cout << "K-Means did not converge." << std::endl;
 		}
 

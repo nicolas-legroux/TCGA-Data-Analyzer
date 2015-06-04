@@ -47,8 +47,8 @@ map<int, string> getRealLabelsMap(
 		if (prev.cancerName != next.cancerName
 				|| prev.isTumor != next.isTumor) {
 			++currentCluster;
-			string label = prev.cancerName + "-"
-					+ ((prev.isTumor) ? "Tumor" : "Control");
+			string label = next.cancerName + "-"
+					+ ((next.isTumor) ? "Tumor" : "Control");
 			labelsMap.insert(std::make_pair(currentCluster, label));
 		}
 		prev = next;
@@ -57,12 +57,12 @@ map<int, string> getRealLabelsMap(
 }
 
 vector<int> cluster_KMeans(const vector<vector<double>> &data, int K,
-		int Nmax) {
+		int Nmax, bool verbose) {
 	vector<int> clusters(data.size(), 0);
 	unsigned int n = data[0].size();
 
 	K_Means<vector<double>> kMeans(data, clusters, K, Nmax,
-			EuclideanSpace<double>(n));
+			EuclideanSpace<double>(n), verbose);
 
 	kMeans.compute();
 	return clusters;
@@ -70,7 +70,7 @@ vector<int> cluster_KMeans(const vector<vector<double>> &data, int K,
 
 vector<int> cluster_Hierarchical(const vector<double> &matrix,
 		const DistanceMetric &distanceMetric,
-		const LinkageMethod &linkageMethod, int K) {
+		const LinkageMethod &linkageMethod, int K, bool verbose) {
 
 	MatrixType matrixType;
 	switch (distanceMetric) {
@@ -94,7 +94,7 @@ vector<int> cluster_Hierarchical(const vector<double> &matrix,
 	}
 
 	Hierarchical_Clustering hierarchicalClustering(matrix, linkageMethod,
-			matrixType);
+			matrixType, verbose);
 	vector<int> clusters = hierarchicalClustering.compute(K);
 
 	return clusters;
@@ -164,9 +164,10 @@ double adjustedRandIndex(const std::vector<int> &clustering1,
 	return (index - expectedIndex) / (maxIndex - expectedIndex);
 }
 
-void exportToGraphviz(const map<int, string> &labelsMap,
-		const vector<int> &realClusters,
-		const vector<int> &computedClusters, const string &fileName) {
+void printClustering(const map<int, string> &labelsMap,
+		const vector<int> &realClusters, const vector<int> &computedClusters) {
+
+	cout << endl << "****** Showing clustering results : ******" << endl << endl;;
 	unsigned int realClustersN = labelsMap.size();
 	unsigned int computedClustersN = *std::max_element(
 			computedClusters.cbegin(), computedClusters.cend()) + 1;
@@ -180,4 +181,33 @@ void exportToGraphviz(const map<int, string> &labelsMap,
 		clusteringGraph[realCluster * computedClustersN + computedCluster]++;
 	}
 
+	cout << "-----------\t";
+	for (unsigned int j = 0; j < computedClustersN; ++j) {
+		cout << "#" << j << "\t";
+	}
+	cout << "SUM" << endl;
+
+	for (unsigned int i = 0; i < realClustersN; ++i) {
+		cout << labelsMap.at(i) << "\t";
+		unsigned int sum = 0;
+		for (unsigned int j = 0; j < computedClustersN; ++j) {
+			sum += clusteringGraph[i * computedClustersN + j];
+			cout << clusteringGraph[i * computedClustersN + j] << "\t";
+		}
+		cout << sum << endl;
+	}
+
+	unsigned int global_sum = 0;
+	cout << "SUM" << "\t\t";
+	for (unsigned int j = 0; j < computedClustersN; ++j) {
+		unsigned int sum = 0;
+
+		for (unsigned int i = 0; i < realClustersN; ++i) {
+			sum += clusteringGraph[i * computedClustersN + j];
+		}
+		global_sum += sum;
+		cout << sum << "\t";
+	}
+
+	cout << global_sum << endl;
 }
