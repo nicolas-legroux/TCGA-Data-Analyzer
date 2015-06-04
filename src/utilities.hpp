@@ -40,9 +40,9 @@ void print_vector(const std::vector<T> &v) {
 //Print a map
 template<typename T1, typename T2>
 void print_map(const std::map<T1, T2> &m) {
-	std::cout << "{ ";
+	std::cout << "{" << std::endl;
 	for_each(m.cbegin(), m.cend(),
-			[](const std::pair<T1, T2> &data) {std::cout << data.first << "->" << data.second << " ";});
+			[](const std::pair<T1, T2> &data) {std::cout << data.first << " --> " << data.second << std::endl;});
 	std::cout << "}" << std::endl;
 }
 

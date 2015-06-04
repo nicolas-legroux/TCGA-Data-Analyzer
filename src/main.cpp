@@ -14,10 +14,17 @@
 #include "tests/hierarchicalClustering_test.hpp"
 #include "unsupervisedNormalization.hpp"
 #include "distanceMatrix.hpp"
-#include "normedSpace.hpp"
+#include "normedVectorSpace.hpp"
 #include "utilities.hpp"
 
 int main() {
-	meanVectorTest();
+
+	UnsupervisedNormalizationMethod method = UnsupervisedNormalizationMethod::BINARY_QUANTILE;
+	UnsupervisedNormalizationParameters parameters;
+	parameters.setBinaryQuantileParameters(0.4);
+
+	clustering_KMeans_test(method, parameters);
+
+
 	return 0;
 }

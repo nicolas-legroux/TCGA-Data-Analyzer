@@ -5,13 +5,16 @@
 #include "k_means.hpp"
 #include "hierarchical_clustering.hpp"
 
-using namespace std;
+using std::vector;
+using std::map;
+using std::string;
+using std::cout;
+using std::endl;
 
 vector<int> getRealClusters(vector<SampleIdentifier> &sampleIdentifiers) {
 	vector<int> realClusters;
 	SampleIdentifier prev = sampleIdentifiers[0];
 	int currentCluster = 0;
-	cout << currentCluster << " -> " << prev.toString() << endl;
 	realClusters.push_back(currentCluster);
 
 	for (auto it = sampleIdentifiers.begin() + 1; it != sampleIdentifiers.end();
@@ -20,7 +23,6 @@ vector<int> getRealClusters(vector<SampleIdentifier> &sampleIdentifiers) {
 		if (prev.cancerName != next.cancerName
 				|| prev.isTumor != next.isTumor) {
 			++currentCluster;
-			cout << currentCluster << " -> " << next.toString() << endl;
 		}
 		realClusters.push_back(currentCluster);
 		prev = next;
@@ -29,10 +31,38 @@ vector<int> getRealClusters(vector<SampleIdentifier> &sampleIdentifiers) {
 	return realClusters;
 }
 
+map<int, string> getRealLabelsMap(
+		std::vector<SampleIdentifier> &sampleIdentifiers) {
+
+	map<int, string> labelsMap;
+	SampleIdentifier prev = sampleIdentifiers[0];
+	string label = prev.cancerName + "-"
+			+ ((prev.isTumor) ? "Tumor" : "Control");
+	int currentCluster = 0;
+	labelsMap.insert(std::make_pair(currentCluster, label));
+
+	for (auto it = sampleIdentifiers.begin() + 1; it != sampleIdentifiers.end();
+			++it) {
+		SampleIdentifier next = *it;
+		if (prev.cancerName != next.cancerName
+				|| prev.isTumor != next.isTumor) {
+			++currentCluster;
+			string label = prev.cancerName + "-"
+					+ ((prev.isTumor) ? "Tumor" : "Control");
+			labelsMap.insert(std::make_pair(currentCluster, label));
+		}
+		prev = next;
+	}
+	return labelsMap;
+}
+
 vector<int> cluster_KMeans(const vector<vector<double>> &data, int K,
 		int Nmax) {
 	vector<int> clusters(data.size(), 0);
-	K_Means<vector<double>> kMeans(data, clusters, K, Nmax, EuclideanSpace<double>(data[0].size()));
+	unsigned int n = data[0].size();
+
+	K_Means<vector<double>> kMeans(data, clusters, K, Nmax,
+			EuclideanSpace<double>(n));
 
 	kMeans.compute();
 	return clusters;
@@ -60,15 +90,15 @@ vector<int> cluster_Hierarchical(const vector<double> &matrix,
 		matrixType = MatrixType::SIMILARITY;
 		break;
 	default:
-		throw invalid_argument("Unknown distance measure.");
+		throw std::invalid_argument("Unknown distance measure.");
 	}
 
-	Hierarchical_Clustering hierarchicalClustering(matrix, linkageMethod, matrixType);
+	Hierarchical_Clustering hierarchicalClustering(matrix, linkageMethod,
+			matrixType);
 	vector<int> clusters = hierarchicalClustering.compute(K);
 
 	return clusters;
 }
-
 
 /*
  *
@@ -132,4 +162,22 @@ double adjustedRandIndex(const std::vector<int> &clustering1,
 	double expectedIndex = temp1 * temp2 / (double) numberOfPairs(n);
 
 	return (index - expectedIndex) / (maxIndex - expectedIndex);
+}
+
+void exportToGraphviz(const map<int, string> &labelsMap,
+		const vector<int> &realClusters,
+		const vector<int> &computedClusters, const string &fileName) {
+	unsigned int realClustersN = labelsMap.size();
+	unsigned int computedClustersN = *std::max_element(
+			computedClusters.cbegin(), computedClusters.cend()) + 1;
+	vector<int> clusteringGraph(realClustersN * computedClustersN, 0);
+
+	assert(realClusters.size() == computedClusters.size());
+
+	for (unsigned int i = 0; i < realClusters.size(); ++i) {
+		int realCluster = realClusters[i];
+		int computedCluster = computedClusters[i];
+		clusteringGraph[realCluster * computedClustersN + computedCluster]++;
+	}
+
 }

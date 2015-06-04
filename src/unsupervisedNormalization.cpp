@@ -8,8 +8,8 @@
 
 #include "typedefs.hpp"
 #include "k_means.hpp"
+#include "normedVectorSpace.hpp"
 #include "utilities.hpp"
-#include "normedSpace.hpp"
 
 using namespace std;
 

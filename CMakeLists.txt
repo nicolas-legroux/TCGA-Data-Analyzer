@@ -13,4 +13,4 @@ file(GLOB TCGA-Clusterer_SRC
 
 add_executable(TCGA-Clusterer ${TCGA-Clusterer_SRC})
 
-SET(CMAKE_CXX_FLAGS "-std=c++17")
+SET(CMAKE_CXX_FLAGS "-O3 -std=c++14")

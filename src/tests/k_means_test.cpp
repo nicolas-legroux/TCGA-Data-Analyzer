@@ -70,7 +70,9 @@ void twodimensionalKmeans_test() {
 	vector<vector<double>> data { vec1, vec2, vec3, vec4, vec5 };
 	vector<int> clusters(data.size(), 0);
 
-	K_Means<vector<double>> kMeans(data, clusters, K, Nmax, EuclideanSpace<double>(data[0].size()));
+	unsigned int n = data[0].size();
+
+	K_Means<vector<double>> kMeans(data, clusters, K, Nmax, EuclideanSpace<double>(n));
 
 	vector<vector<double>> means = kMeans.compute();
 	std::vector<int> clusterCount(K, 0);

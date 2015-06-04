@@ -2,6 +2,7 @@
 #define SRC_CLUSTERING_HPP_
 
 #include <vector>
+#include <map>
 #include "typedefs.hpp"
 #include "hierarchical_clustering.hpp"
 #include "distanceMatrix.hpp"
@@ -10,12 +11,19 @@
 std::vector<int> getRealClusters(
 		std::vector<SampleIdentifier> &sampleIdentifiers);
 
+std::map<int, std::string> getRealLabelsMap(
+		std::vector<SampleIdentifier> &sampleIdentifiers);
+
 //Functions to compute clusters
 std::vector<int> cluster_KMeans(const std::vector<std::vector<double>> &data,
 		int K, int Nmax);
 std::vector<int> cluster_Hierarchical(const std::vector<double> &matrix,
 		const DistanceMetric &distanceMetric,
 		const LinkageMethod &linkageMethod, int K);
+
+//Functions to export to dot format for visualization with Graphviz
+void exportToGraphviz(const std::map<int, std::string> &labelsMap,
+		const std::vector<int> &computedClusters);
 
 /*
  *

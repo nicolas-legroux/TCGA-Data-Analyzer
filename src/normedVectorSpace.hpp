@@ -1,14 +1,16 @@
-#ifndef SRC_NORMEDSPACE_HPP_
-#define SRC_NORMEDSPACE_HPP_
+#ifndef SRC_NORMEDVECTORSPACE_HPP_
+#define SRC_NORMEDVECTORSPACE_HPP_
 
 #include <iostream>
 #include <cmath>
 #include <cassert>
 #include "utilities.hpp"
+#include <iostream>
 
 template<typename T, typename K = double>
 class NormedVectorSpace {
 public:
+	unsigned int getDimension() const;
 	K distance(const T &, const T &) const;
 	T zero() const;
 	T & addTo(T &, const T &) const;
@@ -19,6 +21,10 @@ public:
 template<typename K>
 class NormedVectorSpace<double, K> {
 public:
+	unsigned int getDimension() const{
+		return 1;
+	}
+
 	K distance(const double &left, const double &right) const {
 		return std::fabs(right - left);
 	}
@@ -45,14 +51,17 @@ public:
 
 template<typename T, typename K>
 class NormedVectorSpace<std::vector<T>, K> {
-protected:
-	unsigned int dimension;
 public:
-	NormedVectorSpace<std::vector<T>, K>(unsigned int n) :
-			dimension(n) {
+	unsigned int dimension;
+	NormedVectorSpace<std::vector<T>, K>(unsigned int n) : dimension(n) {
+	}
+
+	unsigned int getDimension() const {
+		return dimension;
 	}
 
 	K distance(const std::vector<T> &left, const std::vector<T> &right) const {
+		//std::cout << dimension << std::endl;
 		assert(dimension == left.size() && dimension == right.size());
 		K dist = 0;
 		for_each_two_ranges(left.cbegin(), left.cend(), right.cbegin(),
@@ -110,7 +119,9 @@ public:
 	}
 
 	K distance(const std::vector<T> &left, const std::vector<T> &right) const {
-		assert(this->dimension == left.size() && this->dimension == right.size());
+		assert(
+				this->dimension == left.size()
+						&& this->dimension == right.size());
 		K dist = 0;
 		for_each_two_ranges(left.cbegin(), left.cend(), right.cbegin(),
 				[&dist](const T &leftData, const T &rightData) {
@@ -120,4 +131,4 @@ public:
 	}
 };
 
-#endif /* SRC_NORMEDSPACE_HPP_ */
+#endif /* SRC_NORMEDVECTORSPACE_HPP_ */

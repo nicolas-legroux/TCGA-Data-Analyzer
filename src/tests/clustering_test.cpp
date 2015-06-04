@@ -7,14 +7,19 @@
 #include "../clustering.hpp"
 #include "../distanceMatrix.hpp"
 #include "../unsupervisedNormalization.hpp"
+#include "../utilities.hpp"
 
-using namespace std;
+using std::vector;
+using std::map;
+using std::string;
+using std::cout;
+using std::endl;
 
 void clustering_KMeans_test(const UnsupervisedNormalizationMethod &method,
 		const UnsupervisedNormalizationParameters &parameters) {
 	//STEP 1 : READ DATA
 	string filenameCancers = "cancer.list";
-	vector<string> cancers { "BRCA", "KIRC", "OV", "LUAD", "GBM", "THCA" };
+	vector<string> cancers { "BRCA", "KIRC", "OV", "LUAD", "GBM", "THCA"};
 	Data data;
 	readData(cancers, data, 50, 300);
 
@@ -28,17 +33,15 @@ void clustering_KMeans_test(const UnsupervisedNormalizationMethod &method,
 	data.transposeData(transposedData, sampleIdentifiers, cancerPatientIDList);
 
 	//STEP4 : CLUSTER
+	map<int, string> labelsMap = getRealLabelsMap(sampleIdentifiers);
+	cout << endl << "Labels Map : ";
+	print_map(labelsMap);
+
 	vector<int> realClusters = getRealClusters(sampleIdentifiers);
-	for_each(realClusters.cbegin(), realClusters.cend(),
-			[](int i) {cout << i << " ";});
-	cout << endl;
+	print_vector(realClusters);
 
-	vector<int> computedClusters = cluster_KMeans(transposedData, 10, 1000);
-
-	for_each(computedClusters.cbegin(), computedClusters.cend(),
-			[](int i) {cout << i << " ";});
-
-	cout << endl;
+	vector<int> computedClusters = cluster_KMeans(transposedData, labelsMap.size(), 1000);
+	print_vector(computedClusters);
 
 	cout << "Adjusted Rand Index : "
 			<< adjustedRandIndex(realClusters, computedClusters) << endl;
