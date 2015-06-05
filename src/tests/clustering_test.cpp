@@ -103,12 +103,12 @@ void clustering_Spectral_test(const vector<string> &cancers, int maxControl,
 	// STEP5 : CLUSTER
 	SimilarityGraphTransformation similarityGraphTransformation =
 			SimilarityGraphTransformation::K_NEAREST_NEIGHBORS;
-	SimilarityGraphTransformationParameters similarityGraphTransformationParameters;
-	similarityGraphTransformationParameters.setKNearestNeighborsParameters(10);
+	SpectralClusteringParameters similarityGraphTransformationParameters;
+	similarityGraphTransformationParameters.setKNearestNeighborsParameters(3);
 	map<int, string> labelsMap = getRealLabelsMap(sampleIdentifiers);
 	vector<int> realClusters = getRealClusters(sampleIdentifiers);
 
-	Spectral_Clustering spectralClustering(distanceMatrix,
+	Spectral_Clustering spectralClustering(distanceMatrix, distanceMetric,
 			similarityGraphTransformation,
 			similarityGraphTransformationParameters);
 	vector<int> computedClusters = spectralClustering.compute(labelsMap.size());

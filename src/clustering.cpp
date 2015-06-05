@@ -101,10 +101,10 @@ vector<int> cluster_Hierarchical(const vector<double> &matrix,
 	return clusters;
 }
 
-std::vector<int> cluster_Spectral(const std::vector<double> &matrix,
+std::vector<int> cluster_Spectral(const std::vector<double> &matrix, const DistanceMetric &distanceMetric,
 		unsigned int K) {
 
-	Spectral_Clustering spectralClustering(matrix);
+	Spectral_Clustering spectralClustering(matrix, distanceMetric);
 	vector<int> clusters = spectralClustering.compute(K);
 
 	return clusters;

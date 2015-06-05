@@ -20,10 +20,16 @@ enum DistanceMetric {
 	COSINE_SIMILARITY
 };
 
+enum MatrixType {
+	DISTANCE, SIMILARITY
+};
+
 std::string distanceMetricName(const DistanceMetric &distanceMetric);
 
 std::vector<double> computeDistanceMatrix(
 		const std::vector<std::vector<double>> &data, DistanceMetric method);
+
+MatrixType getMatrixType(const DistanceMetric &method);
 
 void exportDistanceMatrix(const std::vector<double> &distanceMatrix,
 		const std::vector<SampleIdentifier> &sampleIdentifiers,

@@ -20,7 +20,7 @@ std::vector<int> cluster_KMeans(const std::vector<std::vector<double>> &data,
 std::vector<int> cluster_Hierarchical(const std::vector<double> &matrix,
 		const DistanceMetric &distanceMetric,
 		const LinkageMethod &linkageMethod, int K, bool verbose = false);
-std::vector<int> cluster_Spectral(const std::vector<double> &matrix, unsigned int K);
+std::vector<int> cluster_Spectral(const std::vector<double> &matrix, const DistanceMetric &distanceMetric, unsigned int K);
 
 void printClustering(const std::map<int, std::string> &labelsMap,
 		const std::vector<int> &realClusters,

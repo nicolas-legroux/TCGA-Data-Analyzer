@@ -9,6 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include "utilities.hpp"
+#include "distanceMatrix.hpp"
 
 Hierarchical_Clustering::Hierarchical_Clustering(
 		const std::vector<double> &matrix, LinkageMethod _linkageMethod,

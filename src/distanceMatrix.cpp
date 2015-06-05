@@ -30,6 +30,23 @@ string distanceMetricName(const DistanceMetric &distanceMetric) {
 	}
 }
 
+MatrixType getMatrixType(const DistanceMetric &method) {
+	switch (method) {
+	case DistanceMetric::PEARSON_CORRELATION:
+		return MatrixType::SIMILARITY;
+	case DistanceMetric::SPEARMAN_CORRELATION:
+		return MatrixType::SIMILARITY;
+	case DistanceMetric::EUCLIDEAN_DISTANCE:
+		return MatrixType::DISTANCE;
+	case DistanceMetric::MANHATTAN_DISTANCE:
+		return MatrixType::DISTANCE;
+	case DistanceMetric::COSINE_SIMILARITY:
+		return MatrixType::SIMILARITY;
+	default:
+		throw invalid_argument("Unknown distance measure.");
+	}
+}
+
 std::vector<double> computeDistanceMatrix(
 		const std::vector<std::vector<double>> &data, DistanceMetric method) {
 
@@ -125,7 +142,7 @@ void exportClassStats(const std::vector<double> &distanceMatrix,
 			for (int I : cancerPatientIDList.at(classes[i])) {
 				for (int J : cancerPatientIDList.at(classes[j])) {
 					// When I = J : we are comparing the same patients,
-                  //  we know the correlation is 1
+					//  we know the correlation is 1
 					if (I != J) {
 						data.push_back(distanceMatrix[N * I + J]);
 					}

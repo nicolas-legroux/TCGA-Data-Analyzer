@@ -27,10 +27,10 @@ int main() {
 
 	vector<string> cancers = { "LUSC", "LUAD"};
 	int maxControl = 0;
-	int maxTumor = 250;
+	int maxTumor = 15;
 
 	UnsupervisedNormalizationMethod method =
-			UnsupervisedNormalizationMethod::BINARY_QUANTILE;
+			UnsupervisedNormalizationMethod::NO_NORMALIZATION;
 	UnsupervisedNormalizationParameters parameters;
 	parameters.setBinaryQuantileParameters(0.5);
 	parameters.setKMeansParameters(2, 1000);
@@ -43,7 +43,7 @@ int main() {
 //			LinkageMethod::COMPLETE);
 
 	clustering_Spectral_test(cancers, maxControl, maxTumor, method,
-		parameters, DistanceMetric::PEARSON_CORRELATION);
+		parameters, DistanceMetric::EUCLIDEAN_DISTANCE);
 
 
 

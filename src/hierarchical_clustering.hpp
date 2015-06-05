@@ -6,12 +6,7 @@
 #include <vector>
 #include <set>
 #include <utility>
-
-// Distance : low values mean data points are close
-// Similarity : high values mean data points are close
-enum MatrixType {
-	DISTANCE, SIMILARITY
-};
+#include "distanceMatrix.hpp"
 
 // cf http://en.wikipedia.org/wiki/Hierarchical_clustering#Linkage_criteria
 // Complete linkage : "worst case"
