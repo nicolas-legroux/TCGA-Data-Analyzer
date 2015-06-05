@@ -25,25 +25,25 @@ using std::map;
 
 int main() {
 
-	vector<string> cancers = { "LUSC", "LUAD"};
-	int maxControl = 0;
-	int maxTumor = 15;
+	vector<string> cancers = { "LUSC", "KIRC", "BRCA", "THCA"};
+	int maxControl = 50;
+	int maxTumor = 200;
 
 	UnsupervisedNormalizationMethod method =
-			UnsupervisedNormalizationMethod::NO_NORMALIZATION;
+			UnsupervisedNormalizationMethod::BINARY_QUANTILE;
 	UnsupervisedNormalizationParameters parameters;
-	parameters.setBinaryQuantileParameters(0.5);
+	parameters.setBinaryQuantileParameters(0.45);
 	parameters.setKMeansParameters(2, 1000);
 	parameters.setBinaryIteratedKMeansParameters(6);
 
-	//clustering_KMeans_test(cancers, maxControl, maxTumor, method, parameters);
+	clustering_KMeans_test(cancers, maxControl, maxTumor, method, parameters);
 
 //	clustering_Hierarchical_test(cancers, maxControl, maxTumor, method,
 //			parameters, DistanceMetric::PEARSON_CORRELATION,
 //			LinkageMethod::COMPLETE);
 
-	clustering_Spectral_test(cancers, maxControl, maxTumor, method,
-		parameters, DistanceMetric::EUCLIDEAN_DISTANCE);
+//	clustering_Spectral_test(cancers, maxControl, maxTumor, method,
+//		parameters, DistanceMetric::PEARSON_CORRELATION);
 
 
 

@@ -87,7 +87,6 @@ void Spectral_Clustering::computeLaplacianMatrix() {
 
 void Spectral_Clustering::transformSimilarityMatrix() {
 
-	cout << "Untransformed matrix :" << endl << matrix;
 	unsigned int n = std::sqrt(originalData.size());
 
 	MatrixXd transformedMatrix = MatrixXd::Zero(n, n);
@@ -119,8 +118,6 @@ void Spectral_Clustering::transformSimilarityMatrix() {
 		}
 
 		matrix = transformedMatrix;
-
-		cout << endl << endl << "Transformed matrix :" << endl << matrix << endl << endl;
 	}
 
 	else {
@@ -153,7 +150,7 @@ vector<int> Spectral_Clustering::compute(unsigned int k) {
 		dataForKMeans.push_back(v);
 	}
 
-	K_Means<vector<double>> K_MeansClusterer(dataForKMeans, clusters, 2, 1000,
+	K_Means<vector<double>> K_MeansClusterer(dataForKMeans, clusters, k, 1000,
 			EuclideanSpace<double>(k));
 	K_MeansClusterer.compute();
 
