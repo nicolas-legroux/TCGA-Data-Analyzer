@@ -8,6 +8,7 @@
 #include "../distanceMatrix.hpp"
 #include "../unsupervisedNormalization.hpp"
 #include "../utilities.hpp"
+#include "../spectral_clustering.hpp"
 
 using std::vector;
 using std::map;
@@ -48,8 +49,8 @@ void clustering_Hierarchical_test(const vector<string> &cancers, int maxControl,
 		const UnsupervisedNormalizationParameters &parameters,
 		const DistanceMetric &distanceMetric,
 		const LinkageMethod &linkageMethod) {
+
 	// STEP 1 : READ DATA
-	string filenameCancers = "cancer.list";
 	Data data;
 	readData(cancers, data, maxControl, maxTumor);
 
@@ -71,6 +72,47 @@ void clustering_Hierarchical_test(const vector<string> &cancers, int maxControl,
 	vector<int> realClusters = getRealClusters(sampleIdentifiers);
 	vector<int> computedClusters = cluster_Hierarchical(distanceMatrix,
 			distanceMetric, linkageMethod, labelsMap.size(), true);
+
+	// STEP6 : PRINT RESULTS
+	printClustering(labelsMap, realClusters, computedClusters);
+	cout << endl << "Adjusted Rand Index : "
+			<< adjustedRandIndex(realClusters, computedClusters) << endl;
+}
+
+void clustering_Spectral_test(const vector<string> &cancers, int maxControl,
+		int maxTumor, const UnsupervisedNormalizationMethod &method,
+		const UnsupervisedNormalizationParameters &parameters,
+		const DistanceMetric &distanceMetric) {
+	// STEP 1 : READ DATA
+	Data data;
+	readData(cancers, data, maxControl, maxTumor);
+
+	// STEP 2 : NORMALIZE
+	unsupervisedNormalization(data, method, parameters);
+
+	// STEP3 : PREPARE DATA FOR CLUSTERING
+	std::vector<std::vector<double>> transposedData;
+	std::vector<SampleIdentifier> sampleIdentifiers;
+	CancerPatientIDList cancerPatientIDList;
+	data.transposeData(transposedData, sampleIdentifiers, cancerPatientIDList);
+
+	// STEP4: COMPUTE DISTANCE MATRIX
+	std::vector<double> distanceMatrix = computeDistanceMatrix(transposedData,
+			distanceMetric);
+
+	// STEP5 : CLUSTER
+	SimilarityGraphTransformation similarityGraphTransformation =
+			SimilarityGraphTransformation::K_NEAREST_NEIGHBORS;
+	SimilarityGraphTransformationParameters similarityGraphTransformationParameters;
+	similarityGraphTransformationParameters.setKNearestNeighborsParameters(10);
+	map<int, string> labelsMap = getRealLabelsMap(sampleIdentifiers);
+	vector<int> realClusters = getRealClusters(sampleIdentifiers);
+
+	Spectral_Clustering spectralClustering(distanceMatrix,
+			similarityGraphTransformation,
+			similarityGraphTransformationParameters);
+	vector<int> computedClusters = spectralClustering.compute(labelsMap.size());
+	;
 
 	// STEP6 : PRINT RESULTS
 	printClustering(labelsMap, realClusters, computedClusters);

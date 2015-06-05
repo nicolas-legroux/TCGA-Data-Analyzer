@@ -1,9 +1,7 @@
 // Copyright Nicolas Legroux 2015
 
-#include <limits>
 #include <iostream>
 #include <vector>
-#include <climits>
 #include "tests/stats_test.hpp"
 #include "tests/k_means_test.hpp"
 #include "tests/lodePNG_test.hpp"
@@ -17,26 +15,37 @@
 #include "normedVectorSpace.hpp"
 #include "utilities.hpp"
 
+#include "distanceMatrix.hpp"
+#include "spectral_clustering.hpp"
+#include "dataReader.hpp"
+
 using std::vector;
 using std::string;
+using std::map;
 
 int main() {
 
-	vector<string> cancers = { "BRCA" };
-	int maxControl = 50;
-	int maxTumor = 200;
+	vector<string> cancers = { "LUSC", "LUAD"};
+	int maxControl = 0;
+	int maxTumor = 250;
 
 	UnsupervisedNormalizationMethod method =
 			UnsupervisedNormalizationMethod::BINARY_QUANTILE;
 	UnsupervisedNormalizationParameters parameters;
-	parameters.setBinaryQuantileParameters(0.4);
+	parameters.setBinaryQuantileParameters(0.5);
 	parameters.setKMeansParameters(2, 1000);
+	parameters.setBinaryIteratedKMeansParameters(6);
 
-	// clustering_KMeans_test(cancers, maxControl, maxTumor, method, parameters);
+	//clustering_KMeans_test(cancers, maxControl, maxTumor, method, parameters);
 
-	clustering_Hierarchical_test(cancers, maxControl, maxTumor, method,
-			parameters, DistanceMetric::EUCLIDEAN_DISTANCE,
-			LinkageMethod::COMPLETE);
+//	clustering_Hierarchical_test(cancers, maxControl, maxTumor, method,
+//			parameters, DistanceMetric::PEARSON_CORRELATION,
+//			LinkageMethod::COMPLETE);
+
+	clustering_Spectral_test(cancers, maxControl, maxTumor, method,
+		parameters, DistanceMetric::PEARSON_CORRELATION);
+
+
 
 	return 0;
 }

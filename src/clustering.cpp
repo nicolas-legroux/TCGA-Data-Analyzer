@@ -4,6 +4,7 @@
 #include "typedefs.hpp"
 #include "k_means.hpp"
 #include "hierarchical_clustering.hpp"
+#include "spectral_clustering.hpp"
 
 using std::vector;
 using std::map;
@@ -56,8 +57,8 @@ map<int, string> getRealLabelsMap(
 	return labelsMap;
 }
 
-vector<int> cluster_KMeans(const vector<vector<double>> &data, int K,
-		int Nmax, bool verbose) {
+vector<int> cluster_KMeans(const vector<vector<double>> &data, int K, int Nmax,
+		bool verbose) {
 	vector<int> clusters(data.size(), 0);
 	unsigned int n = data[0].size();
 
@@ -96,6 +97,15 @@ vector<int> cluster_Hierarchical(const vector<double> &matrix,
 	Hierarchical_Clustering hierarchicalClustering(matrix, linkageMethod,
 			matrixType, verbose);
 	vector<int> clusters = hierarchicalClustering.compute(K);
+
+	return clusters;
+}
+
+std::vector<int> cluster_Spectral(const std::vector<double> &matrix,
+		unsigned int K) {
+
+	Spectral_Clustering spectralClustering(matrix);
+	vector<int> clusters = spectralClustering.compute(K);
 
 	return clusters;
 }
@@ -167,7 +177,9 @@ double adjustedRandIndex(const std::vector<int> &clustering1,
 void printClustering(const map<int, string> &labelsMap,
 		const vector<int> &realClusters, const vector<int> &computedClusters) {
 
-	cout << endl << "****** Showing clustering results : ******" << endl << endl;;
+	cout << endl << "****** Showing clustering results : ******" << endl
+			<< endl;
+	;
 	unsigned int realClustersN = labelsMap.size();
 	unsigned int computedClustersN = *std::max_element(
 			computedClusters.cbegin(), computedClusters.cend()) + 1;

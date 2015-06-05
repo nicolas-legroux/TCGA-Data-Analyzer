@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0.2 FATAL_ERROR)
 
 project(TCGA-Clusterer CXX)
 
+set(Eigen_INCLUDE_DIR /home/nicolas/opt/Eigen/include/eigen3)
+
 file(GLOB TCGA-Clusterer_SRC
     "src/*.hpp"
     "src/*.cpp"
@@ -10,6 +12,8 @@ file(GLOB TCGA-Clusterer_SRC
     "src/lodePNG/lodepng.cpp"
     "src/lodePNG/lodepng.h"
 )
+
+include_directories(${Eigen_INCLUDE_DIR})
 
 add_executable(TCGA-Clusterer ${TCGA-Clusterer_SRC})
 

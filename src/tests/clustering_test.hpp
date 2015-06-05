@@ -19,4 +19,10 @@ void clustering_Hierarchical_test(const std::vector<std::string> &cancers,
 		const DistanceMetric &distanceMetric,
 		const LinkageMethod &linkageMethod);
 
+void clustering_Spectral_test(const std::vector<std::string> &cancers,
+		int maxControl, int maxTumor,
+		const UnsupervisedNormalizationMethod &method,
+		const UnsupervisedNormalizationParameters &parameters,
+		const DistanceMetric &distanceMetric);
+
 #endif /* SRC_TESTS_CLUSTERING_TEST_HPP_ */

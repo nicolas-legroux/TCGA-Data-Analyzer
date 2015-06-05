@@ -28,7 +28,7 @@ vector<double> computePairwisePearsonCorrelation(
 
 	cout << "Computing correlations for all pairs of vectors... " << endl;
 	for (unsigned int i = 0; i < N; ++i) {
-		printAdvancement(count, (N * (N - 1) / 2));
+		printAdvancement(count, (N * (N + 1) / 2));
 		correlationMatrix[i + N * i] = 1.0;
 		for (unsigned int j = i + 1; j < N; ++j) {
 			double cor = computePearsonCorrelation(M[i], M[j], means[i],
@@ -36,7 +36,7 @@ vector<double> computePairwisePearsonCorrelation(
 			correlationMatrix[i + N * j] = cor;
 			correlationMatrix[j + N * i] = cor;
 		}
-		count += N - i + 1;
+		count += N - i;
 	}
 	cout << "Done. " << endl << flush;
 
@@ -61,14 +61,14 @@ vector<double> computePairwiseEuclideanDistance(
 
 	cout << "Computing distances for all pairs of vectors... " << endl;
 	for (unsigned int i = 0; i < N; ++i) {
-		printAdvancement(count, (N * (N - 1) / 2));
+		printAdvancement(count, (N * (N + 1) / 2));
 		distanceMatrix[i + N * i] = 0.0;
 		for (unsigned int j = i + 1; j < N; ++j) {
 			double distance = euclideanDistance(M[i], M[j]);
 			distanceMatrix[i + N * j] = distance;
 			distanceMatrix[j + N * i] = distance;
 		}
-		count += N - i + 1;
+		count += N - i;
 	}
 	cout << "Done. " << endl << flush;
 
@@ -86,14 +86,14 @@ vector<double> computePairwiseManhattanDistance(
 
 	cout << "Computing distances for all pairs of vectors... " << endl;
 	for (unsigned int i = 0; i < N; ++i) {
-		printAdvancement(count, (N * (N - 1) / 2));
+		printAdvancement(count, (N * (N + 1) / 2));
 		distanceMatrix[i + N * i] = 0.0;
 		for (unsigned int j = i + 1; j < N; ++j) {
 			double distance = manhattanDistance(M[i], M[j]);
 			distanceMatrix[i + N * j] = distance;
 			distanceMatrix[j + N * i] = distance;
 		}
-		count += N - i + 1;
+		count += N - i;
 	}
 	cout << "Done. " << endl << flush;
 
@@ -114,7 +114,7 @@ vector<double> computePairwiseCosineSimilarity(
 
 	cout << "Computing cosine similarity for all pairs of vectors... " << endl;
 	for (unsigned int i = 0; i < N; ++i) {
-		printAdvancement(count, (N * (N - 1) / 2));
+		printAdvancement(count, (N * (N + 1) / 2));
 		distanceMatrix[i + N * i] = 1.0;
 		for (unsigned int j = i + 1; j < N; ++j) {
 			double dist = cosineSimilarity(M[i], M[j], euclideanNorms[i],
@@ -122,7 +122,7 @@ vector<double> computePairwiseCosineSimilarity(
 			distanceMatrix[i + N * j] = dist;
 			distanceMatrix[j + N * i] = dist;
 		}
-		count += N - i + 1;
+		count += N - i;
 	}
 	cout << "Done. " << endl << flush;
 	return distanceMatrix;
