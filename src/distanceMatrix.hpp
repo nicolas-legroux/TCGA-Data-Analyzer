@@ -26,18 +26,18 @@ enum MatrixType {
 
 std::string distanceMetricName(const DistanceMetric &distanceMetric);
 
-std::vector<double> computeDistanceMatrix(
-		const std::vector<std::vector<double>> &data, DistanceMetric method);
+MatrixX computeDistanceMatrix(const MatrixX &data,
+		DistanceMetric method) ;
 
 MatrixType getMatrixType(const DistanceMetric &method);
 
-void exportDistanceMatrix(const std::vector<double> &distanceMatrix,
+void exportDistanceMatrix(const MatrixX &distanceMatrix,
 		const std::vector<SampleIdentifier> &sampleIdentifiers,
 		const std::string &filemaneMatrix,
 		const std::string &filenamePatientsIds,
 		const std::string &filenameHeatMapLabels);
 
-void exportClassStats(const std::vector<double> &distanceMatrix,
+void exportClassStats(const MatrixX &distanceMatrix,
 		const CancerPatientIDList &cancerPatientIDList,
 		const std::vector<SampleIdentifier> &sampleIdentifiers,
 		const std::string &filemaneCorrelationMeans);

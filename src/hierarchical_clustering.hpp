@@ -40,7 +40,7 @@ private:
 	int findClusterRepresentative(int i);
 
 public:
-	Hierarchical_Clustering(const std::vector<double> &matrix,
+	Hierarchical_Clustering(const MatrixX &matrix,
 			LinkageMethod _linkageMethod, MatrixType _matrixType,
 			bool _verbose = false);
 	std::vector<int> compute(unsigned int k);

@@ -27,15 +27,15 @@ vector<unsigned int> buildClassDivision(vector<SampleIdentifier> &sampleIdentifi
 	return classDivision;
 }
 
-void makeHeatMap(const vector<double> &matrix, const char* filenameC,
+void makeHeatMap(const MatrixX &matrix, const char* filenameC,
 		vector<unsigned int> classDivision, unsigned int divisionLineWidth) {
 	vector<unsigned char> image;
 
-	double min = *min_element(matrix.cbegin(), matrix.cend());
-	double max = *max_element(matrix.cbegin(), matrix.cend());
+	double min = matrix.minCoeff();
+	double max = matrix.maxCoeff();
 	double range = max - min;
 
-	unsigned int n = sqrt(matrix.size());
+	unsigned int n = matrix.cols();
 
 	unsigned int lineSeparator = UINT_MAX;
 	auto iteratorLineSeparator = classDivision.begin();
@@ -87,7 +87,7 @@ void makeHeatMap(const vector<double> &matrix, const char* filenameC,
 				}
 			}
 
-			double d = matrix[n * line + column];
+			double d = matrix(line, column);
 			image.push_back(255 * ((d - min) / range));
 			image.push_back(255 * ((d - min) / range));
 			image.push_back(255 * ((d - min) / range));

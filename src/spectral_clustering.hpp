@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 #include "distanceMatrix.hpp"
+#include "clustering.hpp"
 
 enum SimilarityGraphTransformation {
 	NO_TRANSFORMATION, K_NEAREST_NEIGHBORS
@@ -31,8 +32,8 @@ struct SpectralClusteringParameters {
 
 class Spectral_Clustering {
 private:
-	const std::vector<double> &originalData;
-	Eigen::MatrixXd matrix;
+	const MatrixX &distanceMatrix;
+	MatrixX distanceMatrixCopy;
 	MatrixType matrixType;
 	SimilarityGraphTransformation similarityGraphTransformation;
 	SpectralClusteringParameters spectralClusteringParameters;
@@ -44,7 +45,7 @@ private:
 	void transformSimilarityMatrix();
 
 public:
-	Spectral_Clustering(const std::vector<double> &originalData,
+	Spectral_Clustering(const MatrixX &_distanceMatrix,
 			const DistanceMetric &_distanceMetric,
 			SimilarityGraphTransformation _similarityGraphTransformation =
 					SimilarityGraphTransformation::NO_TRANSFORMATION,

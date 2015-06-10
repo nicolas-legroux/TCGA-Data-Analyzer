@@ -27,16 +27,14 @@ void clustering_KMeans_test(const vector<string> &cancers, int maxControl,
 	unsupervisedNormalization(data, method, parameters);
 
 	//STEP3 : PREPARE DATA FOR CLUSTERING
-	std::vector<std::vector<double>> transposedData;
-	std::vector<SampleIdentifier> sampleIdentifiers;
-	CancerPatientIDList cancerPatientIDList;
-	data.transposeData(transposedData, sampleIdentifiers, cancerPatientIDList);
+	data.transposeData();
 
 	//STEP4 : CLUSTER
-	map<int, string> labelsMap = getRealLabelsMap(sampleIdentifiers);
-	vector<int> realClusters = getRealClusters(sampleIdentifiers);
-	vector<int> computedClusters = cluster_KMeans(transposedData,
-			labelsMap.size(), 1000, true);
+	map<int, string> labelsMap = getRealLabelsMap(data.sampleIdentifiers);
+	vector<int> realClusters = getRealClusters(data.sampleIdentifiers);
+	ClusteringParameters kMeansParameters;
+	kMeansParameters.setKMeansParameters(labelsMap.size(), 1000, true);
+	vector<int> computedClusters = cluster_KMeans(data, kMeansParameters);
 
 	printClustering(labelsMap, realClusters, computedClusters);
 
@@ -58,18 +56,15 @@ void clustering_Hierarchical_test(const vector<string> &cancers, int maxControl,
 	unsupervisedNormalization(data, method, parameters);
 
 	// STEP3 : PREPARE DATA FOR CLUSTERING
-	std::vector<std::vector<double>> transposedData;
-	std::vector<SampleIdentifier> sampleIdentifiers;
-	CancerPatientIDList cancerPatientIDList;
-	data.transposeData(transposedData, sampleIdentifiers, cancerPatientIDList);
+	data.transposeData();
 
 	// STEP4: COMPUTE DISTANCE MATRIX
-	std::vector<double> distanceMatrix = computeDistanceMatrix(transposedData,
-			distanceMetric);
+	MatrixX distanceMatrix = computeDistanceMatrix(
+			data.transposedData, distanceMetric);
 
 	// STEP5 : CLUSTER
-	map<int, string> labelsMap = getRealLabelsMap(sampleIdentifiers);
-	vector<int> realClusters = getRealClusters(sampleIdentifiers);
+	map<int, string> labelsMap = getRealLabelsMap(data.sampleIdentifiers);
+	vector<int> realClusters = getRealClusters(data.sampleIdentifiers);
 	vector<int> computedClusters = cluster_Hierarchical(distanceMatrix,
 			distanceMetric, linkageMethod, labelsMap.size(), true);
 
@@ -91,22 +86,19 @@ void clustering_Spectral_test(const vector<string> &cancers, int maxControl,
 	unsupervisedNormalization(data, method, parameters);
 
 	// STEP3 : PREPARE DATA FOR CLUSTERING
-	std::vector<std::vector<double>> transposedData;
-	std::vector<SampleIdentifier> sampleIdentifiers;
-	CancerPatientIDList cancerPatientIDList;
-	data.transposeData(transposedData, sampleIdentifiers, cancerPatientIDList);
+	data.transposeData();
 
 	// STEP4: COMPUTE DISTANCE MATRIX
-	std::vector<double> distanceMatrix = computeDistanceMatrix(transposedData,
-			distanceMetric);
+	MatrixX distanceMatrix = computeDistanceMatrix(
+			data.transposedData, distanceMetric);
 
 	// STEP5 : CLUSTER
 	SimilarityGraphTransformation similarityGraphTransformation =
 			SimilarityGraphTransformation::K_NEAREST_NEIGHBORS;
 	SpectralClusteringParameters similarityGraphTransformationParameters;
 	similarityGraphTransformationParameters.setKNearestNeighborsParameters(3);
-	map<int, string> labelsMap = getRealLabelsMap(sampleIdentifiers);
-	vector<int> realClusters = getRealClusters(sampleIdentifiers);
+	map<int, string> labelsMap = getRealLabelsMap(data.sampleIdentifiers);
+	vector<int> realClusters = getRealClusters(data.sampleIdentifiers);
 
 	Spectral_Clustering spectralClustering(distanceMatrix, distanceMetric,
 			similarityGraphTransformation,

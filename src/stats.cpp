@@ -5,7 +5,7 @@
 #include <utility>
 #include <algorithm>
 #include <iostream>
-#include "assert.h"
+#include <cassert>
 
 #include "stats.hpp"
 #include "typedefs.hpp"
@@ -17,6 +17,11 @@ using namespace std;
 double computeMean(const vector<double> &vec) {
 	double sum = accumulate(vec.cbegin(), vec.cend(), 0.0);
 	return sum / (double) vec.size();
+}
+
+double computeMean(const VectorX &vec) {
+	double sum = vec.sum();
+	return sum / (double) vec.rows();
 }
 
 vector<double> computeMeanVector(const vector<vector<double>> &vecs) {
@@ -35,6 +40,10 @@ vector<double> computeMeanVector(const vector<vector<double>> &vecs) {
 	return mean;
 }
 
+VectorX computeMeanVector(const MatrixX &matrix) {
+	return matrix.colwise().mean();
+}
+
 double computeStandardDeviation(const vector<double> &vec, bool correction) {
 	double m = computeMean(vec);
 	double accum = 0.0;
@@ -48,19 +57,23 @@ double computeStandardDeviation(const vector<double> &vec, bool correction) {
 	}
 }
 
-double computeZeroPercentage(const vector<double> &vec) {
-	return (double) count(vec.cbegin(), vec.cend(), 0.0) / (double) vec.size();
+double computeStandardDeviation(const VectorX &vec, bool correction) {
+	double m = computeMean(vec);
+	double accum = 0;
+	for (unsigned int i = 0; i < vec.rows(); ++i) {
+		double d = vec(i);
+		accum += (d - m) * (d - m);
+	}
+
+	if (correction) {
+		return std::sqrt(accum / (vec.rows() - 1));
+	} else {
+		return std::sqrt(accum / vec.rows());
+	}
 }
 
-double computePearsonCorrelation(const vector<double> &x,
-		const vector<double> &y, double x_mean, double x_stddev, double y_mean,
-		double y_stddev) {
-	double accum = 0.0;
-	for_each_two_ranges(x.cbegin(), x.cend(), y.cbegin(),
-			[&accum, x_mean, y_mean](const double a, const double b) {
-				accum += (a-x_mean)*(b-y_mean);
-			});
-	return accum / (x.size() * x_stddev * y_stddev);
+double computeZeroPercentage(const vector<double> &vec) {
+	return (double) count(vec.cbegin(), vec.cend(), 0.0) / (double) vec.size();
 }
 
 double computePearsonCorrelation(const vector<double> &x,
@@ -74,6 +87,40 @@ double computePearsonCorrelation(const vector<double> &x,
 			});
 	double x_stddev = computeStandardDeviation(x, false);
 	double y_stddev = computeStandardDeviation(y, false);
+	return accum / (x.size() * x_stddev * y_stddev);
+}
+
+double computePearsonCorrelation(const VectorX &x, const VectorX &y) {
+	double accum = 0.0;
+	double x_mean = computeMean(x);
+	double y_mean = computeMean(y);
+	assert(x.rows() == y.rows());
+	for (unsigned int i = 0; i < x.rows(); ++i) {
+		accum += (x(i) - x_mean) * (y(i) - y_mean);
+	}
+	double x_stddev = computeStandardDeviation(x, false);
+	double y_stddev = computeStandardDeviation(y, false);
+	return accum / (x.size() * x_stddev * y_stddev);
+}
+
+double computePearsonCorrelation(const vector<double> &x,
+		const vector<double> &y, double x_mean, double x_stddev, double y_mean,
+		double y_stddev) {
+	double accum = 0.0;
+	for_each_two_ranges(x.cbegin(), x.cend(), y.cbegin(),
+			[&accum, x_mean, y_mean](const double a, const double b) {
+				accum += (a-x_mean)*(b-y_mean);
+			});
+	return accum / (x.size() * x_stddev * y_stddev);
+}
+
+double computePearsonCorrelation(const VectorX &x, const VectorX &y,
+		double x_mean, double x_stddev, double y_mean, double y_stddev) {
+	double accum = 0.0;
+	assert(x.rows() == y.rows());
+	for (unsigned int i = 0; i < x.rows(); ++i) {
+		accum += (x(i) - x_mean) * (y(i) - y_mean);
+	}
 	return accum / (x.size() * x_stddev * y_stddev);
 }
 
@@ -113,6 +160,22 @@ double computeSpearmanCorrelation(const vector<double> &x,
 		const vector<double> &y) {
 	vector<double> copyX(x);
 	vector<double> copyY(y);
+	computeRank(copyX);
+	computeRank(copyY);
+	return computePearsonCorrelation(copyX, copyY);
+}
+
+double computeSpearmanCorrelation(const VectorX &x,
+		const VectorX &y) {
+	vector<double> copyX;
+	vector<double> copyY;
+	assert(x.rows() == y.rows());
+	for (unsigned int i = 0; i != x.rows(); ++i) {
+		double xi = x(i);
+		double yi = y(i);
+		copyX.push_back(xi);
+		copyY.push_back(yi);
+	}
 	computeRank(copyX);
 	computeRank(copyY);
 	return computePearsonCorrelation(copyX, copyY);

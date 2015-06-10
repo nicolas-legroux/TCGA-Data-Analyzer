@@ -2,10 +2,12 @@
 #define SRC_HEATMAP_HPP_
 
 #include <vector>
+#include "typedefs.hpp"
 
-std::vector<unsigned int> buildClassDivision(std::vector<SampleIdentifier> &sampleIdentifiers);
+std::vector<unsigned int> buildClassDivision(
+		std::vector<SampleIdentifier> &sampleIdentifiers);
 
-void makeHeatMap(const std::vector<double> &matrix, const char* filename,
+void makeHeatMap(const MatrixX &matrix, const char* filename,
 		std::vector<unsigned int> classDivision = std::vector<unsigned int>(),
 		unsigned int divisionLineWidth = 0);
 

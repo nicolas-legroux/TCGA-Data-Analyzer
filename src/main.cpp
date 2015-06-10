@@ -12,7 +12,6 @@
 #include "tests/hierarchicalClustering_test.hpp"
 #include "unsupervisedNormalization.hpp"
 #include "distanceMatrix.hpp"
-#include "normedVectorSpace.hpp"
 #include "utilities.hpp"
 
 #include "distanceMatrix.hpp"
@@ -24,15 +23,15 @@ using std::string;
 using std::map;
 
 int main() {
-
-	vector<string> cancers = { "LUSC", "KIRC", "BRCA", "THCA"};
-	int maxControl = 50;
-	int maxTumor = 200;
+	/*
+	vector<string> cancers = { "COAD"};
+	int maxControl = 0;
+	int maxTumor = 50;
 
 	UnsupervisedNormalizationMethod method =
 			UnsupervisedNormalizationMethod::BINARY_QUANTILE;
 	UnsupervisedNormalizationParameters parameters;
-	parameters.setBinaryQuantileParameters(0.45);
+	parameters.setBinaryQuantileParameters(0.3);
 	parameters.setKMeansParameters(2, 1000);
 	parameters.setBinaryIteratedKMeansParameters(6);
 
@@ -44,6 +43,9 @@ int main() {
 
 //	clustering_Spectral_test(cancers, maxControl, maxTumor, method,
 //		parameters, DistanceMetric::PEARSON_CORRELATION);
+ * *
+ */
+	twodimensionalKmeans_test();
 
 
 

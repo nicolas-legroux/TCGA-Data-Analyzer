@@ -7,21 +7,19 @@
 
 using namespace std;
 
-vector<double> computePairwisePearsonCorrelation(
-		const vector<vector<double>> &M) {
-	unsigned int N = M.size();
+MatrixX computePairwisePearsonCorrelation(const MatrixX &data) {
+	unsigned int N = data.cols();
 	cout << endl << "Pearson correlation to be computed for " << N
 			<< " vectors..." << endl;
-	vector<double> correlationMatrix(N * N);
+	MatrixX correlationMatrix(N, N);
 	vector<double> means(N);
 	vector<double> standard_deviations(N);
 
 	cout << "Computing all means and standard deviations... " << flush;
-	transform(M.cbegin(), M.cend(), means.begin(), computeMean);
-	transform(M.cbegin(), M.cend(), standard_deviations.begin(),
-			[](const vector<double> &vec) {
-				return computeStandardDeviation(vec, false);
-			});
+	for (unsigned int i = 0; i < N; ++i) {
+		means[i] = computeMean(data.col(i));
+		standard_deviations[i] = computeStandardDeviation(data.col(i));
+	}
 	cout << "Done." << endl;
 
 	unsigned int count = 0;
@@ -29,12 +27,13 @@ vector<double> computePairwisePearsonCorrelation(
 	cout << "Computing correlations for all pairs of vectors... " << endl;
 	for (unsigned int i = 0; i < N; ++i) {
 		printAdvancement(count, (N * (N + 1) / 2));
-		correlationMatrix[i + N * i] = 1.0;
+		correlationMatrix(i, i) = 1.0;
 		for (unsigned int j = i + 1; j < N; ++j) {
-			double cor = computePearsonCorrelation(M[i], M[j], means[i],
-					standard_deviations[i], means[j], standard_deviations[j]);
-			correlationMatrix[i + N * j] = cor;
-			correlationMatrix[j + N * i] = cor;
+			double cor = computePearsonCorrelation(data.col(i), data.col(j),
+					means[i], standard_deviations[i], means[j],
+					standard_deviations[j]);
+			correlationMatrix(i, j) = cor;
+			correlationMatrix(j, i) = cor;
 		}
 		count += N - i;
 	}
@@ -43,30 +42,40 @@ vector<double> computePairwisePearsonCorrelation(
 	return correlationMatrix;
 }
 
-vector<double> computePairwiseSpearmanCorrelation(
-		const vector<vector<double>> &M) {
-	vector<vector<double>> M_copy(M);
-	for_each(M_copy.begin(), M_copy.end(), computeRank);
-	return computePairwisePearsonCorrelation(M_copy);
+MatrixX computePairwiseSpearmanCorrelation(const MatrixX &data) {
+	vector<vector<double>> data_copy_stl(data.cols());
+	for (unsigned int i = 0; i < data.cols(); ++i) {
+		for (unsigned int j = 0; j < data.rows(); ++j) {
+			double d = data(j, i);
+			data_copy_stl[i].push_back(d);
+		}
+	}
+	for_each(data_copy_stl.begin(), data_copy_stl.end(), computeRank);
+	MatrixX data_copy(data.rows(), data.cols());
+	for (unsigned int i = 0; i < data.cols(); ++i) {
+		for (unsigned int j = 0; j < data.rows(); ++j) {
+			data_copy(j, i) = data_copy_stl[i][j];
+		}
+	}
+	return computePairwisePearsonCorrelation(data_copy);
 }
 
-vector<double> computePairwiseEuclideanDistance(
-		const vector<vector<double>> &M) {
-	unsigned int N = M.size();
+MatrixX computePairwiseEuclideanDistance(const MatrixX &data) {
+	unsigned int N = data.cols();
 	cout << endl << "Pairwise Euclidean Distance to be computed for " << N
 			<< " vectors..." << endl;
-	vector<double> distanceMatrix(N * N);
+	MatrixX distanceMatrix(N, N);
 
 	unsigned int count = 0;
 
 	cout << "Computing distances for all pairs of vectors... " << endl;
 	for (unsigned int i = 0; i < N; ++i) {
 		printAdvancement(count, (N * (N + 1) / 2));
-		distanceMatrix[i + N * i] = 0.0;
+		distanceMatrix(i, i) = 0.0;
 		for (unsigned int j = i + 1; j < N; ++j) {
-			double distance = euclideanDistance(M[i], M[j]);
-			distanceMatrix[i + N * j] = distance;
-			distanceMatrix[j + N * i] = distance;
+			double distance = euclideanDistance(data.col(i), data.col(j));
+			distanceMatrix(i, j) = distance;
+			distanceMatrix(j, i) = distance;
 		}
 		count += N - i;
 	}
@@ -75,23 +84,22 @@ vector<double> computePairwiseEuclideanDistance(
 	return distanceMatrix;
 }
 
-vector<double> computePairwiseManhattanDistance(
-		const vector<vector<double>> &M) {
-	unsigned int N = M.size();
+MatrixX computePairwiseManhattanDistance(const MatrixX &data) {
+	unsigned int N = data.cols();
 	cout << endl << "Pairwise Manhattan Distance to be computed for " << N
 			<< " vectors..." << endl;
-	vector<double> distanceMatrix(N * N);
+	MatrixX distanceMatrix(N, N);
 
 	unsigned int count = 0;
 
 	cout << "Computing distances for all pairs of vectors... " << endl;
 	for (unsigned int i = 0; i < N; ++i) {
 		printAdvancement(count, (N * (N + 1) / 2));
-		distanceMatrix[i + N * i] = 0.0;
+		distanceMatrix(i, i) = 0.0;
 		for (unsigned int j = i + 1; j < N; ++j) {
-			double distance = manhattanDistance(M[i], M[j]);
-			distanceMatrix[i + N * j] = distance;
-			distanceMatrix[j + N * i] = distance;
+			double distance = manhattanDistance(data.col(i), data.col(j));
+			distanceMatrix(i, j) = distance;
+			distanceMatrix(j, i) = distance;
 		}
 		count += N - i;
 	}
@@ -100,27 +108,28 @@ vector<double> computePairwiseManhattanDistance(
 	return distanceMatrix;
 }
 
-vector<double> computePairwiseCosineSimilarity(
-		const vector<vector<double>> &M) {
-	unsigned int N = M.size();
+MatrixX computePairwiseCosineSimilarity(const MatrixX &data) {
+	unsigned int N = data.cols();
 	cout << endl << "Pairwise Cosine Similarity to be computed for " << N
 			<< " vectors..." << endl;
-	vector<double> distanceMatrix(N * N);
+	MatrixX distanceMatrix(N, N);
 	vector<double> euclideanNorms(N);
 	cout << "Computing all euclidean norms... " << flush;
-	transform(M.cbegin(), M.cend(), euclideanNorms.begin(), euclideanNorm);
+	for (unsigned int i = 0; i < N; ++i) {
+		euclideanNorms[i] = data.col(i).norm();
+	}
 	cout << "Done." << endl;
 	unsigned int count = 0;
 
 	cout << "Computing cosine similarity for all pairs of vectors... " << endl;
 	for (unsigned int i = 0; i < N; ++i) {
 		printAdvancement(count, (N * (N + 1) / 2));
-		distanceMatrix[i + N * i] = 1.0;
+		distanceMatrix(i, i) = 1.0;
 		for (unsigned int j = i + 1; j < N; ++j) {
-			double dist = cosineSimilarity(M[i], M[j], euclideanNorms[i],
-					euclideanNorms[j]);
-			distanceMatrix[i + N * j] = dist;
-			distanceMatrix[j + N * i] = dist;
+			double dist = cosineSimilarity(data.col(i), data.col(j),
+					euclideanNorms[i], euclideanNorms[j]);
+			distanceMatrix(i, j) = dist;
+			distanceMatrix(j, i) = dist;
 		}
 		count += N - i;
 	}

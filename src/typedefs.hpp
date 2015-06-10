@@ -13,6 +13,11 @@
 #include <string>
 #include <iostream>
 
+#include <Eigen/Dense>
+
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorX;
+
 // cancerName -> geneID -> patientID -> RNASeq value
 typedef std::unordered_map<std::string, std::vector<std::vector<double>>>RNASeqData;
 // cancerName -> patientID -> patientName
@@ -45,8 +50,24 @@ struct Data {
 	RNASeqData controlRNASeqData;
 	RNASeqData tumorRNASeqData;
 
-	int getNumberOfProteins() {
+	std::vector<SampleIdentifier> sampleIdentifiers;
+	// Column = Patient; Row = Gene
+	Eigen::MatrixXd transposedData;
+	CancerPatientIDList cancerPatientIDList;
+
+	unsigned int getNumberOfProteins() {
 		return geneList.size();
+	}
+
+	unsigned int getNumberOfSamples() {
+		unsigned int numberOfSamples = 0;
+		for (const auto &kv : controlPatientList) {
+			numberOfSamples += kv.second.size();
+		}
+		for (const auto &kv : tumorPatientList) {
+			numberOfSamples += kv.second.size();
+		}
+		return numberOfSamples;
 	}
 
 	std::vector<double> getPatientTumorData(std::string &cancer,
@@ -59,11 +80,12 @@ struct Data {
 		return data;
 	}
 
-	void transposeData(std::vector<std::vector<double>> &data,
-			std::vector<SampleIdentifier> &sampleIdentifiers,
-			CancerPatientIDList &cancerPatientIDList) {
+	void transposeData() {
 
 		std::cout << std::endl << "Transposing data... " << std::flush;
+		unsigned int numberOfGenes = getNumberOfProteins();
+		unsigned int numberOfSamples = getNumberOfSamples();
+		transposedData.resize(numberOfGenes, numberOfSamples);
 
 		int countPatients = 0;
 
@@ -75,8 +97,6 @@ struct Data {
 					make_pair(cancerName + "-" + "Control",
 							std::vector<int>()));
 
-			unsigned int numberOfGenes = getNumberOfProteins();
-
 			for (unsigned int j = 0;
 					j < controlRNASeqData.at(cancerName).at(0).size(); ++j) {
 
@@ -85,27 +105,25 @@ struct Data {
 				sampleIdentifiers.push_back(
 						SampleIdentifier(cancerName, false,
 								controlPatientList.at(cancerName).at(j)));
-				std::vector<double> patientData(numberOfGenes);
 				for (unsigned int k = 0; k < numberOfGenes; ++k) {
-					patientData[k] = controlRNASeqData.at(cancerName).at(k).at(j);
+					transposedData(k, countPatients) = controlRNASeqData.at(
+							cancerName).at(k).at(j);
 				}
-				data.push_back(patientData);
 				countPatients++;
 			}
 
-			for (unsigned int j = 0; j < tumorRNASeqData.at(cancerName).at(0).size();
-					++j) {
+			for (unsigned int j = 0;
+					j < tumorRNASeqData.at(cancerName).at(0).size(); ++j) {
 
 				cancerPatientIDList[cancerName + "-" + "Tumor"].push_back(
 						countPatients);
 				sampleIdentifiers.push_back(
 						SampleIdentifier(cancerName, true,
 								tumorPatientList.at(cancerName).at(j)));
-				std::vector<double> patientData(numberOfGenes);
 				for (unsigned int k = 0; k < numberOfGenes; ++k) {
-					patientData[k] = tumorRNASeqData.at(cancerName).at(k).at(j);
+					transposedData(k, countPatients) = tumorRNASeqData.at(
+							cancerName).at(k).at(j);
 				}
-				data.push_back(patientData);
 				countPatients++;
 			}
 		}

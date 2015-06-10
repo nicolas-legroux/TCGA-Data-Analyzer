@@ -4,147 +4,144 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <cassert>
 
-#include "normedVectorSpace.hpp"
 #include "utilities.hpp"
+#include "typedefs.hpp"
+#include "clustering.hpp"
+#include <Eigen/Dense>
 
-template<typename T, typename K = double>
 class K_Means {
 private:
-	const std::vector<T> &data;
+	const MatrixX &data;
+	ClusteringParameters clusteringParameters;
 	std::vector<int> &clusters;
-	unsigned int K_param;
-	int Nmax;
 
-	NormedVectorSpace<T, K> normedVectorSpace;
-
-	bool verbose;
-
-	std::vector<T> means;
+	MatrixX medoids;
 	std::vector<bool> dataToCluster;
 
 	void initializeClustersRandomly() {
-		std::default_random_engine engine(std::random_device{}());
-		std::uniform_int_distribution<int> distribution(0, data.size() - 1);
-		for (unsigned int i = 0; i < K_param; i++) {
+		std::default_random_engine engine(std::random_device { }());
+		std::uniform_int_distribution<int> distribution(0, data.cols() - 1);
+		std::vector<VectorX> initialMedoids(clusteringParameters.K);
+		for (unsigned int i = 0; i < clusteringParameters.K; ++i) {
 			while (true) {
 				int randomInt = distribution(engine);
 				if (dataToCluster[randomInt]) {
-					T randomData(data[randomInt]);
-					if (find(means.begin(), means.begin() + i, randomData)
-							== (means.begin() + i)) {
-						means[i] = randomData;
+					VectorX randomPoint = data.col(randomInt);
+					std::cout << "The random point that was selected is : " << std::endl << randomPoint << std::endl;
+					if (find(initialMedoids.begin(), initialMedoids.begin() + i,
+							randomPoint) == (initialMedoids.begin() + i)) {
+						initialMedoids[i] = randomPoint;
 						break;
 					}
 				}
 			}
 		}
+
+		for (unsigned int i = 0; i < clusteringParameters.K; ++i) {
+			medoids.col(i) = initialMedoids[i];
+		}
 	}
 
-	int findClosestClusterFromDataPoint(const T &dataPoint) {
+	int findClosestClusterFromDataPoint(const VectorX &dataPoint) {
+
 		int closestCluster = 0;
-		K closestDistance = normedVectorSpace.distance(dataPoint, means[0]);
-		for (unsigned int i = 1; i < K_param; ++i) {
-			K d = normedVectorSpace.distance(dataPoint, means[i]);
-			if (d < closestDistance) {
+		double closestDistance = (dataPoint - medoids.col(0)).squaredNorm();
+		for (unsigned int i = 1; i < clusteringParameters.K; ++i) {
+			double distance = (dataPoint - medoids.col(i)).squaredNorm();
+			if (distance < closestDistance) {
 				closestCluster = i;
-				closestDistance = d;
+				closestDistance = distance;
 			}
 		}
 		return closestCluster;
 	}
 
 	void recalculateMeans() {
-		std::vector<int> clusterSize(K_param, 0);
-		fill(means.begin(), means.end(), normedVectorSpace.zero());
+		std::vector<int> clusterSize(clusteringParameters.K, 0);
+		unsigned int n = data.rows();
+		for (unsigned int i = 0; i < clusteringParameters.K; ++i) {
+			medoids.col(i) = VectorX::Zero(n);
+		}
 		for (unsigned int i = 0; i != clusters.size(); ++i) {
 			int cluster = clusters[i];
 			if (cluster != -1) {
 				++clusterSize[cluster];
-				normedVectorSpace.addTo(means[cluster], data[i]);
+				medoids.col(i) += data.col(i);
 			}
 		}
-		for (unsigned int i = 0; i < K_param; ++i) {
-			normedVectorSpace.multiplyByConstant(means[i],
-					1.0 / static_cast<double>(clusterSize[i]));
+		for (unsigned int i = 0; i < clusteringParameters.K; ++i) {
+			medoids.col(i) /= static_cast<double>(clusterSize[i]);
 		}
 	}
 
 	int kMeansIteration() {
-		bool numberClusterChange = 0;
+		int numberClusterChange = 0;
 		// Assign clusters
-		for (unsigned int i = 0; i != data.size(); ++i) {
+		for (unsigned int i = 0; i != data.cols(); ++i) {
 			int oldCluster = clusters[i];
 			if (oldCluster != -1) {
-				int newCluster = findClosestClusterFromDataPoint(data[i]);
+				int newCluster = findClosestClusterFromDataPoint(data.col(i));
 				if (newCluster != clusters[i]) {
 					numberClusterChange++;
 					clusters[i] = newCluster;
 				}
 			}
 		}
+
+		std::cout << "DebugA" << std::endl;
 		// Recalculate means
 		recalculateMeans();
 		return numberClusterChange;
 	}
 
-	void assignSortedClusters(const std::vector<size_t> &clusterRanks) {
-		for (unsigned int i = 0; i != clusters.size(); ++i) {
-			int currentCluster = clusters[i];
-			if (currentCluster != -1) {
-				clusters[i] = clusterRanks.at(currentCluster);
-			}
-		}
-	}
-
 public:
-	K_Means(const std::vector<T> &_data, std::vector<int> &_clusters,
-			unsigned int _K, int _Nmax,
-			const NormedVectorSpace<T, K> &_normedVectorSpace, bool _verbose = false) :
-			data(_data), clusters(_clusters), K_param(_K), Nmax(_Nmax), normedVectorSpace(
-					_normedVectorSpace), verbose(_verbose) {
-	}
-
-	std::vector<T> compute() {
-
-		means = std::vector<T>(K_param, normedVectorSpace.zero());
-		dataToCluster = std::vector<bool>(data.size());
+	K_Means(const MatrixX &_data, ClusteringParameters parameters,
+			std::vector<int> &_clusters) :
+			data(_data), clusteringParameters(parameters), clusters(_clusters) {
+		unsigned int dim = data.rows();
+		std::cout << "The dimension is " << dim << std::endl;
+		medoids.resize(dim, clusteringParameters.K);
+		dataToCluster = std::vector<bool>(data.cols());
 		transform(clusters.cbegin(), clusters.cend(), dataToCluster.begin(),
 				[](int cluster) {
 					return (cluster != -1);
 				});
+	}
+
+	MatrixX compute() {
 
 		initializeClustersRandomly();
 
+		std::cout << "Let's look at random medoid initialization : " << std::endl << medoids<< std::endl;
+
 		// Iterate
-		if(verbose){
-			std::cout << "Percentage of points that switched between clusters : ";
+		if (clusteringParameters.verbose) {
+			std::cout
+					<< "Percentage of points that switched between clusters : " << std::endl;
 		}
 
 		int numberOfPoints = kMeansIteration();
-		int iterations = 1;
-		while (iterations < Nmax && numberOfPoints > 0) {
+		unsigned int iterations = 1;
+		while (iterations < clusteringParameters.maxIterations
+				&& numberOfPoints > 0) {
 			++iterations;
 			numberOfPoints = kMeansIteration();
-			if(verbose){
-				printAdvancement(numberOfPoints, data.size());
+			if (clusteringParameters.verbose) {
+				printAdvancement(numberOfPoints, data.cols());
 			}
 		}
 
-		// Sort the clusters
-		std::vector<size_t> clusterRanks(get_rank_increasing(means));
-		assignSortedClusters(clusterRanks);
-		sort(means.begin(), means.end());
-
-		if (iterations == Nmax) {
+		if (iterations == clusteringParameters.maxIterations) {
 			std::cout << "K-Means did not converge." << std::endl;
 		}
 
-		return means;
+		return medoids;
 	}
 
 	void computeIteratedBinaryKMeans(int Niteration) {
-		assert(K_param == 2);
+		assert(clusteringParameters.K == 2);
 
 		for (int i = 0; i < Niteration; ++i) {
 			compute();   // 1000 should be enough

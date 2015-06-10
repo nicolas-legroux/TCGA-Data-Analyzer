@@ -11,6 +11,8 @@
 #include "typedefs.hpp"
 #include "stats.hpp"
 
+#include <Eigen/Dense>
+
 using namespace std;
 
 string distanceMetricName(const DistanceMetric &distanceMetric) {
@@ -47,8 +49,8 @@ MatrixType getMatrixType(const DistanceMetric &method) {
 	}
 }
 
-std::vector<double> computeDistanceMatrix(
-		const std::vector<std::vector<double>> &data, DistanceMetric method) {
+MatrixX computeDistanceMatrix(const MatrixX &data,
+		DistanceMetric method) {
 
 	switch (method) {
 	case DistanceMetric::PEARSON_CORRELATION:
@@ -66,7 +68,7 @@ std::vector<double> computeDistanceMatrix(
 	}
 }
 
-void exportDistanceMatrix(const std::vector<double> &distanceMatrix,
+void exportDistanceMatrix(const MatrixX &distanceMatrix,
 		const std::vector<SampleIdentifier> &sampleIdentifiers,
 		const std::string &filemaneMatrix,
 		const std::string &filenamePatientsIDs,
@@ -81,7 +83,7 @@ void exportDistanceMatrix(const std::vector<double> &distanceMatrix,
 
 	for (int i = 0; i < N; ++i) {
 		for (int j = 0; j < N; ++j) {
-			matrixOutputStream << distanceMatrix[i * N + j] << "\t";
+			matrixOutputStream << distanceMatrix(i, j) << "\t";
 		}
 		matrixOutputStream << endl;
 	}
@@ -110,7 +112,7 @@ void exportDistanceMatrix(const std::vector<double> &distanceMatrix,
 	cout << " Done." << endl;
 }
 
-void exportClassStats(const std::vector<double> &distanceMatrix,
+void exportClassStats(const MatrixX &distanceMatrix,
 		const CancerPatientIDList &cancerPatientIDList,
 		const vector<SampleIdentifier> &sampleIdentifiers,
 		const string &filemaneCorrelationMeans) {
@@ -118,7 +120,7 @@ void exportClassStats(const std::vector<double> &distanceMatrix,
 	cout << endl << "Exporting class stats..." << flush;
 
 	vector<string> classes;
-	unsigned int N = (int) sqrt(distanceMatrix.size());
+	unsigned int N = distanceMatrix.cols();
 
 	for (const auto &sampleIdentifer : sampleIdentifiers) {
 		string cancerName = sampleIdentifer.cancerName;
@@ -144,7 +146,8 @@ void exportClassStats(const std::vector<double> &distanceMatrix,
 					// When I = J : we are comparing the same patients,
 					//  we know the correlation is 1
 					if (I != J) {
-						data.push_back(distanceMatrix[N * I + J]);
+						double d = distanceMatrix(I, J);
+						data.push_back(d);
 					}
 				}
 			}

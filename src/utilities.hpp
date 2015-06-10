@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <assert.h>
+#include "typedefs.hpp"
 
 //Iterate on two ranges and call a binary-op function
 template<typename InputIter1, typename InputIter2, typename Function>
@@ -122,14 +123,19 @@ double euclideanNorm(const std::vector<double> &x);
 
 double euclideanDistance(const std::vector<double> &a,
 		const std::vector<double> &b);
+double euclideanDistance(const VectorX &a, const VectorX &b);
 
 double manhattanDistance(const std::vector<double> &a,
 		const std::vector<double> &b);
+double manhattanDistance(const VectorX &a, const VectorX &b);
 
 double cosineSimilarity(const std::vector<double> &a,
 		const std::vector<double> &b, double normA, double normB);
+double cosineSimilarity(const VectorX &a, const VectorX &b, double normA,
+		double normB);
 
 double cosineSimilarity(const std::vector<double> &a,
 		const std::vector<double> &b);
+double cosineSimilarity(const VectorX &a, const VectorX &b);
 
 #endif /* SRC_UTILITIES_HPP_ */

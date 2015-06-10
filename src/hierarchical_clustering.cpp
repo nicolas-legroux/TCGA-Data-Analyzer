@@ -12,11 +12,11 @@
 #include "distanceMatrix.hpp"
 
 Hierarchical_Clustering::Hierarchical_Clustering(
-		const std::vector<double> &matrix, LinkageMethod _linkageMethod,
+		const MatrixX &matrix, LinkageMethod _linkageMethod,
 		MatrixType _matrixType, bool _verbose) :
 		linkageMethod(_linkageMethod), matrixType(_matrixType), verbose(
 				_verbose) {
-	n = std::sqrt(matrix.size());
+	n = matrix.cols();
 
 	unionFindDataStructure.resize(n);
 	std::fill(unionFindDataStructure.begin(), unionFindDataStructure.end(), -1);
@@ -31,7 +31,8 @@ Hierarchical_Clustering::Hierarchical_Clustering(
 
 	for (unsigned int i = 0; i < n; ++i) {
 		for (unsigned int j = 0; j <= i; ++j) {
-			data.push_back(matrix[i * n + j]);
+			double d = matrix(i, j);
+			data.push_back(d);
 		}
 	}
 

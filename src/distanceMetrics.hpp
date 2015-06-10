@@ -1,29 +1,20 @@
 #ifndef SRC_DISTANCEMETRICS_HPP_
 #define SRC_DISTANCEMETRICS_HPP_
 
-#include <vector>
+#include "typedefs.hpp"
 
 //Compute the pearson correlation matrix (output in 1D) between a range of vectors
-std::vector<double> computePairwisePearsonCorrelation(
-		const std::vector<std::vector<double>> &M);
+MatrixX computePairwisePearsonCorrelation(const MatrixX &data);
 
 //Compute the spearman correlation matrix (output in 1D) between a range of vectors
-std::vector<double> computePairwiseSpearmanCorrelation(
-		const std::vector<std::vector<double>> &M);
+MatrixX computePairwiseSpearmanCorrelation(const MatrixX &data);
 
 //Compute the euclidean distance matrix between a range of vectors
-std::vector<double> computePairwiseEuclideanDistance(
-		const std::vector<std::vector<double>> &M);
+MatrixX computePairwiseEuclideanDistance(const MatrixX &data);
 
 //Compute the manhattan distance matrix between a range of vectors
-std::vector<double> computePairwiseManhattanDistance(
-		const std::vector<std::vector<double>> &M);
+MatrixX computePairwiseManhattanDistance(const MatrixX &data);
 
-std::vector<double> computePairwiseCosineSimilarity(
-		const std::vector<std::vector<double>> &M);
-
-
-
-
+MatrixX computePairwiseCosineSimilarity(const MatrixX &data);
 
 #endif /* SRC_DISTANCEMETRICS_HPP_ */

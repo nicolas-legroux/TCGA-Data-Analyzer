@@ -57,19 +57,15 @@ map<int, string> getRealLabelsMap(
 	return labelsMap;
 }
 
-vector<int> cluster_KMeans(const vector<vector<double>> &data, int K, int Nmax,
-		bool verbose) {
-	vector<int> clusters(data.size(), 0);
-	unsigned int n = data[0].size();
-
-	K_Means<vector<double>> kMeans(data, clusters, K, Nmax,
-			EuclideanSpace<double>(n), verbose);
+vector<int> cluster_KMeans(const Data &data, ClusteringParameters clusteringParameters) {
+	vector<int> clusters(data.transposedData.cols(), 0);
+	K_Means kMeans(data.transposedData, clusteringParameters, clusters);
 
 	kMeans.compute();
 	return clusters;
 }
 
-vector<int> cluster_Hierarchical(const vector<double> &matrix,
+vector<int> cluster_Hierarchical(const MatrixX &matrix,
 		const DistanceMetric &distanceMetric,
 		const LinkageMethod &linkageMethod, int K, bool verbose) {
 
@@ -101,10 +97,10 @@ vector<int> cluster_Hierarchical(const vector<double> &matrix,
 	return clusters;
 }
 
-std::vector<int> cluster_Spectral(const std::vector<double> &matrix, const DistanceMetric &distanceMetric,
+std::vector<int> cluster_Spectral(const MatrixX &distanceMatrix, const DistanceMetric &distanceMetric,
 		unsigned int K) {
 
-	Spectral_Clustering spectralClustering(matrix, distanceMetric);
+	Spectral_Clustering spectralClustering(distanceMatrix, distanceMetric);
 	vector<int> clusters = spectralClustering.compute(K);
 
 	return clusters;

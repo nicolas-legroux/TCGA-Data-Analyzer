@@ -10,6 +10,7 @@
 #include "../distanceMatrix.hpp"
 #include "../utilities.hpp"
 #include "../unsupervisedNormalization.hpp"
+#include "../typedefs.hpp"
 
 using namespace std;
 
@@ -17,13 +18,21 @@ void kMeansTest1(int K, int Nmax, string cancerName, int patientId) {
 	vector<string> cancers { cancerName };
 	Data data;
 	readData(cancers, data, 0, patientId + 1);
-	vector<double> dataToCluster(
+	vector<double> dataToClusterSTL(
 			data.getPatientTumorData(cancerName, patientId));
-	std::vector<int> clusters(dataToCluster.size(), 0);
+	std::vector<int> clusters(dataToClusterSTL.size(), 0);
 
-	K_Means<double> kMeans(dataToCluster, clusters, K, Nmax, NormedVectorSpace<double>());
+	MatrixX dataToCluster(1, dataToClusterSTL.size());
+	for (unsigned int i = 0; i < dataToClusterSTL.size(); ++i) {
+		dataToCluster(0, i) = dataToClusterSTL[i];
+	}
 
-	std::vector<double> means = kMeans.compute();
+	ClusteringParameters kMeansParameters;
+	kMeansParameters.setKMeansParameters(K, Nmax, true);
+
+	K_Means kMeans(dataToCluster, kMeansParameters, clusters);
+
+	MatrixX medoids = kMeans.compute();
 
 	std::vector<int> clusterCount(K, 0);
 	for (int i : clusters) {
@@ -31,7 +40,8 @@ void kMeansTest1(int K, int Nmax, string cancerName, int patientId) {
 	}
 
 	for (int i = 0; i != K; ++i) {
-		std::cout << "Cluster " << (i + 1) << ": " << means[i] << ", size="
+		double d = medoids(0, i);
+		std::cout << "Cluster " << (i + 1) << ": " << d << ", size="
 				<< clusterCount[i] << std::endl;
 	}
 }
@@ -40,11 +50,19 @@ void iteratedBinaryKMeans_test(int N_iter, string cancerName, int patientId) {
 	vector<string> cancers { cancerName };
 	Data data;
 	readData(cancers, data, 0, patientId + 1);
-	vector<double> dataToCluster(
+	vector<double> dataToClusterSTL(
 			data.getPatientTumorData(cancerName, patientId));
-	std::vector<int> clusters(dataToCluster.size(), 0);
+	std::vector<int> clusters(dataToClusterSTL.size(), 0);
 
-	K_Means<double> kMeans(dataToCluster, clusters, 2, 100, NormedVectorSpace<double>());
+	MatrixX dataToCluster(1, dataToClusterSTL.size());
+	for (unsigned int i = 0; i < dataToClusterSTL.size(); ++i) {
+		dataToCluster(0, i) = dataToClusterSTL[i];
+	}
+
+	ClusteringParameters kMeansParameters;
+	kMeansParameters.setKMeansParameters(2, 100, true);
+
+	K_Means kMeans(dataToCluster, kMeansParameters, clusters);
 
 	kMeans.computeIteratedBinaryKMeans(N_iter);
 
@@ -62,28 +80,22 @@ void iteratedBinaryKMeans_test(int N_iter, string cancerName, int patientId) {
 void twodimensionalKmeans_test() {
 	unsigned int K = 2;
 	int Nmax = 10;
-	vector<double> vec1 { 0, 0 };
-	vector<double> vec2 { 1, 1 };
-	vector<double> vec3 { 0, 1 };
-	vector<double> vec4 { 8, 7 };
-	vector<double> vec5 { 8, 8 };
-	vector<vector<double>> data { vec1, vec2, vec3, vec4, vec5 };
-	vector<int> clusters(data.size(), 0);
+	unsigned int dim = 2;
+	unsigned int N = 5;
+	MatrixX dataToCluster(dim, N);
+	dataToCluster << 0, 1, 0, 8, 8, 0, 1, 1, 7, 8;
 
-	unsigned int n = data[0].size();
+	std::cout << "Clustering the following matrix : " << std::endl
+			<< dataToCluster << std::endl;
+	vector<int> clusters(N, 0);
 
-	K_Means<vector<double>> kMeans(data, clusters, K, Nmax, EuclideanSpace<double>(n));
+	ClusteringParameters kMeansParameters;
+	kMeansParameters.setKMeansParameters(K, Nmax, true);
 
-	vector<vector<double>> means = kMeans.compute();
-	std::vector<int> clusterCount(K, 0);
-	for (int i : clusters) {
-		clusterCount[i]++;
-	}
+	K_Means kMeans(dataToCluster, kMeansParameters, clusters);
 
-	for (unsigned int i = 0; i != K; ++i) {
-		cout << "Cluster " << (i + 1) << ": { ";
-		for_each(means[i].cbegin(), means[i].cend(),
-				[](double d) {cout << d << " ";});
-		cout << "}, size=" << clusterCount[i] << endl;
-	}
+	MatrixX medoids = kMeans.compute();
+	std::cout << "The medoids are : " << medoids;
+	std::cout << std::endl << "The cluster asignments are : " << std::endl;
+	print_vector(clusters);
 }

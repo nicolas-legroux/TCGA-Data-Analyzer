@@ -22,24 +22,21 @@ void unsupervisedNormalization_test(
 	unsupervisedNormalization(data, method, parameters);
 
 	//STEP3 : COMPUTE DISTANCE MATRIX
-	std::vector<std::vector<double>> rawData;
-	std::vector<SampleIdentifier> sampleIdentifiers;
-	CancerPatientIDList cancerPatientIDList;
-	data.transposeData(rawData, sampleIdentifiers, cancerPatientIDList);
+	data.transposeData();
 
-	std::vector<double> distanceMatrix = computeDistanceMatrix(rawData,
+	MatrixX distanceMatrix = computeDistanceMatrix(data.transposedData,
 			distanceMetric);
 
-	exportClassStats(distanceMatrix, cancerPatientIDList, sampleIdentifiers,
+	exportClassStats(distanceMatrix, data.cancerPatientIDList, data.sampleIdentifiers,
 			"classes_" + distanceMetricName(distanceMetric) + ".tsv");
 
 	string heatMapFilename = "heatmap_" + distanceMetricName(distanceMetric)
 			+ ".png";
 
-	int divisionThickness = (int) (0.004 * (double) rawData.size()) + 1;
+	int divisionThickness = (int) (0.004 * (double) data.transposedData.size()) + 1;
 
 	makeHeatMap(distanceMatrix, heatMapFilename.c_str(),
-			buildClassDivision(sampleIdentifiers), divisionThickness);
+			buildClassDivision(data.sampleIdentifiers), divisionThickness);
 
 	if ((method == UnsupervisedNormalizationMethod::KMEANS && parameters.K == 2)
 			|| method == UnsupervisedNormalizationMethod::BINARY_ITERATED_KMEANS

@@ -8,8 +8,10 @@
 
 #include "typedefs.hpp"
 #include "k_means.hpp"
-#include "normedVectorSpace.hpp"
 #include "utilities.hpp"
+#include "clustering.hpp"
+
+#include <Eigen/Dense>
 
 using namespace std;
 
@@ -18,19 +20,21 @@ void individualNormalization(Data &data, const string &cancer, int patientId,
 		const UnsupervisedNormalizationParameters &parameters) {
 
 	unsigned int numberOfGenes = data.getNumberOfProteins();
-	vector<double> dataToNormalize(numberOfGenes);
+	MatrixX dataToNormalize(1, numberOfGenes);
 	for (unsigned int i = 0; i < numberOfGenes; ++i) {
 		if (isTumor) {
-			dataToNormalize[i] = data.tumorRNASeqData[cancer][i][patientId];
+			dataToNormalize(0, i) = data.tumorRNASeqData[cancer][i][patientId];
 		} else {
-			dataToNormalize[i] = data.controlRNASeqData[cancer][i][patientId];
+			dataToNormalize(0, i) =
+					data.controlRNASeqData[cancer][i][patientId];
 		}
 	}
 
 	if (method == UnsupervisedNormalizationMethod::KMEANS) {
 		vector<int> clusters(numberOfGenes, 0);
-		K_Means<double> kMeans(dataToNormalize, clusters, parameters.K,
-				parameters.Nmax, NormedVectorSpace<double>());
+		ClusteringParameters clusteringParameters;
+		clusteringParameters.setKMeansParameters(parameters.K, parameters.Nmax);
+		K_Means kMeans(dataToNormalize, clusteringParameters, clusters);
 		kMeans.compute();
 		for (unsigned int i = 0; i < numberOfGenes; ++i) {
 			if (isTumor) {
@@ -46,8 +50,9 @@ void individualNormalization(Data &data, const string &cancer, int patientId,
 	else if (method
 			== UnsupervisedNormalizationMethod::BINARY_ITERATED_KMEANS) {
 		vector<int> clusters(numberOfGenes, 0);
-		K_Means<double> kMeans(dataToNormalize, clusters, 2, 100,
-				NormedVectorSpace<double>());
+		ClusteringParameters clusteringParameters;
+		clusteringParameters.setKMeansParameters(2, 150);
+		K_Means kMeans(dataToNormalize, clusteringParameters, clusters);
 		kMeans.computeIteratedBinaryKMeans(parameters.Niteration);
 		for (unsigned int i = 0; i < numberOfGenes; ++i) {
 			if (isTumor) {
@@ -61,7 +66,11 @@ void individualNormalization(Data &data, const string &cancer, int patientId,
 	}
 
 	else if (method == UnsupervisedNormalizationMethod::BINARY_QUANTILE) {
-		vector<size_t> rank = get_rank_increasing(dataToNormalize);
+		vector<double> dataToNormalizeVector(numberOfGenes);
+		for(unsigned int i=0; i<dataToNormalize.cols();++i){
+			dataToNormalizeVector[i] = dataToNormalize(0, i);
+		}
+		vector<size_t> rank = get_rank_increasing(dataToNormalizeVector);
 		for (unsigned int i = 0; i < numberOfGenes; ++i) {
 			double p = (double) rank[i] / (double) numberOfGenes;
 			if (p >= parameters.cutPercentage) {

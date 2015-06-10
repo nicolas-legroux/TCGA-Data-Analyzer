@@ -2,21 +2,19 @@
 #include <iostream>
 #include "distanceMetrics_test.hpp"
 #include "../distanceMetrics.hpp"
+#include "../typedefs.hpp"
 
-void pearsonCorrelationTest2(){
-	int dim = 2;
-	std::vector<double> x { 1, 2, 4, 5, 6, 7, -2, 9, 10 };
-	std::vector<double> y { 4, 0, 5, 0, 5, 3, -5, 1, 0 };
-	std::vector<std::vector<double>> M { x, y };
-	std::vector<double> correlationMatrix = computePairwisePearsonCorrelation(M);
-	for (int l = 0; l < dim; ++l) {
-		for (int c = 0; c < dim; ++c) {
-			std::cout << correlationMatrix[dim * l + c] << "\t";
-		}
-		std::cout << std::endl;
-	}
+void pearsonCorrelationTest2() {
+	int dim = 9;
+	MatrixX matrix(dim, 2);
+	matrix << 1, 4, 2, 0, 4, 5, 5, 0, 6, 5, 7, 3, -2, -5, 9, 1, 10, 0;
+
+	std::cout << "Computing pearson correlation matrix of :" << std::endl
+			<< matrix << std::endl << "Result is : ";
+
+	MatrixX correlationMatrix = computePairwisePearsonCorrelation(matrix);
+	std::cout << correlationMatrix;
 }
-
 
 //Same output as R :
 /*
@@ -24,21 +22,17 @@ void pearsonCorrelationTest2(){
  cor(M, method="spearman")
  */
 /*
-1	0.136201	0.33199
-0.136201	1	-0.652174
-0.33199	-0.652174	1
+ 1	0.136201	0.33199
+ 0.136201	1	-0.652174
+ 0.33199	-0.652174	1
  */
 void spearmanCorrelationTest2() {
-	std::vector<double> x1 { 1, 2, 4, 5, 6, 7, -2, 9, 10 };
-	std::vector<double> x2 { 4, 0, 5, 0, 5, 3, -5, 1, 0 };
-	std::vector<double> x3 { 0, 0, -5, 9, -4, 1, 1, 2, 1 };
-	std::vector<std::vector<double>> M { x1, x2, x3 };
-	std::vector<double> correlationMatrix = computePairwiseSpearmanCorrelation(M);
+	int dim = 9;
+	MatrixX matrix(dim, 9);
+	matrix << 1, 4, 0, 2, 0, 0, 4, 5, -5, 5, 0, 9, 6, 5, -4, 7, 3, 1, -2, -5, 1, 9, 1, 2, 10, 0, 1;
+	std::cout << "Computing spearman correlation matrix of :" << std::endl
+			<< matrix << std::endl << "Result is : ";
 
-	for (int l = 0; l < 3; ++l) {
-		for (int c = 0; c < 3; ++c) {
-			std::cout << correlationMatrix[3 * l + c] << "\t";
-		}
-		std::cout << std::endl;
-	}
+	MatrixX correlationMatrix = computePairwiseSpearmanCorrelation(matrix);
+	std::cout << correlationMatrix;
 }
