@@ -45,9 +45,6 @@ int main() {
 //		parameters, DistanceMetric::PEARSON_CORRELATION);
  * *
  */
-	twodimensionalKmeans_test();
-
-
 
 	return 0;
 }

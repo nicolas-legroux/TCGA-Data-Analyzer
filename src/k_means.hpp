@@ -15,7 +15,7 @@ class K_Means {
 private:
 	const MatrixX &data;
 	ClusteringParameters clusteringParameters;
-	std::vector<int> &clusters;
+	std::vector<int> clusters;
 
 	MatrixX medoids;
 	std::vector<bool> dataToCluster;
@@ -29,7 +29,6 @@ private:
 				int randomInt = distribution(engine);
 				if (dataToCluster[randomInt]) {
 					VectorX randomPoint = data.col(randomInt);
-					std::cout << "The random point that was selected is : " << std::endl << randomPoint << std::endl;
 					if (find(initialMedoids.begin(), initialMedoids.begin() + i,
 							randomPoint) == (initialMedoids.begin() + i)) {
 						initialMedoids[i] = randomPoint;
@@ -45,7 +44,6 @@ private:
 	}
 
 	int findClosestClusterFromDataPoint(const VectorX &dataPoint) {
-
 		int closestCluster = 0;
 		double closestDistance = (dataPoint - medoids.col(0)).squaredNorm();
 		for (unsigned int i = 1; i < clusteringParameters.K; ++i) {
@@ -68,9 +66,10 @@ private:
 			int cluster = clusters[i];
 			if (cluster != -1) {
 				++clusterSize[cluster];
-				medoids.col(i) += data.col(i);
+				medoids.col(cluster) += data.col(i);
 			}
 		}
+
 		for (unsigned int i = 0; i < clusteringParameters.K; ++i) {
 			medoids.col(i) /= static_cast<double>(clusterSize[i]);
 		}
@@ -89,37 +88,37 @@ private:
 				}
 			}
 		}
-
-		std::cout << "DebugA" << std::endl;
 		// Recalculate means
 		recalculateMeans();
 		return numberClusterChange;
 	}
 
 public:
-	K_Means(const MatrixX &_data, ClusteringParameters parameters,
-			std::vector<int> &_clusters) :
+	K_Means(const MatrixX &_data, const ClusteringParameters &parameters,
+			const std::vector<int> &_clusters) :
 			data(_data), clusteringParameters(parameters), clusters(_clusters) {
 		unsigned int dim = data.rows();
-		std::cout << "The dimension is " << dim << std::endl;
 		medoids.resize(dim, clusteringParameters.K);
 		dataToCluster = std::vector<bool>(data.cols());
 		transform(clusters.cbegin(), clusters.cend(), dataToCluster.begin(),
 				[](int cluster) {
-					return (cluster != -1);
+					return (cluster >= 0);
 				});
 	}
 
-	MatrixX compute() {
+	K_Means(const MatrixX &_data, ClusteringParameters parameters) :
+			K_Means(_data, parameters, std::vector<int>(_data.cols(), 0)) {
+	}
+
+	std::vector<int> compute() {
 
 		initializeClustersRandomly();
-
-		std::cout << "Let's look at random medoid initialization : " << std::endl << medoids<< std::endl;
 
 		// Iterate
 		if (clusteringParameters.verbose) {
 			std::cout
-					<< "Percentage of points that switched between clusters : " << std::endl;
+					<< "Percentage of points that switched between clusters : "
+					<< std::endl;
 		}
 
 		int numberOfPoints = kMeansIteration();
@@ -137,23 +136,11 @@ public:
 			std::cout << "K-Means did not converge." << std::endl;
 		}
 
-		return medoids;
+		return clusters;
 	}
 
-	void computeIteratedBinaryKMeans(int Niteration) {
-		assert(clusteringParameters.K == 2);
-
-		for (int i = 0; i < Niteration; ++i) {
-			compute();   // 1000 should be enough
-			transform(clusters.cbegin(), clusters.cend(), clusters.begin(),
-					[](int cluster) {
-						return (cluster == 0)? 0 : -1;
-					});
-		}
-		transform(clusters.cbegin(), clusters.cend(), clusters.begin(),
-				[](int cluster) {
-					return (cluster == 0)? 0 : 1;
-				});
+	MatrixX getMedoids() {
+		return medoids;
 	}
 };
 

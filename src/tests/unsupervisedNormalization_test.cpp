@@ -39,7 +39,6 @@ void unsupervisedNormalization_test(
 			buildClassDivision(data.sampleIdentifiers), divisionThickness);
 
 	if ((method == UnsupervisedNormalizationMethod::KMEANS && parameters.K == 2)
-			|| method == UnsupervisedNormalizationMethod::BINARY_ITERATED_KMEANS
 			|| method == UnsupervisedNormalizationMethod::BINARY_QUANTILE) {
 		printMaxExpressedGenes(data, 15, "mostExpressedGenes.out");
 	}

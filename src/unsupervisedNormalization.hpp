@@ -11,7 +11,7 @@
 #include "typedefs.hpp"
 
 enum UnsupervisedNormalizationMethod {
-	KMEANS, BINARY_ITERATED_KMEANS, BINARY_QUANTILE, NO_NORMALIZATION
+	KMEANS, BINARY_QUANTILE, NO_NORMALIZATION
 };
 
 struct UnsupervisedNormalizationParameters {
@@ -19,19 +19,12 @@ struct UnsupervisedNormalizationParameters {
 	unsigned int K;
 	int Nmax;
 
-	//For BINARY_ITERATED_KMEANS
-	int Niteration;
-
 	//For BINARY_QUANTILE
 	double cutPercentage;
 
 	void setKMeansParameters(unsigned int _K, int _Nmax) {
 		K = _K;
 		Nmax = _Nmax;
-	}
-
-	void setBinaryIteratedKMeansParameters(int _Niteration) {
-		Niteration = _Niteration;
 	}
 
 	void setBinaryQuantileParameters(double _cutPercentage) {

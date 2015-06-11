@@ -47,24 +47,6 @@ void individualNormalization(Data &data, const string &cancer, int patientId,
 		}
 	}
 
-	else if (method
-			== UnsupervisedNormalizationMethod::BINARY_ITERATED_KMEANS) {
-		vector<int> clusters(numberOfGenes, 0);
-		ClusteringParameters clusteringParameters;
-		clusteringParameters.setKMeansParameters(2, 150);
-		K_Means kMeans(dataToNormalize, clusteringParameters, clusters);
-		kMeans.computeIteratedBinaryKMeans(parameters.Niteration);
-		for (unsigned int i = 0; i < numberOfGenes; ++i) {
-			if (isTumor) {
-				data.tumorRNASeqData[cancer][i][patientId] =
-						(double) clusters[i];
-			} else {
-				data.controlRNASeqData[cancer][i][patientId] =
-						(double) clusters[i];
-			}
-		}
-	}
-
 	else if (method == UnsupervisedNormalizationMethod::BINARY_QUANTILE) {
 		vector<double> dataToNormalizeVector(numberOfGenes);
 		for(unsigned int i=0; i<dataToNormalize.cols();++i){

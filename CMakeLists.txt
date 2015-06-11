@@ -17,4 +17,4 @@ include_directories(${Eigen_INCLUDE_DIR})
 
 add_executable(TCGA-Clusterer ${TCGA-Clusterer_SRC})
 
-SET(CMAKE_CXX_FLAGS "-O3 -std=c++14")
+SET(CMAKE_CXX_FLAGS "-g -std=c++14")
