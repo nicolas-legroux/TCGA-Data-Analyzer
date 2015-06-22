@@ -1,8 +1,9 @@
 data/*
 Debug/*
-Release/*
+Release/*x
 export/*
 outputs/*
+*.a
 
 #Eclipse files
 .project
@@ -17,6 +18,7 @@ outputs/*
 Stage3A
 CancerClustering
 TCGA-Clusterer
+TCGA-Analyzer
 
 #Cmake files
 CMakeFiles/*

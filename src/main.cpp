@@ -1,50 +1,45 @@
 // Copyright Nicolas Legroux 2015
 
-#include <iostream>
-#include <vector>
-#include "tests/stats_test.hpp"
-#include "tests/k_means_test.hpp"
-#include "tests/lodePNG_test.hpp"
-#include "tests/dataReader_test.hpp"
-#include "tests/unsupervisedNormalization_test.hpp"
-#include "tests/utilities_test.hpp"
-#include "tests/clustering_test.hpp"
-#include "tests/hierarchicalClustering_test.hpp"
-#include "unsupervisedNormalization.hpp"
-#include "distanceMatrix.hpp"
-#include "utilities.hpp"
-
-#include "distanceMatrix.hpp"
-#include "spectral_clustering.hpp"
-#include "dataReader.hpp"
-
-using std::vector;
-using std::string;
-using std::map;
+#include <memory>
+#include "config.hpp"
+#include "TCGAData.hpp"
+#include "TCGADataLoader.hpp"
+#include "TCGADataClusterer.hpp"
+#include "TCGADataNormalizer.hpp"
+#include "TCGADataDistanceMatrixAnalyzer.hpp"
 
 int main() {
-	/*
-	vector<string> cancers = { "COAD"};
-	int maxControl = 0;
-	int maxTumor = 50;
+	/* Read Data */
+	TCGAData data;
+	TCGADataLoader loader(&data, CANCERS, MAX_CONTROL_SAMPLES,
+			MAX_TUMOR_SAMPLES, VERBOSE);
+	loader.loadData();
 
-	UnsupervisedNormalizationMethod method =
-			UnsupervisedNormalizationMethod::BINARY_QUANTILE;
-	UnsupervisedNormalizationParameters parameters;
-	parameters.setBinaryQuantileParameters(0.3);
-	parameters.setKMeansParameters(2, 1000);
-	parameters.setBinaryIteratedKMeansParameters(6);
+	/* Normalize */
+	std::shared_ptr<Normalizer> normalizer = std::make_shared<
+			BinaryQuantileNormalizer>(BINARY_QUANTILE_NORMALIZATION_PARAM);
+	TCGADataNormalizer tcgaNormalizer(&data, normalizer, VERBOSE);
+	tcgaNormalizer.normalize();
 
-	clustering_KMeans_test(cancers, maxControl, maxTumor, method, parameters);
+	/* Output distance matrix */
+	auto metric = ClusterXX::buildMetric(DEFAULT_METRIC);
+	TCGADataDistanceMatrixAnalyser distanceMetricAnalyzer(&data, metric,
+			VERBOSE);
+	distanceMetricAnalyzer.computeDistanceMatrix();
+	distanceMetricAnalyzer.exportClassStats();
+	distanceMetricAnalyzer.exportHeatMap();
 
-//	clustering_Hierarchical_test(cancers, maxControl, maxTumor, method,
-//			parameters, DistanceMetric::PEARSON_CORRELATION,
-//			LinkageMethod::COMPLETE);
+	TCGADataKMeansClusterer kMeansClusterer(&data);
+	kMeansClusterer.computeClustering();
+	kMeansClusterer.printClusteringInfo();
 
-//	clustering_Spectral_test(cancers, maxControl, maxTumor, method,
-//		parameters, DistanceMetric::PEARSON_CORRELATION);
- * *
- */
+	TCGADataHierarchicalClusterer hierarchicalClusterer(&data,
+			distanceMetricAnalyzer.getDistanceMatrixHandler(), metric);
+	hierarchicalClusterer.computeClustering();
+	hierarchicalClusterer.printClusteringInfo();
 
-	return 0;
+	TCGADataSpectralClusterer spectralClusterer(&data,
+			distanceMetricAnalyzer.getDistanceMatrixHandler(), metric);
+	spectralClusterer.computeClustering();
+	spectralClusterer.printClusteringInfo();
 }

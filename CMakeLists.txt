@@ -1,20 +1,49 @@
 cmake_minimum_required(VERSION 3.0.2 FATAL_ERROR)
 
-project(TCGA-Clusterer CXX)
+set(PROJECT_NAME TCGA-Analyzer)
 
-set(Eigen_INCLUDE_DIR /home/nicolas/opt/Eigen/include/eigen3)
+project(${PROJECT_NAME} CXX)
 
-file(GLOB TCGA-Clusterer_SRC
+set(EIGEN_INCLUDE_DIR /home/nicolas/opt/Eigen/include/eigen3)
+
+set(CLUSTERXX_ROOT_DIR /home/nicolas/dev/eclipse-workspace/ClusterXX)
+set(CLUSTERXX_INCLUDE_DIR ${CLUSTERXX_ROOT_DIR}/includes)
+
+set(LODEPNG_ROOT_DIR ${CLUSTERXX_ROOT_DIR}/lib/lodepng)
+set(LODEPNG_INCLUDE_DIR ${LODEPNG_ROOT_DIR})
+
+set(CMAKE_CXX_FLAGS "-O3 -std=c++14 -fopenmp")
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${PROJECT_BINARY_DIR}/lib)
+
+file(GLOB CLUSTERXX_SRC_FILES
+    "${CLUSTERXX_ROOT_DIR}/src/*.cpp"    
+    "${CLUSTERXX_ROOT_DIR}/src/clustering/*.cpp"
+    "${CLUSTERXX_ROOT_DIR}/src/metrics/*.cpp"
+    "${CLUSTERXX_ROOT_DIR}/src/utils/*.cpp"
+    "${CLUSTERXX_ROOT_DIR}/includes/*.hpp"    
+    "${CLUSTERXX_ROOT_DIR}/includes/clustering/*.hpp"
+    "${CLUSTERXX_ROOT_DIR}/includes/metrics/*.hpp"
+    "${CLUSTERXX_ROOT_DIR}/includes/utils/*.hpp"
+)
+
+file(GLOB LODEPNG_SRC_FILES
+    "${LODEPNG_ROOT_DIR}/*.cpp"  
+    "${LODEPNG_ROOT_DIR}/*.hpp" 
+)
+
+file(GLOB PROJECT_SRC
     "src/*.hpp"
     "src/*.cpp"
     "src/tests/*.hpp"
     "src/tests/*.cpp"
-    "src/lodePNG/lodepng.cpp"
-    "src/lodePNG/lodepng.h"
 )
 
-include_directories(${Eigen_INCLUDE_DIR})
+include_directories(${EIGEN_INCLUDE_DIR} ${CLUSTERXX_INCLUDE_DIR} ${LODEPNG_INCLUDE_DIR})
 
-add_executable(TCGA-Clusterer ${TCGA-Clusterer_SRC})
+add_library(LodePNG STATIC ${LODEPNG_SRC_FILES})
+add_library(ClusterXX STATIC ${CLUSTERXX_SRC_FILES})
+target_link_libraries(ClusterXX LodePNG)
 
-SET(CMAKE_CXX_FLAGS "-g -std=c++14")
+add_executable(${PROJECT_NAME} ${PROJECT_SRC})
+target_link_libraries(${PROJECT_NAME} ClusterXX)

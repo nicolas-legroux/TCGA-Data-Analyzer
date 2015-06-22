@@ -1,19 +1,16 @@
 #include <iostream>
 #include <vector>
-#include <string>
-
+#include<algorithm>
 #include "utilities.hpp"
 
-using namespace std;
-
 void printAdvancement(unsigned int currentCount, unsigned int totalCount) {
-	cout << (100.0 * (double) currentCount) / (double) (totalCount) << "% \r"
-			<< flush;
+	std::cout << (100.0 * (double) currentCount) / (double) (totalCount) << "% \r"
+			<< std::flush;
 }
 
-vector<string> split(const string &s, const vector<char> &delimiters) {
-	vector<string> strs;
-	string currentString;
+std::vector<std::string> split(const std::string &s, const std::vector<char> &delimiters) {
+	std::vector<std::string> strs;
+	std::string currentString;
 
 	for (const char &c : s) {
 		if (find(delimiters.cbegin(), delimiters.cend(), c)
@@ -30,81 +27,22 @@ vector<string> split(const string &s, const vector<char> &delimiters) {
 	return strs;
 }
 
-int numberOfPairs(int n) {
-	return n * (n - 1) / 2;
+double computeMean(const std::vector<double> &vec) {
+	double sum = accumulate(vec.cbegin(), vec.cend(), 0.0);
+	return sum / (double) vec.size();
 }
 
-/*
- *
- * DISTANCE MEASURES
- *
- */
-
-double euclideanNorm(const std::vector<double> &x) {
-	double norm = 0.0;
-	for_each(x.cbegin(), x.cend(), [&](double xi) {
-		norm += xi*xi;
+double computeStandardDeviation(const std::vector<double> &vec, bool correction) {
+	double m = computeMean(vec);
+	double accum = 0.0;
+	for_each(vec.cbegin(), vec.cend(), [&](const double d) {
+		accum += (d-m)*(d-m);
 	});
-	return sqrt(norm);
+	if (correction) {
+		return sqrt(accum / (vec.size() - 1));
+	} else {
+		return sqrt(accum / vec.size());
+	}
 }
 
-double euclideanDistance(const std::vector<double> &a,
-		const std::vector<double> &b) {
-	double dist = 0.0;
-	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
-			[&dist](double x, double y) {
-				dist += (x-y)*(x-y);
-			});
-	return sqrt(dist);
-}
-
-double euclideanDistance(const VectorX &a, const VectorX &b) {
-	return (a - b).norm();
-}
-
-double manhattanDistance(const std::vector<double> &a,
-		const std::vector<double> &b) {
-	double dist = 0.0;
-	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
-			[&dist](double x, double y) {
-				dist += abs(x-y);
-			});
-	return dist;
-}
-
-double manhattanDistance(const VectorX &a, const VectorX &b) {
-	return (a - b).lpNorm<1>();
-}
-
-double cosineSimilarity(const std::vector<double> &a,
-		const std::vector<double> &b, double normA, double normB) {
-	double product = 0.0;
-	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
-			[&product](double ai, double bi) {
-				product += ai*bi;});
-	return product / (normA * normB);
-}
-
-double cosineSimilarity(const VectorX &a, const VectorX &b, double normA,
-		double normB) {
-	return a.dot(b) / (normA * normB);
-}
-
-double cosineSimilarity(const std::vector<double> &a,
-		const std::vector<double> &b) {
-	double product = 0.0;
-	double normA = 0.0;
-	double normB = 0.0;
-	for_each_two_ranges(a.cbegin(), a.cend(), b.cbegin(),
-			[&product, &normA, &normB](double ai, double bi) {
-				product += ai*bi;
-				normA += ai*ai;
-				normB += bi*bi;
-			});
-	return product / (sqrt(normA) * sqrt(normB));
-}
-
-double cosineSimilarity(const VectorX &a, const VectorX &b) {
-	return a.dot(b) / (a.norm() * b.norm());
-}
 

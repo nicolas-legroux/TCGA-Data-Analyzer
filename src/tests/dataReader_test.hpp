@@ -1,6 +1,0 @@
-#ifndef SRC_TESTS_DATAREADER_TEST_HPP_
-#define SRC_TESTS_DATAREADER_TEST_HPP_
-
-void exportData_test();
-
-#endif /* SRC_TESTS_DATAREADER_TEST_HPP_ */
