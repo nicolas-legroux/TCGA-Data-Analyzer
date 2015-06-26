@@ -16,7 +16,7 @@ void TCGADataDistanceMatrixAnalyser::computeDistanceMatrix() {
 	if (!matrixIsComputed) {
 		ptrToData->transposeData(verbose);
 		metric->setVerbose(verbose);
-		distanceMatrix = metric->compute(ptrToData->getDataMatrixHandler());
+		distanceMatrix = metric->computeMatrix(ptrToData->getDataMatrixHandler());
 		//std::cout << "Distance metric : " << ptrToData->getDataMatrixHandler() << std::endl << distanceMatrix;
 		matrixIsComputed = true;
 	}
@@ -29,9 +29,9 @@ void TCGADataDistanceMatrixAnalyser::exportDistanceMatrix() {
 	}
 
 	std::ofstream matrixOutputStream(
-			ROOT_EXPORT_DIRECTORY + "matrix-" + metric->toString() + ".txt");
+			EXPORT_DIRECTORY + "matrix-" + metric->toString() + ".txt");
 	std::ofstream patientsOutputStream(
-			ROOT_EXPORT_DIRECTORY + "patients-" + metric->toString() + ".txt");
+			EXPORT_DIRECTORY + "patients-" + metric->toString() + ".txt");
 
 	unsigned int numberOfSamples = ptrToData->getNumberOfSamples();
 
@@ -52,7 +52,7 @@ void TCGADataDistanceMatrixAnalyser::exportDistanceMatrix() {
 void TCGADataDistanceMatrixAnalyser::exportHeatMap(bool withClassDivision,
 		std::array<unsigned char, 3> separatorColor) {
 	std::ofstream outputStreamLabels(
-			ROOT_EXPORT_DIRECTORY + "class-sizes-" + metric->toString()
+			EXPORT_DIRECTORY + "class-sizes-" + metric->toString()
 					+ ".txt");
 	if (verbose) {
 		std::cout << "Making heat map... " << std::flush;
@@ -87,7 +87,7 @@ void TCGADataDistanceMatrixAnalyser::exportHeatMap(bool withClassDivision,
 	}
 
 	heatMapBuilder.build(distanceMatrix,
-			ROOT_EXPORT_DIRECTORY + "heatmap-" + metric->toString() + ".png",
+			EXPORT_DIRECTORY + "heatmap-" + metric->toString() + ".png",
 			classDivision, lineThickness, separatorColor);
 
 	if (verbose) {
@@ -140,7 +140,7 @@ void TCGADataDistanceMatrixAnalyser::exportClassStats() {
 	}
 
 	std::ofstream outputStream(
-			ROOT_EXPORT_DIRECTORY + "class-statistics" + metric->toString()
+			EXPORT_DIRECTORY + "class-statistics" + metric->toString()
 					+ ".tsv");
 	outputStream << "CLASSES";
 	for (const std::string &s : classes) {

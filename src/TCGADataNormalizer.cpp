@@ -9,8 +9,8 @@
 
 void KMeansNormalizer::normalize(std::vector<double> *v) {
 	Eigen::Map<Eigen::MatrixXd> mapToData((*v).data(), 1, (*v).size());
-	std::shared_ptr<ClusterXX::ClustererParameters> kMeansParams = std::make_shared<
-			ClusterXX::KMeansParameters>(K, maxIterations);
+	std::shared_ptr<ClusterXX::ClustererParameters> kMeansParams =
+			std::make_shared<ClusterXX::KMeansParameters>(K, maxIterations);
 	ClusterXX::KMeans_Clusterer clusterer(mapToData, kMeansParams);
 	clusterer.compute();
 	std::vector<int> clusters = clusterer.getClusters();
@@ -101,7 +101,8 @@ void TCGADataNormalizer::printMostExpressedGenesByClassUtility(
 		std::ofstream &outputStream, unsigned int maxNumberGenes,
 		std::string &cancer, bool isTumor) {
 
-	unsigned int numberOfPatients = ptrToData->getRNASeqDataHandler(isTumor).at(cancer)[0].size();
+	unsigned int numberOfPatients = ptrToData->getRNASeqDataHandler(isTumor).at(
+			cancer)[0].size();
 	if (numberOfPatients > 0) {
 		outputStream << cancer;
 		if (isTumor) {
@@ -115,14 +116,17 @@ void TCGADataNormalizer::printMostExpressedGenesByClassUtility(
 		std::vector<double> aggregation(numberOfGenes, 0.0);
 		for (unsigned int i = 0; i < numberOfGenes; i++) {
 			for (unsigned int j = 0; j < numberOfPatients; ++j) {
-				aggregation[i] += ptrToData->getRNASeqDataHandler(isTumor).at(cancer)[i][j];
+				aggregation[i] += ptrToData->getRNASeqDataHandler(isTumor).at(
+						cancer)[i][j];
 			}
 		}
 
 		outputStream << "Most expressed genes in the class : {";
-		std::vector<size_t> sortedIndexes = ClusterXX::Utilities::sort_indexes_decreasing(aggregation);
+		std::vector<size_t> sortedIndexes =
+				ClusterXX::Utilities::sort_indexes_decreasing(aggregation);
 		for (unsigned int i = 0; i < maxNumberGenes; ++i) {
-			std::string geneSymbol = ptrToData->getGeneListHandler()[sortedIndexes[i]].first;
+			std::string geneSymbol =
+					ptrToData->getGeneListHandler()[sortedIndexes[i]].first;
 			outputStream << " " << geneSymbol << "("
 					<< 100.0 * aggregation[sortedIndexes[i]]
 							/ (double) numberOfPatients << "%) ";
@@ -133,7 +137,7 @@ void TCGADataNormalizer::printMostExpressedGenesByClassUtility(
 
 void TCGADataNormalizer::printMostExpressedGenesByClass(
 		unsigned int maxNumberGenes, const std::string &filename) {
-	std::ofstream outputStream(ROOT_EXPORT_DIRECTORY + filename);
+	std::ofstream outputStream(EXPORT_DIRECTORY + filename);
 	if (verbose) {
 		std::cout << std::endl << "****** FINDING MOST EXPRESSED GENES ******"
 				<< std::endl;
@@ -144,5 +148,29 @@ void TCGADataNormalizer::printMostExpressedGenesByClass(
 				cancer, false);
 		printMostExpressedGenesByClassUtility(outputStream, maxNumberGenes,
 				cancer, true);
+	}
+}
+
+void TCGADataNormalizer::exportToFile(double positiveValue,
+		double negativeValue) {
+	ptrToData->transposeData(false);
+	std::ofstream outputStreamSamples(GRAPH_EXPORT_DIRECTORY + "samples.list");
+	const auto &dataMatrix = ptrToData->getDataMatrixHandler();
+	for (unsigned int i = 0; i < dataMatrix.cols(); ++i) {
+
+		outputStreamSamples << ptrToData->getSamplesHandler()[i].toFullString() << std::endl;
+
+		std::string filename = GRAPH_EXPORT_DIRECTORY + "negative"
+				+ std::to_string(std::fabs(negativeValue)) + "-"
+				+ std::to_string(i) + ".txt";
+		std::ofstream outputStream(filename);
+		for (unsigned int j = 0; j < dataMatrix.rows(); ++j) {
+			outputStream << ptrToData->getGeneListHandler()[j].first << " ";
+			if (dataMatrix(j, i) > 0.5) {
+				outputStream << positiveValue << std::endl;
+			} else {
+				outputStream << negativeValue << std::endl;
+			}
+		}
 	}
 }

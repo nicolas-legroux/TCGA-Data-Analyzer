@@ -5,6 +5,7 @@ set(PROJECT_NAME TCGA-Analyzer)
 project(${PROJECT_NAME} CXX)
 
 set(EIGEN_INCLUDE_DIR /home/nicolas/opt/Eigen/include/eigen3)
+set(BOOST_INCLUDE_DIR /home/nicolas/opt/boost_1_57_0)
 
 set(CLUSTERXX_ROOT_DIR /home/nicolas/dev/eclipse-workspace/ClusterXX)
 set(CLUSTERXX_INCLUDE_DIR ${CLUSTERXX_ROOT_DIR}/includes)
@@ -39,7 +40,7 @@ file(GLOB PROJECT_SRC
     "src/tests/*.cpp"
 )
 
-include_directories(${EIGEN_INCLUDE_DIR} ${CLUSTERXX_INCLUDE_DIR} ${LODEPNG_INCLUDE_DIR})
+include_directories(${EIGEN_INCLUDE_DIR} ${BOOST_INCLUDE_DIR} ${CLUSTERXX_INCLUDE_DIR} ${LODEPNG_INCLUDE_DIR})
 
 add_library(LodePNG STATIC ${LODEPNG_SRC_FILES})
 add_library(ClusterXX STATIC ${CLUSTERXX_SRC_FILES})

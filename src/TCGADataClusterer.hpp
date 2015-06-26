@@ -6,7 +6,6 @@
 #include <vector>
 #include <ClusterXX/clustering/algorithms.hpp>
 #include "TCGAData.hpp"
-#include "config.hpp"
 
 enum ClusteringMethod {
 	KMEANS_CLUSTERING, SPECTRAL_CLUSTERING, HIERARCHICAL_CLUSTERING
@@ -34,43 +33,36 @@ private:
 
 class TCGADataKMeansClusterer: public TCGADataClusterer {
 public:
-	TCGADataKMeansClusterer(TCGAData *_ptrToData, unsigned int _K = 0,
-			unsigned int _maxIterations = K_MEANS_MAX_ITERATIONS, bool verbose =
-					VERBOSE);
+	TCGADataKMeansClusterer(TCGAData *_ptrToData, unsigned int _K,
+			unsigned int _maxIteration, bool verbose);
 };
 
 class TCGADataHierarchicalClusterer: public TCGADataClusterer {
 public:
 	TCGADataHierarchicalClusterer(TCGAData *_ptrToData,
-			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K =
-					0,
-			ClusterXX::HierarchicalParameters::LinkageMethod linkageMethod =
-					DEFAULT_LINKAGE_METHOD, bool verbose = VERBOSE);
+			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
+			ClusterXX::HierarchicalParameters::LinkageMethod linkageMethod,
+			bool verbose);
 	TCGADataHierarchicalClusterer(TCGAData *_ptrToData,
 			const Eigen::MatrixXd &distanceMatrix,
-			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K =
-					0,
-			ClusterXX::HierarchicalParameters::LinkageMethod linkageMethod =
-					DEFAULT_LINKAGE_METHOD, bool verbose = VERBOSE);
+			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
+			ClusterXX::HierarchicalParameters::LinkageMethod linkageMethod,
+			bool verbose);
 };
 
 class TCGADataSpectralClusterer: public TCGADataClusterer {
 public:
 	TCGADataSpectralClusterer(TCGAData *_ptrToData,
-			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K =
-					0,
+			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
 			std::pair<
 					ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
-					double> transformationParameters =
-					DEFAULT_GRAPH_TRANSFORMATION, bool _verbose = VERBOSE);
+					double> transformationParameters, bool _verbose);
 	TCGADataSpectralClusterer(TCGAData *_ptrToData,
 			const Eigen::MatrixXd &_distanceMatrix,
-			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K =
-					0,
+			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
 			std::pair<
 					ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
-					double> transformationParameters =
-					DEFAULT_GRAPH_TRANSFORMATION, bool _verbose = VERBOSE);
+					double> transformationParameters, bool _verbose);
 };
 
 #endif /* SRC_TCGADATACLUSTERER_HPP_ */

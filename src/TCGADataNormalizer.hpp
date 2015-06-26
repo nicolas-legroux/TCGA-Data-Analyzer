@@ -59,6 +59,7 @@ public:
 	void normalize();
 	void printMostExpressedGenesByClass(unsigned int maxNumberGenes,
 			const std::string &filename);
+	void exportToFile(double positiveValue, double negativeValuess);
 private:
 	TCGAData *ptrToData;
 	std::shared_ptr<Normalizer> ptrToNormalizer;

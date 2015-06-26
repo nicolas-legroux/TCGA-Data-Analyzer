@@ -17,7 +17,7 @@ class TCGADataDistanceMatrixAnalyser {
 public:
 	TCGADataDistanceMatrixAnalyser(TCGAData *_ptrToData,
 			const std::shared_ptr<ClusterXX::Metric> &_metric,
-			bool _verbose = false);
+			bool _verbose);
 	void computeDistanceMatrix();
 	void exportDistanceMatrix();
 	void exportClassStats();

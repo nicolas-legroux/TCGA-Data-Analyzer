@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <set>
 #include "TCGAData.hpp"
 #include "utilities.hpp"
 #include "config.hpp"
@@ -169,11 +170,13 @@ void TCGAData::transposeData(bool verbose) {
 void TCGAData::exportToMatrix(const std::string &matrixFilenamePath,
 		const std::string &patientListFilenamePath, bool verbose) const {
 
-	std::ofstream matrixOutputStream(ROOT_EXPORT_DIRECTORY + matrixFilenamePath);
-	std::ofstream patientsOutputStream(ROOT_EXPORT_DIRECTORY + patientListFilenamePath);
+	std::ofstream matrixOutputStream(EXPORT_DIRECTORY + matrixFilenamePath);
+	std::ofstream patientsOutputStream(
+			EXPORT_DIRECTORY + patientListFilenamePath);
 
-	if(verbose){
-		std::cout << std::endl << "****** Exporting raw matrix ******" << std::endl;
+	if (verbose) {
+		std::cout << std::endl << "****** Exporting raw matrix ******"
+				<< std::endl;
 	}
 
 	unsigned int numberOfGenes = getNumberOfGenes();
@@ -186,16 +189,14 @@ void TCGAData::exportToMatrix(const std::string &matrixFilenamePath,
 		for (const auto &kv : tumorRNASeqData) {
 			std::string cancerName = kv.first;
 			for (unsigned int j = 0;
-					j < controlRNASeqData.at(cancerName).at(0).size();
-					++j) {
+					j < controlRNASeqData.at(cancerName).at(0).size(); ++j) {
 				if (i == 0) {
 					patientsOutputStream << cancerName << "-Control ("
-							<< controlPatientList.at(cancerName).at(j)
-							<< ")" << std::endl;
+							<< controlPatientList.at(cancerName).at(j) << ")"
+							<< std::endl;
 				}
 				matrixOutputStream
-						<< controlRNASeqData.at(cancerName).at(i).at(j)
-						<< "\t";
+						<< controlRNASeqData.at(cancerName).at(i).at(j) << "\t";
 			}
 
 			for (unsigned int j = 0;
@@ -205,15 +206,71 @@ void TCGAData::exportToMatrix(const std::string &matrixFilenamePath,
 							<< tumorPatientList.at(cancerName).at(j) << ")"
 							<< std::endl;
 				}
-				matrixOutputStream
-						<< tumorRNASeqData.at(cancerName).at(i).at(j)
+				matrixOutputStream << tumorRNASeqData.at(cancerName).at(i).at(j)
 						<< "\t";
 			}
 		}
 		matrixOutputStream << std::endl;
 	}
 
-	if(verbose){
+	if (verbose) {
 		std::cout << "********* Done exporting *********" << std::endl;
 	}
 }
+
+void TCGAData::keepOnlyGenesInGraph(const std::string &filenameNodes) {
+	std::cout << "Keeping only genes which are in the graph..." << std::endl;
+	std::cout << std::endl << "The number of genes is currently "
+			<< getNumberOfGenes() << "." << std::endl;
+
+	std::string pathToFile = GRAPH_DATA_DIRECTORY + filenameNodes;
+
+	std::ifstream inputStream(pathToFile);
+	GeneList newGeneList;
+	RNASeqDataCancerMap newControlData;
+	RNASeqDataCancerMap newTumorData;
+	std::set<std::string> genesInGraph;
+	std::string gene;
+
+	while (inputStream >> gene) {
+		genesInGraph.insert(gene);
+	}
+
+	for (unsigned int i = 0; i < geneList.size(); ++i) {
+		std::string HGNCSymbol = geneList[i].first;
+		if (genesInGraph.find(HGNCSymbol) != genesInGraph.end()) {
+			newGeneList.push_back(geneList[i]);
+		}
+	}
+
+	for (const auto &kv : controlRNASeqData) {
+		std::string cancer = kv.first;
+		newControlData.insert( { cancer, std::vector<std::vector<double>>() });
+		for (unsigned int i = 0; i < geneList.size(); ++i) {
+			std::string HGNCSymbol = geneList[i].first;
+			if (genesInGraph.find(HGNCSymbol) != genesInGraph.end()) {
+				newControlData[cancer].push_back(controlRNASeqData[cancer][i]);
+			}
+		}
+	}
+
+	controlRNASeqData = std::move(newControlData);
+
+	for (const auto &kv : tumorRNASeqData) {
+		std::string cancer = kv.first;
+		newTumorData.insert( { cancer, std::vector<std::vector<double>>() });
+		for (unsigned int i = 0; i < geneList.size(); ++i) {
+			std::string HGNCSymbol = geneList[i].first;
+			if (genesInGraph.find(HGNCSymbol) != genesInGraph.end()) {
+				newTumorData[cancer].push_back(tumorRNASeqData[cancer][i]);
+			}
+		}
+	}
+
+	tumorRNASeqData = std::move(newTumorData);
+	geneList = std::move(newGeneList);
+
+	std::cout << "Done. Gene count is now " << getNumberOfGenes() << "."
+			<< std::endl;
+}
+

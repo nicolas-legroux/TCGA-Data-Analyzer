@@ -9,12 +9,12 @@ public:
 	TCGADataLoader() : ptrToData (nullptr), verbose(false), maxControlSamples(0), maxTumorSamples(0) { };
 	TCGADataLoader(TCGAData *_ptrToData,
 			const std::vector<std::string> &_cancers,
-			unsigned int _maxControlSamples = 100,
-			unsigned int _maxTumorSamples = 1000, bool verbose = true);
+			unsigned int _maxControlSamples,
+			unsigned int _maxTumorSamples, bool verbose);
 	TCGADataLoader(TCGAData *_ptrToData,
 			const std::string &_filenameWithCancerList,
-			unsigned int _maxControlSamples = 100,
-			unsigned int _maxTumorSamples = 1000, bool verbose = true);
+			unsigned int _maxControlSamples,
+			unsigned int _maxTumorSamples, bool verbose);
 	void loadData();
 private:
 	std::vector<std::string> cancers;

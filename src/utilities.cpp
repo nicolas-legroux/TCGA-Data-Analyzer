@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include<algorithm>
+#include <algorithm>
 #include "utilities.hpp"
 
 void printAdvancement(unsigned int currentCount, unsigned int totalCount) {

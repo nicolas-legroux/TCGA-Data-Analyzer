@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
 
 #include "TCGADataLoader.hpp"
 #include "utilities.hpp"
@@ -19,7 +20,7 @@ TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData, const std::string &_filenam
 		unsigned int _maxTumorSamples, bool _verbose) :
 		ptrToData(_ptrToData), verbose(_verbose), maxControlSamples(
 				_maxControlSamples), maxTumorSamples(_maxTumorSamples) {
-	std::ifstream input(DATA_ROOT_DIRECTORY + _filenameWithCancerList);
+	std::ifstream input(DATA_DIRECTORY + _filenameWithCancerList);
 	std::string cancerName;
 	while (input >> cancerName) {
 		cancers.push_back(cancerName);
@@ -27,7 +28,7 @@ TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData, const std::string &_filenam
 }
 
 void TCGADataLoader::loadGeneData() {
-	std::fstream input(SAMPLE_DATA_FILE);
+	std::fstream input(SAMPLE_TCGA_FILE);
 	std::string firstLine;
 	std::getline(input, firstLine);
 	std::string geneId;
@@ -35,7 +36,7 @@ void TCGADataLoader::loadGeneData() {
 	while (input >> geneId >> score) {
 		std::vector<std::string> strs = split(geneId,
 				std::vector<char> { '|' });
-		std::string hgncSymbol = strs[0];
+		std::string hgncSymbol = boost::to_upper_copy<std::string>(strs[0]);
 		int entrezId = atoi(strs[1].c_str());
 		ptrToData->getGeneListHandler().push_back(
 				make_pair(hgncSymbol, entrezId));
@@ -44,7 +45,7 @@ void TCGADataLoader::loadGeneData() {
 
 void TCGADataLoader::loadPatientDataByCancer(const std::string &cancer) {
 
-	std::string patientListFilename = DATA_ROOT_DIRECTORY + cancer
+	std::string patientListFilename = DATA_DIRECTORY + cancer
 			+ "-normalized/patient.list";
 	std::ifstream input(patientListFilename);
 	std::string patientId;
@@ -120,7 +121,7 @@ void TCGADataLoader::loadRNASeqSample(const std::string &cancer,
 		bool isTumorData, const std::string &patient) {
 	std::string filename = patient + "-" + ((isTumorData) ? "01" : "11")
 			+ ".genes.normalized.results";
-	std::string filePath = DATA_ROOT_DIRECTORY + cancer + "-normalized/"
+	std::string filePath = DATA_DIRECTORY + cancer + "-normalized/"
 			+ filename;
 	std::string geneId;
 	std::string firstLine;

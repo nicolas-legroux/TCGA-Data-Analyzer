@@ -70,6 +70,8 @@ public:
 	void exportToMatrix(const std::string &matrixFilename,
 			const std::string &patientListFilename, bool verbose = true) const;
 
+	void keepOnlyGenesInGraph(const std::string &filenameNodes);
+
 	//To export data in TSV file
 
 private:
