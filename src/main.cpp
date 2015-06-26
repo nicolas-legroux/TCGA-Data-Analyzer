@@ -3,11 +3,7 @@
 #include <memory>
 #include <regex>
 #include "parameters.hpp"
-#include "TCGAData.hpp"
-#include "TCGADataLoader.hpp"
-#include "TCGADataClusterer.hpp"
-#include "TCGADataNormalizer.hpp"
-#include "TCGADataDistanceMatrixAnalyzer.hpp"
+#include "TCGA-Analyzer/TCGA-Analyzer.hpp"
 
 int main() {
 

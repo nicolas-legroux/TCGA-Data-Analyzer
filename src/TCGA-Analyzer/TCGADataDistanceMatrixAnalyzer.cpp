@@ -2,9 +2,9 @@
 #include <algorithm>
 #include <ClusterXX/metrics/metrics.hpp>
 #include <ClusterXX/utils/heatMapBuilder.hpp>
-#include "config.hpp"
 #include "TCGADataDistanceMatrixAnalyzer.hpp"
-#include "utilities.hpp"
+#include "../config.hpp"
+#include "../utilities.hpp"
 
 TCGADataDistanceMatrixAnalyser::TCGADataDistanceMatrixAnalyser(
 		TCGAData *_ptrToData, const std::shared_ptr<ClusterXX::Metric> &_metric,

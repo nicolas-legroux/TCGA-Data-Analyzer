@@ -38,6 +38,8 @@ file(GLOB PROJECT_SRC
     "src/*.cpp"
     "src/tests/*.hpp"
     "src/tests/*.cpp"
+    "src/TCGA-Analyzer/*.hpp"
+    "src/TCGA-Analyzer/*.cpp"
 )
 
 include_directories(${EIGEN_INCLUDE_DIR} ${BOOST_INCLUDE_DIR} ${CLUSTERXX_INCLUDE_DIR} ${LODEPNG_INCLUDE_DIR})

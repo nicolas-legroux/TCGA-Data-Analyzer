@@ -5,7 +5,7 @@
 #include <ClusterXX/clustering/kmeans_clusterer.hpp>
 #include <ClusterXX/utils/utils.hpp>
 #include "TCGADataNormalizer.hpp"
-#include "config.hpp"
+#include "../config.hpp"
 
 void KMeansNormalizer::normalize(std::vector<double> *v) {
 	Eigen::Map<Eigen::MatrixXd> mapToData((*v).data(), 1, (*v).size());

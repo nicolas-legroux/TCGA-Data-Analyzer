@@ -9,8 +9,8 @@
 #include <iostream>
 #include <set>
 #include "TCGAData.hpp"
-#include "utilities.hpp"
-#include "config.hpp"
+#include "../utilities.hpp"
+#include "../config.hpp"
 
 GeneList & TCGAData::getGeneListHandler() {
 	return geneList;

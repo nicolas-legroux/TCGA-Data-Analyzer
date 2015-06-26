@@ -4,8 +4,8 @@
 #include <boost/algorithm/string.hpp>
 
 #include "TCGADataLoader.hpp"
-#include "utilities.hpp"
-#include "config.hpp"
+#include "../utilities.hpp"
+#include "../config.hpp"
 
 TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData, const std::vector<std::string> &_cancers,
 		unsigned int _maxControlSamples,
