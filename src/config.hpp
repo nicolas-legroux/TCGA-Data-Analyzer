@@ -13,6 +13,16 @@
 
 const std::set<std::string> ALLOWED_CANCERS = { "BRCA", "COAD", "GBM", "HNSC",
 		"KIRC", "LGG", "LUAD", "LUSC", "OV", "PRAD", "THCA", "UCEC" };
+const std::set<std::string> ALLOWED_METRICS =
+		{ "absolute-cosine", "cosine-absolute-similarity", "cosine-distance",
+				"cosine", "cosine-smilarity", "euclidean", "euclidean-distance",
+				"squared-euclidean", "squared-euclidean-distance", "manhattan",
+				"manhattan-distance", "absolute-pearson",
+				"pearson-absolute-correlation", "pearson",
+				"pearson-correlation", "pearson-distance", "absolute-spearman",
+				"spearman-absolute-correlation", "spearman",
+				"spearman-correlation", "spearman-distance", "jaccard",
+				"jaccard-similarity", "jaccard-distance" };
 
 const std::string TCGA_DATA_DIRECTORY = "data/tcga/";
 const std::string GRAPH_DATA_DIRECTORY = "data/graph/";

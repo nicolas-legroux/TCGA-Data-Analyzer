@@ -117,8 +117,8 @@ void TCGAData::transposeData(bool verbose) {
 	unsigned int numberOfSamples = getNumberOfSamples();
 
 	if (verbose) {
-		std::cout << std::endl << "Transposing data... " << std::flush;
-		std::cout << "Number of samples : " << numberOfSamples << std::endl;
+		std::cout << "Transposing data (number of samples : "
+				<< numberOfSamples << ")... " << std::flush;
 	}
 
 	dataMatrix.resize(numberOfGenes, numberOfSamples);
@@ -130,14 +130,14 @@ void TCGAData::transposeData(bool verbose) {
 	for (const auto &kv : tumorRNASeqData) {
 		std::string cancerName = kv.first;
 		patientIDs.insert(
-				make_pair(cancerName + "-" + "Tumor", std::vector<int>()));
+				make_pair(cancerName + "_" + "Tumor", std::vector<int>()));
 		patientIDs.insert(
-				make_pair(cancerName + "-" + "Control", std::vector<int>()));
+				make_pair(cancerName + "_" + "Control", std::vector<int>()));
 
 		for (unsigned int j = 0;
 				j < controlRNASeqData.at(cancerName).at(0).size(); ++j) {
 
-			patientIDs[cancerName + "-" + "Control"].push_back(countPatients);
+			patientIDs[cancerName + "_" + "Control"].push_back(countPatients);
 			samples.push_back(
 					Sample(cancerName, false,
 							controlPatientList.at(cancerName).at(j)));
@@ -151,7 +151,7 @@ void TCGAData::transposeData(bool verbose) {
 		for (unsigned int j = 0;
 				j < tumorRNASeqData.at(cancerName).at(0).size(); ++j) {
 
-			patientIDs[cancerName + "-" + "Tumor"].push_back(countPatients);
+			patientIDs[cancerName + "_" + "Tumor"].push_back(countPatients);
 			samples.push_back(
 					Sample(cancerName, true,
 							tumorPatientList.at(cancerName).at(j)));

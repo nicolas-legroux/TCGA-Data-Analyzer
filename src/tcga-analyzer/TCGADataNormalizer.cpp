@@ -158,13 +158,18 @@ void TCGADataNormalizer::exportToFile(double positiveValue,
 	ptrToData->transposeData(false);
 	std::ofstream outputStreamSamples(HEINZ_SAMPLES_LIST);
 	const auto &dataMatrix = ptrToData->getDataMatrixHandler();
-	for (unsigned int i = 0; i < dataMatrix.cols(); ++i) {
+	unsigned int N = dataMatrix.cols();
+	for (unsigned int i = 0; i < N; ++i) {
 
-		std::string outputFilename = ptrToData->getSamplesHandler()[i].toFullString();
+		std::string outputFilename =
+				ptrToData->getSamplesHandler()[i].toFullString();
 		outputStreamSamples << outputFilename << std::endl;
 
-		std::ofstream outputStream(HEINZ_INPUT_DIRECTORY + removeTrailingZeros(
-				std::to_string(std::fabs(negativeValue))) + '_' + outputFilename + ".txt");
+		std::ofstream outputStream(
+				HEINZ_INPUT_DIRECTORY
+						+ removeTrailingZeros(
+								std::to_string(std::fabs(negativeValue))) + '_'
+						+ outputFilename + ".txt");
 
 		for (unsigned int j = 0; j < dataMatrix.rows(); ++j) {
 			outputStream << ptrToData->getGeneListHandler()[j].first << " ";
@@ -174,5 +179,7 @@ void TCGADataNormalizer::exportToFile(double positiveValue,
 				outputStream << negativeValue << std::endl;
 			}
 		}
+
+		ClusterXX::Utilities::printAdvancement(i, N);
 	}
 }

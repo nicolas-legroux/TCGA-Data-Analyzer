@@ -56,7 +56,7 @@ void TCGADataDistanceMatrixAnalyser::exportHeatMap(bool withClassDivision,
 			EXPORT_DIRECTORY + "class-sizes-" + metric->toString()
 					+ ".txt");
 	if (verbose) {
-		std::cout << "Making heat map... " << std::flush;
+		std::cout << "Exporting heat map... " << std::flush;
 	}
 	std::string current = "";
 	int countCurrent = 0;
@@ -99,16 +99,13 @@ void TCGADataDistanceMatrixAnalyser::exportHeatMap(bool withClassDivision,
 void TCGADataDistanceMatrixAnalyser::exportClassStats() {
 
 	if (verbose) {
-		std::cout << std::endl << "Exporting class stats... " << std::flush;
+		std::cout << "Exporting class stats... " << std::flush;
 	}
 
 	std::vector<std::string> classes;
-	unsigned int numberOfSamples = distanceMatrix.cols();
-
 	for (const auto &sample : ptrToData->getSamplesHandler()) {
 		classes.push_back(sample.toClassString());
 	}
-
 	auto end_unique = unique(classes.begin(), classes.end());
 	classes.erase(end_unique, classes.end());
 

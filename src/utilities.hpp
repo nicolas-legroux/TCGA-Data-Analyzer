@@ -2,6 +2,7 @@
 #define SRC_UTILITIES_HPP_
 
 #include <vector>
+#include <string>
 
 //Prints advancement of a task in %
 void printAdvancement(unsigned int currentCount, unsigned int totalCount);

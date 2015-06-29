@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <set>
+#include <ClusterXX/metrics/metrics.hpp>
 #include "command_line_processor.hpp"
 #include "config.hpp"
 #include "parameters.hpp"
@@ -64,12 +65,12 @@ void CommandLineProcessor::process(const std::string &optionName,
 		std::vector<std::string> weights = split(optionValue, { ',' });
 		for (const auto &s : weights) {
 			double d = std::atof(s.c_str());
-			if (d == 0) {
+			if (d <= 0) {
 				throw wrong_usage_exception(
 						"Error when trying to process weight '" + s
-								+ "'. -weights should be a comma-separated list of negative weights (without the minus sign).");
+								+ "'. -weights should be a comma-separated list of weights (without the minus sign).");
 			}
-			WEIGHTS.push_back(-1.0 * d);
+			WEIGHTS.push_back(d);
 		}
 	}
 
@@ -99,6 +100,17 @@ void CommandLineProcessor::process(const std::string &optionName,
 		}
 	}
 
+	else if (optionName == "-metric") {
+		if (ALLOWED_METRICS.find(optionValue) == ALLOWED_METRICS.end()) {
+			throw wrong_usage_exception(
+					"Error while processing " + optionName + " " + optionValue
+							+ ".\n The metric name should be in the following set: \n{ "
+							+ implode(ALLOWED_METRICS.begin(),
+									ALLOWED_METRICS.end(), ", ") + " }");
+		}
+		METRIC = ClusterXX::buildMetric(optionValue);
+	}
+
 	else {
 		throw wrong_usage_exception(
 				"Unknown command line option '" + optionName + "'.");
@@ -113,6 +125,20 @@ void CommandLineProcessor::runProgram() {
 	if (PROGRAM_MODE == 0) {
 		std::cout << std::endl << "Program mode : 0 (Clustering mode)"
 				<< std::endl << std::endl;
+	}
+
+	else if (PROGRAM_MODE == 1) {
+		std::cout << std::endl << "Program mode : 1 (Entry of the Heinz pipeline)"
+				<< std::endl << std::endl;
+	}
+
+	else if (PROGRAM_MODE == 2) {
+		std::cout << std::endl << "Program mode : 2 (Heinz raw output analyzer)"
+				<< std::endl << std::endl;
+	}
+
+	if (PROGRAM_MODE == 0 || PROGRAM_MODE == 1) {
+
 		std::cout << "------------------- Data Parameters --------------------"
 				<< std::endl;
 		std::cout << "* Cancers : "
@@ -152,48 +178,101 @@ void CommandLineProcessor::runProgram() {
 		std::cout << "--------------------------------------------------------"
 				<< std::endl << std::endl;
 
-//		std::ofstream negativeWeightsOutput(HEINZ_NEGATIVEWEIGHT_LIST);
-//
-//		for(double d = 0.5; d<=4; d+= 0.5){
-//			negativeWeightsOutput << d << std::endl;
-//			tcgaNormalizer.exportToFile(1, -1.0*d);
-//		}
-//
-//		/* Output distance matrix */
-//		auto metric = ClusterXX::buildMetric(DEFAULT_METRIC);
-//		TCGADataDistanceMatrixAnalyser distanceMetricAnalyzer(&data, metric,
-//				VERBOSE);
-//		distanceMetricAnalyzer.computeDistanceMatrix();
-//		distanceMetricAnalyzer.exportClassStats();
-//		distanceMetricAnalyzer.exportHeatMap();
-//
-//		TCGADataKMeansClusterer kMeansClusterer(&data, 0,
-//				K_MEANS_MAX_ITERATIONS, VERBOSE);
-//		kMeansClusterer.computeClustering();
-//		kMeansClusterer.printClusteringInfo();
-//
-//		TCGADataHierarchicalClusterer hierarchicalClusterer(&data,
-//				distanceMetricAnalyzer.getDistanceMatrixHandler(), metric, 0,
-//				DEFAULT_LINKAGE_METHOD, false);
-//		hierarchicalClusterer.computeClustering();
-//		hierarchicalClusterer.printClusteringInfo();
-//
-//		TCGADataSpectralClusterer spectralClusterer(&data,
-//				distanceMetricAnalyzer.getDistanceMatrixHandler(), metric, 0,
-//				DEFAULT_GRAPH_TRANSFORMATION, VERBOSE);
-//		spectralClusterer.computeClustering();
-//		spectralClusterer.printClusteringInfo();
-	}
+		if (PROGRAM_MODE == 0) {
+			/* Output distance matrix */
+			std::cout
+					<< "------------------ Distance matrix ---------------------"
+					<< std::endl;
+			std::cout << "* Metric : " << METRIC->toString() << std::endl;
+			TCGADataDistanceMatrixAnalyser distanceMetricAnalyzer(&data, METRIC,
+					VERBOSE);
+			distanceMetricAnalyzer.computeDistanceMatrix();
+			distanceMetricAnalyzer.exportClassStats();
+			distanceMetricAnalyzer.exportHeatMap();
+			std::cout
+					<< "--------------------------------------------------------"
+					<< std::endl << std::endl;
 
-	else if (PROGRAM_MODE == 1) {
-		std::cout << std::endl << "Program mode : 2 (Heinz input writer mode)"
-				<< std::endl << std::endl;
+			std::cout
+					<< "---------------- Clustering parameters -----------------"
+					<< std::endl;
+			if (K_CLUSTER == 0) {
+				std::cout
+						<< "Number of clusters to find : automatic (= number of real classes in the data)"
+						<< std::endl;
+			} else {
+				std::cout << "Number of clusters to find : " << K_CLUSTER
+						<< std::endl;
+			}
+			std::cout
+					<< "--------------------------------------------------------"
+					<< std::endl << std::endl;
+
+			std::cout
+					<< "------------------ KMeans Clustering -------------------"
+					<< std::endl;
+
+			TCGADataKMeansClusterer kMeansClusterer(&data, K_CLUSTER,
+					K_MEANS_MAX_ITERATIONS, VERBOSE);
+			kMeansClusterer.computeClustering();
+			kMeansClusterer.printClusteringInfo();
+
+			std::cout
+					<< "--------------------------------------------------------"
+					<< std::endl << std::endl;
+
+			std::cout
+					<< "--------------- Hierarchical Clustering ----------------"
+					<< std::endl;
+
+			TCGADataHierarchicalClusterer hierarchicalClusterer(&data,
+					distanceMetricAnalyzer.getDistanceMatrixHandler(), METRIC,
+					K_CLUSTER, DEFAULT_LINKAGE_METHOD, true);
+			hierarchicalClusterer.computeClustering();
+			hierarchicalClusterer.printClusteringInfo();
+
+			std::cout
+					<< "--------------------------------------------------------"
+					<< std::endl << std::endl;
+
+			std::cout
+					<< "----------------- Spectral Clustering ------------------"
+					<< std::endl;
+
+			TCGADataSpectralClusterer spectralClusterer(&data,
+					distanceMetricAnalyzer.getDistanceMatrixHandler(), METRIC,
+					K_CLUSTER, DEFAULT_GRAPH_TRANSFORMATION, VERBOSE);
+			spectralClusterer.computeClustering();
+			spectralClusterer.printClusteringInfo();
+
+			std::cout
+					<< "--------------------------------------------------------"
+					<< std::endl << std::endl;
+		}
+
+		else {
+			std::ofstream negativeWeightsOutput(HEINZ_NEGATIVEWEIGHT_LIST);
+			std::cout
+					<< "----------------- Writing Heinz input ------------------"
+					<< std::endl;
+			std::vector<std::string> weights_string;
+			for(double d : WEIGHTS){
+				weights_string.push_back(removeTrailingZeros(std::to_string(d)));
+			}
+			std::cout << "* Weights : " << implode(weights_string.begin(), weights_string.end(), ", ") << std::endl;
+			for (double d : WEIGHTS) {
+				negativeWeightsOutput << removeTrailingZeros(std::to_string(d)) << std::endl;
+				std::cout << "Writing files for d=-" << d << "... " << std::endl;
+				tcgaNormalizer.exportToFile(1, -d);
+			}
+
+			std::cout
+					<< "--------------------------------------------------------"
+					<< std::endl << std::endl;
+		}
 	}
 
 	else if (PROGRAM_MODE == 2) {
-		std::cout << std::endl
-				<< "Program mode : 2 (Heinz output analyzer mode)" << std::endl
-				<< std::endl;
+
 	}
 }
-

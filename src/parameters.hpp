@@ -9,6 +9,7 @@
 #define PARAMETERS_HPP_
 
 #include <vector>
+#include <memory>
 #include <ClusterXX/metrics/metrics.hpp>
 #include <ClusterXX/clustering/clusterer_parameters.hpp>
 
@@ -30,8 +31,7 @@ int K_MEANS_MAX_ITERATIONS = 1000;
 /*---------------------------------------------------------*/
 
 /* ------------------ Metric parameters -----------------*/
-ClusterXX::MetricName::MetricName DEFAULT_METRIC =
-		ClusterXX::MetricName::JACCARD_SIMILARITY;
+std::shared_ptr<ClusterXX::Metric> METRIC = ClusterXX::buildMetric("pearson");
 /*---------------------------------------------------------*/
 
 /* ------------------ Clustering parameters -----------------*/
@@ -48,7 +48,7 @@ ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMet
 ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName SPECTRAL_GRAPH_NO_TRASNFORMATION =
 		ClusterXX::SpectralParameters::GraphTransformationMethod::NO_TRANSFORMATION;
 
-int SPECTRAL_K_NEAREST_NEIGHBORS = 10;
+int SPECTRAL_K_NEAREST_NEIGHBORS = 3;
 double SPECTRAL_GAUSSIAN_MIXTURE_STDDEV = 150.0;
 
 std::pair<
@@ -59,7 +59,7 @@ std::pair<
 
 /* ------------------ Module search -----------------*/
 std::vector<double> WEIGHTS =
-		{ -0.5, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5 };
+		{ 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0 };
 std::string GRAPH_NODE_FILE = "biogrid-nodes.txt";
 std::string GRAPH_EDGE_FILE = "biogrid-edges.txt";
 /*---------------------------------------------------------*/
