@@ -5,10 +5,11 @@
  *      Author: nicolas
  */
 
+#include "../tcga-analyzer/TCGAData.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <set>
-#include "TCGAData.hpp"
 #include "../utilities.hpp"
 #include "../config.hpp"
 
@@ -219,9 +220,9 @@ void TCGAData::exportToMatrix(const std::string &matrixFilenamePath,
 }
 
 void TCGAData::keepOnlyGenesInGraph(const std::string &filenameNodes) {
+	std::cout << "The number of genes is currently " << getNumberOfGenes()
+			<< ". ";
 	std::cout << "Keeping only genes which are in the graph..." << std::endl;
-	std::cout << std::endl << "The number of genes is currently "
-			<< getNumberOfGenes() << "." << std::endl;
 
 	std::string pathToFile = GRAPH_DATA_DIRECTORY + filenameNodes;
 

@@ -1,8 +1,9 @@
+#include "../tcga-analyzer/TCGADataDistanceMatrixAnalyzer.hpp"
+
 #include <fstream>
 #include <algorithm>
 #include <ClusterXX/metrics/metrics.hpp>
 #include <ClusterXX/utils/heatMapBuilder.hpp>
-#include "TCGADataDistanceMatrixAnalyzer.hpp"
 #include "../config.hpp"
 #include "../utilities.hpp"
 

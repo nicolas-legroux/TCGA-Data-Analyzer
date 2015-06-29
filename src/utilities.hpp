@@ -10,6 +10,20 @@ void printAdvancement(unsigned int currentCount, unsigned int totalCount);
 std::vector<std::string> split(const std::string &s,
 		const std::vector<char> &delimiters);
 
+template<typename Iter>
+std::string implode(Iter begin, Iter end, const std::string &delimiter){
+	std::string result;
+	for(Iter i = begin; i != end; ++i){
+		if(i != begin){
+			result += delimiter;
+		}
+		result += *i;
+	}
+	return result;
+}
+
+std::string removeTrailingZeros(std::string s);
+
 double computeMean(const std::vector<double> &vec);
 double computeStandardDeviation(const std::vector<double> &vec, bool correction = true);
 

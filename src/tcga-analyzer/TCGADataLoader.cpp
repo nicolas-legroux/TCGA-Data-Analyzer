@@ -1,30 +1,51 @@
+#include "../tcga-analyzer/TCGADataLoader.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 
-#include "TCGADataLoader.hpp"
 #include "../utilities.hpp"
 #include "../config.hpp"
 
-TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData, const std::vector<std::string> &_cancers,
-		unsigned int _maxControlSamples,
-		unsigned int _maxTumorSamples, bool _verbose) :
+TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData,
+		const std::set<std::string> &_cancers,
+		unsigned int _maxControlSamples, unsigned int _maxTumorSamples,
+		bool _verbose) :
 		cancers(_cancers), ptrToData(_ptrToData), verbose(_verbose), maxControlSamples(
 				_maxControlSamples), maxTumorSamples(_maxTumorSamples) {
 	//Nothing to do
 }
 
-TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData, const std::string &_filenameWithCancerList,
-		unsigned int _maxControlSamples,
-		unsigned int _maxTumorSamples, bool _verbose) :
+TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData,
+		const std::string &_filenameWithCancerList,
+		unsigned int _maxControlSamples, unsigned int _maxTumorSamples,
+		bool _verbose) :
 		ptrToData(_ptrToData), verbose(_verbose), maxControlSamples(
 				_maxControlSamples), maxTumorSamples(_maxTumorSamples) {
-	std::ifstream input(DATA_DIRECTORY + _filenameWithCancerList);
+	std::ifstream input(TCGA_DATA_DIRECTORY + _filenameWithCancerList);
 	std::string cancerName;
 	while (input >> cancerName) {
-		cancers.push_back(cancerName);
+		cancers.insert(cancerName);
 	}
+}
+
+std::map<std::string, int> TCGADataLoader::buildHgnc2IdMapping() {
+	std::map<std::string, int> mapping;
+	std::fstream input(SAMPLE_TCGA_FILE);
+	std::string firstLine;
+	std::getline(input, firstLine);
+	std::string geneId;
+	double score;
+	int count = 0;
+	while (input >> geneId >> score) {
+		std::vector<std::string> strs = split(geneId,
+				std::vector<char> { '|' });
+		std::string hgncSymbol = boost::to_upper_copy<std::string>(strs[0]);
+		mapping.insert( { hgncSymbol, count });
+		++count;
+	}
+	return mapping;
 }
 
 void TCGADataLoader::loadGeneData() {
@@ -45,17 +66,17 @@ void TCGADataLoader::loadGeneData() {
 
 void TCGADataLoader::loadPatientDataByCancer(const std::string &cancer) {
 
-	std::string patientListFilename = DATA_DIRECTORY + cancer
+	std::string patientListFilename = TCGA_DATA_DIRECTORY + cancer
 			+ "-normalized/patient.list";
 	std::ifstream input(patientListFilename);
 	std::string patientId;
 	int countControl = 0;
 	int countTumor = 0;
 
-	if (verbose) {
-		std::cout << "**** Processing " << cancer << " Patients ****"
-				<< std::endl;
-	}
+//	if (verbose) {
+//		std::cout << "**** Processing " << cancer << " Patients ****"
+//				<< std::endl;
+//	}
 
 	while (input >> patientId) {
 		std::vector<std::string> strs = split(patientId, std::vector<char> {
@@ -70,30 +91,31 @@ void TCGADataLoader::loadPatientDataByCancer(const std::string &cancer) {
 				ptrToData->getPatientListHandler(false)[cancer].push_back(
 						patientName);
 				++countControl;
-			} else if (verbose) {
-				std::cout << "Did not process " << patientId << std::endl;
 			}
+//				else if (verbose) {
+//				std::cout << "Did not process " << patientId << std::endl;
+//			}
 		}
 	}
 
-	if (verbose) {
-		std::cout << "Data types : " << std::endl;
-		std::cout << "01 (Tumor) --> " << countTumor << std::endl;
-		std::cout << "11 (Control) --> " << countControl << std::endl;
-
-		//Checking that for normal samples we have the corresponding cancer sample
-		for (const std::string &s : ptrToData->getPatientListHandler(false)[cancer]) {
-			if (find(ptrToData->getPatientListHandler(true)[cancer].begin(),
-					ptrToData->getPatientListHandler(true)[cancer].end(), s)
-					== ptrToData->getPatientListHandler(true)[cancer].end()) {
-				std::cout
-						<< "Did not find a matching tumor sample for the control sample "
-						<< s << std::endl;
-			}
-		}
-
-		std::cout << "*************************" << std::endl << std::endl;
-	}
+//	if (verbose) {
+//		std::cout << "Data types : " << std::endl;
+//		std::cout << "01 (Tumor) --> " << countTumor << std::endl;
+//		std::cout << "11 (Control) --> " << countControl << std::endl;
+//
+//		//Checking that for normal samples we have the corresponding cancer sample
+//		for (const std::string &s : ptrToData->getPatientListHandler(false)[cancer]) {
+//			if (find(ptrToData->getPatientListHandler(true)[cancer].begin(),
+//					ptrToData->getPatientListHandler(true)[cancer].end(), s)
+//					== ptrToData->getPatientListHandler(true)[cancer].end()) {
+//				std::cout
+//						<< "Did not find a matching tumor sample for the control sample "
+//						<< s << std::endl;
+//			}
+//		}
+//
+//		std::cout << "*************************" << std::endl << std::endl;
+//	}
 }
 
 void TCGADataLoader::loadPatientData() {
@@ -121,7 +143,7 @@ void TCGADataLoader::loadRNASeqSample(const std::string &cancer,
 		bool isTumorData, const std::string &patient) {
 	std::string filename = patient + "-" + ((isTumorData) ? "01" : "11")
 			+ ".genes.normalized.results";
-	std::string filePath = DATA_DIRECTORY + cancer + "-normalized/"
+	std::string filePath = TCGA_DATA_DIRECTORY + cancer + "-normalized/"
 			+ filename;
 	std::string geneId;
 	std::string firstLine;

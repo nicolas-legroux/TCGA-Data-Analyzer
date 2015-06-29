@@ -5,7 +5,8 @@
 #include <map>
 #include <vector>
 #include <ClusterXX/clustering/algorithms.hpp>
-#include "TCGAData.hpp"
+
+#include "../tcga-analyzer/TCGAData.hpp"
 
 enum ClusteringMethod {
 	KMEANS_CLUSTERING, SPECTRAL_CLUSTERING, HIERARCHICAL_CLUSTERING

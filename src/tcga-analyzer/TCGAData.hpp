@@ -8,8 +8,9 @@
 #ifndef SRC_TCGADATA_HPP_
 #define SRC_TCGADATA_HPP_
 
-#include "typedefs.hpp"
 #include <Eigen/Dense>
+#include "../tcga-analyzer/typedefs.hpp"
+#include <map>
 
 /*Identifies uniquely a sample by knowing :
  *  - the Cancer set from which it comes from
@@ -27,12 +28,12 @@ struct Sample {
 	}
 
 	std::string toFullString() const {
-		return cancerName + "-" + ((isTumor) ? "Tumor" : "Control") + " ("
-				+ patientId + ")";
+		return cancerName + "_" + ((isTumor) ? "Tumor" : "Control") + "_"
+				+ patientId;
 	}
 
 	std::string toClassString() const {
-		return cancerName + "-" + ((isTumor) ? "Tumor" : "Control");
+		return cancerName + "_" + ((isTumor) ? "Tumor" : "Control");
 	}
 };
 

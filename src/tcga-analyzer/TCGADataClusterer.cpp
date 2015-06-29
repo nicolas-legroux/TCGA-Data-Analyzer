@@ -1,4 +1,4 @@
-#include "TCGADataClusterer.hpp"
+#include "../tcga-analyzer/TCGADataClusterer.hpp"
 
 TCGADataClusterer::TCGADataClusterer(TCGAData *_ptrToData, unsigned int _K,
 		bool _verbose) :

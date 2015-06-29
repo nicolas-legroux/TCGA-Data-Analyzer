@@ -11,7 +11,8 @@
 #include <memory>
 #include <array>
 #include <ClusterXX/metrics/metrics.hpp>
-#include "TCGAData.hpp"
+
+#include "../tcga-analyzer/TCGAData.hpp"
 
 class TCGADataDistanceMatrixAnalyser {
 public:

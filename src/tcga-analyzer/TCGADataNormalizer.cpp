@@ -1,11 +1,13 @@
+#include "../tcga-analyzer/TCGADataNormalizer.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <memory>
 #include <Eigen/Dense>
 #include <ClusterXX/clustering/kmeans_clusterer.hpp>
 #include <ClusterXX/utils/utils.hpp>
-#include "TCGADataNormalizer.hpp"
 #include "../config.hpp"
+#include "../utilities.hpp"
 
 void KMeansNormalizer::normalize(std::vector<double> *v) {
 	Eigen::Map<Eigen::MatrixXd> mapToData((*v).data(), 1, (*v).size());
@@ -58,7 +60,7 @@ void TCGADataNormalizer::normalizeIndividualSample(const std::string &cancer,
 
 void TCGADataNormalizer::normalize() {
 	if (verbose) {
-		std::cout << std::endl << "Normalizing control data..." << std::endl;
+		std::cout << "Normalizing control data..." << std::endl;
 	}
 	for (auto &kv : ptrToData->getRNASeqDataHandler(false)) {
 		std::string cancer = kv.first;
@@ -74,7 +76,7 @@ void TCGADataNormalizer::normalize() {
 		}
 	}
 	if (verbose) {
-		std::cout << std::endl << "Normalizing tumor data..." << std::endl;
+		std::cout << "Normalizing tumor data..." << std::endl;
 	}
 	for (auto &kv : ptrToData->getRNASeqDataHandler(true)) {
 		std::string cancer = kv.first;
@@ -154,16 +156,16 @@ void TCGADataNormalizer::printMostExpressedGenesByClass(
 void TCGADataNormalizer::exportToFile(double positiveValue,
 		double negativeValue) {
 	ptrToData->transposeData(false);
-	std::ofstream outputStreamSamples(GRAPH_EXPORT_DIRECTORY + "samples.list");
+	std::ofstream outputStreamSamples(HEINZ_SAMPLES_LIST);
 	const auto &dataMatrix = ptrToData->getDataMatrixHandler();
 	for (unsigned int i = 0; i < dataMatrix.cols(); ++i) {
 
-		outputStreamSamples << ptrToData->getSamplesHandler()[i].toFullString() << std::endl;
+		std::string outputFilename = ptrToData->getSamplesHandler()[i].toFullString();
+		outputStreamSamples << outputFilename << std::endl;
 
-		std::string filename = GRAPH_EXPORT_DIRECTORY + "negative"
-				+ std::to_string(std::fabs(negativeValue)) + "-"
-				+ std::to_string(i) + ".txt";
-		std::ofstream outputStream(filename);
+		std::ofstream outputStream(HEINZ_INPUT_DIRECTORY + removeTrailingZeros(
+				std::to_string(std::fabs(negativeValue))) + '_' + outputFilename + ".txt");
+
 		for (unsigned int j = 0; j < dataMatrix.rows(); ++j) {
 			outputStream << ptrToData->getGeneListHandler()[j].first << " ";
 			if (dataMatrix(j, i) > 0.5) {

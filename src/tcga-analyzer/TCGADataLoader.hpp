@@ -2,13 +2,16 @@
 #define DATAREADER_H_INCLUDED
 
 #include <vector>
-#include "TCGAData.hpp"
+#include <map>
+#include <set>
+
+#include "../tcga-analyzer/TCGAData.hpp"
 
 class TCGADataLoader {
 public:
 	TCGADataLoader() : ptrToData (nullptr), verbose(false), maxControlSamples(0), maxTumorSamples(0) { };
 	TCGADataLoader(TCGAData *_ptrToData,
-			const std::vector<std::string> &_cancers,
+			const std::set<std::string> &_cancers,
 			unsigned int _maxControlSamples,
 			unsigned int _maxTumorSamples, bool verbose);
 	TCGADataLoader(TCGAData *_ptrToData,
@@ -16,8 +19,10 @@ public:
 			unsigned int _maxControlSamples,
 			unsigned int _maxTumorSamples, bool verbose);
 	void loadData();
+
+	static std::map<std::string, int> buildHgnc2IdMapping();
 private:
-	std::vector<std::string> cancers;
+	std::set<std::string> cancers;
 	TCGAData *ptrToData;
 	bool verbose;
 	unsigned int maxControlSamples;

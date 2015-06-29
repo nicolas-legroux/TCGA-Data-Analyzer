@@ -4,11 +4,12 @@
 #include "utilities.hpp"
 
 void printAdvancement(unsigned int currentCount, unsigned int totalCount) {
-	std::cout << (100.0 * (double) currentCount) / (double) (totalCount) << "% \r"
-			<< std::flush;
+	std::cout << (100.0 * (double) currentCount) / (double) (totalCount)
+			<< "% \r" << std::flush;
 }
 
-std::vector<std::string> split(const std::string &s, const std::vector<char> &delimiters) {
+std::vector<std::string> split(const std::string &s,
+		const std::vector<char> &delimiters) {
 	std::vector<std::string> strs;
 	std::string currentString;
 
@@ -27,12 +28,24 @@ std::vector<std::string> split(const std::string &s, const std::vector<char> &de
 	return strs;
 }
 
+std::string removeTrailingZeros(std::string s) {
+	if (std::find(s.begin(), s.end(), '.') != s.end()) {
+		int n = s.size();
+		while (n >= 2 && s[n - 1] == '0' && s[n - 2] != '.') {
+			--n;
+		}
+		s.erase(s.begin() + n, s.end());
+	}
+	return s;
+}
+
 double computeMean(const std::vector<double> &vec) {
 	double sum = accumulate(vec.cbegin(), vec.cend(), 0.0);
 	return sum / (double) vec.size();
 }
 
-double computeStandardDeviation(const std::vector<double> &vec, bool correction) {
+double computeStandardDeviation(const std::vector<double> &vec,
+		bool correction) {
 	double m = computeMean(vec);
 	double accum = 0.0;
 	for_each(vec.cbegin(), vec.cend(), [&](const double d) {
@@ -44,5 +57,4 @@ double computeStandardDeviation(const std::vector<double> &vec, bool correction)
 		return sqrt(accum / vec.size());
 	}
 }
-
 

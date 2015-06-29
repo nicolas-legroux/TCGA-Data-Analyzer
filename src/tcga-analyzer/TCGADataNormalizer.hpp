@@ -8,9 +8,9 @@
 #ifndef SRC_TCGADATANORMALIZER_HPP_
 #define SRC_TCGADATANORMALIZER_HPP_
 
-#include "TCGAData.hpp"
 #include <memory>
 #include <fstream>
+#include "../tcga-analyzer/TCGAData.hpp"
 
 enum UnsupervisedNormalizationMethod {
 	KMEANS_NORMALIZATION, BINARY_QUANTILE_NORMALIZATION, NO_NORMALIZATION
