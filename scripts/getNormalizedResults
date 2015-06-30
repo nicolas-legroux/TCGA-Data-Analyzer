@@ -1,0 +1,28 @@
+#!/bin/bash
+
+cancerType="$1"
+folderName="$cancerType-normalized"
+
+if [ "$cancerType" = "" ]; then
+    echo "Usage : ./script cancerType"
+    exit 1
+fi
+
+$(mkdir "$folderName")
+$(touch "$folderName/patient.list")
+
+while read a b c d e f g
+do
+    filename="$g"
+    patientName="$e"
+    $(cp "RNASeqV2/UNC__IlluminaHiSeq_RNASeqV2/Level_3/$filename" "$folderName/$patientName.genes.normalized.results")
+    if [ "$?" = 0 ]; then
+	echo "$patientName" >> "$folderName/patient.list"
+	echo "Processing $patientName"
+    else
+	echo "Failed to copy $patientName data"
+    fi 
+done <<_EOF_
+ $(grep genes.normalized.results file_manifest.txt)
+_EOF_
+
