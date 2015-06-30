@@ -29,3 +29,5 @@ Makefile
 CMakeCache.txt
 
 .snakemake/*
+log.snakemake
+output.snakemake

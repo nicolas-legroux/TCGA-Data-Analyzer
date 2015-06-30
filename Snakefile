@@ -1,38 +1,33 @@
-from pytools.persistent_dict import PersistentDict
-
-storage = PersistentDict("mystorage")
-
 ROOT_DIR = "/home/nlegroux/TCGA-Data-Analyzer/"
 EDGES = ROOT_DIR + "data/graph/biogrid-edges.txt"
-NEGATIVE_WEIGHTS = ["0.5", "1.0", "1.5", "2.0", "2.5", "3.5", "4.5", "5.5"]
+NEGATIVE_WEIGHTS = ["0.5", "1.5", "2.5", "3.5", "4.5", "5.5"]
 NEGATIVE_WEIGHTS_STRING = ",".join(NEGATIVE_WEIGHTS)
-MAX_CONTROL = 1
-MAX_TUMOR = 1
+MAX_CONTROL = 100
+MAX_TUMOR = 700
 CANCERS = "BRCA,COAD,GBM,HNSC,KIRC,LGG,LUAD,LUSC,OV,PRAD,THCA,UCEC"
 SAMPLES = []
 
 try:
 	SAMPLES = open(ROOT_DIR + "data/heinz/samples.list", "r").readlines()
 	SAMPLES = map(str.strip, SAMPLES)
-	storage.store("samples", SAMPLES)
 except (FileNotFoundError, IOError):
 	print("samples.list was not found in the initialization. Please run 'snakemake init' before running 'snakemake'.")
 	
 rule all:
-	input: ROOT_DIR + "data/heinz/samples.list", \
-		expand(ROOT_DIR + "data/heinz/output/{weight}_{sample}.png", weight=NEGATIVE_WEIGHTS, sample=SAMPLES), \
-		expand(ROOT_DIR + "data/heinz/output/{weight}_{sample}.stats", weight=NEGATIVE_WEIGHTS, sample=SAMPLES), \
-		expand(ROOT_DIR + "data/heinz/output/{weight}_{sample}.nodes", weight="NEGATIVE_WEIGHTS, sample=SAMPLES)
+	input: ROOT_DIR + "data/heinz/samples.list",  \
+expand(ROOT_DIR + "data/heinz/output/{weight}_{sample}.stats", weight=NEGATIVE_WEIGHTS, sample=SAMPLES), \
+expand(ROOT_DIR + "data/heinz/output/{weight}_{sample}.nodes", weight=NEGATIVE_WEIGHTS, sample=SAMPLES)
 
 rule graph:
 	input: ROOT_DIR + "data/heinz/raw_output/{weight}_{sample}.txt"
-	output: ROOT_DIR + "data/heiz/output/{weight}_{sample}.png"
-	shell: "dot {input} -T png > {output}
+	output: ROOT_DIR + "data/heinz/output/{weight}_{sample}.png"
+	shell: "dot {input} -T png > {output}"
 
 rule heinz_stats:
-	input: ROOT_DIR + "data/heinz/raw_output/{weight}_{sample}.txt"
+	input: ROOT_DIR + "data/heinz/raw_output/{weight}_{sample}.txt", ROOT_DIR + "data/heinz/output/{weight}_{sample}.png"
 	output: ROOT_DIR + "data/heinz/output/{weight}_{sample}.stats", ROOT_DIR + "data/heinz/output/{weight}_{sample}.nodes"
-	shell: "{ROOT_DIR}TCGA-Analyzer -mode 2 -f {weight}_{sample}
+	params: w="{weight}", s="{sample}"
+	shell: "{ROOT_DIR}TCGA-Analyzer -mode 2 -f {params.w}_{params.s} >/dev/null"
 
 rule heinz:
 	input: ROOT_DIR + "data/heinz/input/{weight}_{sample}.txt"
