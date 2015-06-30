@@ -111,6 +111,10 @@ void CommandLineProcessor::process(const std::string &optionName,
 		METRIC = ClusterXX::buildMetric(optionValue);
 	}
 
+	else if(optionName == "-f"){
+		workingFile = optionValue;
+	}
+
 	else {
 		throw wrong_usage_exception(
 				"Unknown command line option '" + optionName + "'.");
@@ -273,6 +277,12 @@ void CommandLineProcessor::runProgram() {
 	}
 
 	else if (PROGRAM_MODE == 2) {
-
+		if(workingFile.empty()){
+			std::cout << "Missing -f option.";
+		}
+		else{
+			HeinzAnalyzer heinzAnalyzer(workingFile, "biogrid-edges.txt");
+			heinzAnalyzer.analyze();
+		}
 	}
 }

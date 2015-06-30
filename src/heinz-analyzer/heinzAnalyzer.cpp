@@ -60,7 +60,7 @@ void HeinzAnalyzer::buildModule() {
 		}
 	}
 
-	std::cout << "Done building module, size : " << module->size() << std::endl;
+	//std::cout << "Done building module, size : " << module->size() << std::endl;
 }
 
 void HeinzAnalyzer::analyze() {

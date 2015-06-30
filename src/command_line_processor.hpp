@@ -26,16 +26,13 @@ private:
 	std::string msg;
 };
 
-const std::set<std::string> allowedOptions = { "mode", "cancers", "maxcontrol",
-		"maxtumor", "negativeweights", "binaryquantileparam" };
-
 class CommandLineProcessor {
 public:
 	CommandLineProcessor(int argc, char *argv[]);
 	void runProgram();
 private:
 	void process(const std::string &optionName, const std::string &optionValue);
-	std::map<std::string, std::string> environment;
+	std::string workingFile;
 };
 
 #endif /* SRC_COMMAND_LINE_PROCESSOR_HPP_ */
