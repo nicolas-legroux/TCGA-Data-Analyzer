@@ -4,12 +4,10 @@ set(PROJECT_NAME TCGA-Analyzer)
 
 project(${PROJECT_NAME} CXX)
 
-set(EIGEN_INCLUDE_DIR /home/nlegroux/opt/Eigen/include/eigen3)
-set(BOOST_INCLUDE_DIR /module/apps/boost/1.56.0/include/)
-
-set(CLUSTERXX_ROOT_DIR /home/nlegroux/ClusterXX)
+set(EIGEN_INCLUDE_DIR $ENV{HOME}/opt/Eigen/include/eigen3)
+set(BOOST_INCLUDE_DIR $ENV{HOME}/opt/boost_1_57_0/)
+set(CLUSTERXX_ROOT_DIR $ENV{HOME}/opt/ClusterXX)
 set(CLUSTERXX_INCLUDE_DIR ${CLUSTERXX_ROOT_DIR}/includes)
-
 set(LODEPNG_ROOT_DIR ${CLUSTERXX_ROOT_DIR}/lib/lodepng)
 set(LODEPNG_INCLUDE_DIR ${LODEPNG_ROOT_DIR})
 
