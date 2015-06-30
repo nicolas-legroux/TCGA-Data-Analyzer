@@ -22,6 +22,7 @@ TCGA-Analyzer
 
 #Cmake files
 CMakeFiles/*
+CMakeLists.txt
 CMakeLists.txt~
 cmake_install.cmake
 Makefile
