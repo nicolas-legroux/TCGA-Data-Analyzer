@@ -24,6 +24,10 @@ const std::set<std::string> ALLOWED_METRICS =
 				"spearman-correlation", "spearman-distance", "jaccard",
 				"jaccard-similarity", "jaccard-distance" };
 
+enum UnsupervisedNormalizationMethod {
+	KMEANS_NORMALIZATION, BINARY_QUANTILE_NORMALIZATION, NO_NORMALIZATION
+};
+
 const std::string TCGA_DATA_DIRECTORY = "data/tcga/";
 const std::string GRAPH_DATA_DIRECTORY = "data/graph/";
 const std::string HEINZ_DIRECTORY = "data/heinz/";

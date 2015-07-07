@@ -12,6 +12,7 @@
 #include <memory>
 #include <ClusterXX/metrics/metrics.hpp>
 #include <ClusterXX/clustering/clusterer_parameters.hpp>
+#include "config.hpp"
 
 /* ------------------ General parameters -----------------*/
 unsigned int PROGRAM_MODE = 0;
@@ -25,9 +26,10 @@ unsigned int MAX_TUMOR_SAMPLES = 20;
 /*---------------------------------------------------------*/
 
 /* ------------------ Normalization parameters -----------------*/
+auto DEFAULT_NORMALIZATION_METHOD = BINARY_QUANTILE_NORMALIZATION;
 int K_MEANS_NORMALIZATION_PARAM = 2;
-double BINARY_QUANTILE_NORMALIZATION_PARAM = 0.995;
 int K_MEANS_MAX_ITERATIONS = 1000;
+double BINARY_QUANTILE_NORMALIZATION_PARAM = 0.995;
 /*---------------------------------------------------------*/
 
 /* ------------------ Metric parameters -----------------*/

@@ -31,16 +31,16 @@ void CommandLineProcessor::process(const std::string &optionName,
 	if (optionName == "-mode") {
 		if (std::isdigit(optionValue[0])) {
 			int i = std::atoi(optionValue.c_str());
-			if (i >= 0 && i <= 2) {
+			if (i >= 0 && i <= 3) {
 				PROGRAM_MODE = i;
 			} else {
 				throw wrong_usage_exception(
-						"-mode option value should be a digit between 0 and 2.");
+						"-mode option value should be a digit between 0 and 3.");
 
 			}
 		} else {
 			throw wrong_usage_exception(
-					"-mode option value should be a digit between 0 and 2.");
+					"-mode option value should be a digit between 0 and 3.");
 		}
 	}
 
@@ -90,6 +90,25 @@ void CommandLineProcessor::process(const std::string &optionName,
 		K_CLUSTER = std::atoi(optionValue.c_str());
 	}
 
+	else if (optionName == "-normalization") {
+		if (std::isdigit(optionValue[0])) {
+			int i = std::atoi(optionValue.c_str());
+			//Default is 1
+			if (i == 0) {
+				DEFAULT_NORMALIZATION_METHOD = KMEANS_NORMALIZATION;
+			} else if (i == 2) {
+				DEFAULT_NORMALIZATION_METHOD = NO_NORMALIZATION;
+			} else if (i != 1) {
+				throw wrong_usage_exception(
+						"-normalization option value should be a digit between 0 and 2.");
+
+			}
+		} else {
+			throw wrong_usage_exception(
+					"-normalization option value should be a digit between 0 and 2.");
+		}
+	}
+
 	else if (optionName == "-cutpercentage") {
 		BINARY_QUANTILE_NORMALIZATION_PARAM = std::atof(optionValue.c_str());
 		if (BINARY_QUANTILE_NORMALIZATION_PARAM < 0
@@ -111,7 +130,7 @@ void CommandLineProcessor::process(const std::string &optionName,
 		METRIC = ClusterXX::buildMetric(optionValue);
 	}
 
-	else if(optionName == "-f"){
+	else if (optionName == "-f") {
 		workingFile = optionValue;
 	}
 
@@ -132,8 +151,9 @@ void CommandLineProcessor::runProgram() {
 	}
 
 	else if (PROGRAM_MODE == 1) {
-		std::cout << std::endl << "Program mode : 1 (Entry of the Heinz pipeline)"
-				<< std::endl << std::endl;
+		std::cout << std::endl
+				<< "Program mode : 1 (Entry of the Heinz pipeline)" << std::endl
+				<< std::endl;
 	}
 
 	else if (PROGRAM_MODE == 2) {
@@ -165,18 +185,36 @@ void CommandLineProcessor::runProgram() {
 				<< std::endl << std::endl;
 
 		/* Normalize */
+		std::shared_ptr<Normalizer> normalizer;
 		std::cout << "-------------- Normalization parameters ----------------"
 				<< std::endl;
-		std::cout << "* Normalization method : Binary quantile" << std::endl;
-		std::cout << "* Binary quantile cut percentage : "
-				<< BINARY_QUANTILE_NORMALIZATION_PARAM << std::endl;
+		if (DEFAULT_NORMALIZATION_METHOD == KMEANS_NORMALIZATION) {
+			normalizer = std::make_shared<KMeansNormalizer>(
+					K_MEANS_NORMALIZATION_PARAM, K_MEANS_MAX_ITERATIONS);
+			std::cout << "* Normalization method : K-Means" << std::endl;
+			std::cout << "* K : " << K_MEANS_NORMALIZATION_PARAM << std::endl;
+			std::cout << "* Max iterations : " << K_MEANS_MAX_ITERATIONS
+					<< std::endl;
+		} else if (DEFAULT_NORMALIZATION_METHOD
+				== BINARY_QUANTILE_NORMALIZATION) {
+			normalizer = std::make_shared<BinaryQuantileNormalizer>(
+					BINARY_QUANTILE_NORMALIZATION_PARAM);
+			std::cout << "* Normalization method : Binary quantile"
+					<< std::endl;
+			std::cout << "* Binary quantile cut percentage : "
+					<< BINARY_QUANTILE_NORMALIZATION_PARAM << std::endl;
+		}
+		else{
+			normalizer = std::make_shared<NoOperationNormalizer>();
+			std::cout << "* Normalization method : no normalization"
+					<< std::endl;
+		}
 		std::cout << "--------------------------------------------------------"
 				<< std::endl << std::endl;
 
 		std::cout << "------------------ Normalizing data --------------------"
 				<< std::endl;
-		std::shared_ptr<Normalizer> normalizer = std::make_shared<
-				BinaryQuantileNormalizer>(BINARY_QUANTILE_NORMALIZATION_PARAM);
+
 		TCGADataNormalizer tcgaNormalizer(&data, normalizer, VERBOSE);
 		tcgaNormalizer.normalize();
 		std::cout << "--------------------------------------------------------"
@@ -260,13 +298,18 @@ void CommandLineProcessor::runProgram() {
 					<< "----------------- Writing Heinz input ------------------"
 					<< std::endl;
 			std::vector<std::string> weights_string;
-			for(double d : WEIGHTS){
-				weights_string.push_back(removeTrailingZeros(std::to_string(d)));
-			}
-			std::cout << "* Weights : " << implode(weights_string.begin(), weights_string.end(), ", ") << std::endl;
 			for (double d : WEIGHTS) {
-				negativeWeightsOutput << removeTrailingZeros(std::to_string(d)) << std::endl;
-				std::cout << "Writing files for d=-" << d << "... " << std::endl;
+				weights_string.push_back(
+						removeTrailingZeros(std::to_string(d)));
+			}
+			std::cout << "* Weights : "
+					<< implode(weights_string.begin(), weights_string.end(),
+							", ") << std::endl;
+			for (double d : WEIGHTS) {
+				negativeWeightsOutput << removeTrailingZeros(std::to_string(d))
+						<< std::endl;
+				std::cout << "Writing files for d=-" << d << "... "
+						<< std::endl;
 				tcgaNormalizer.exportToFile(1, -d);
 			}
 
@@ -277,11 +320,10 @@ void CommandLineProcessor::runProgram() {
 	}
 
 	else if (PROGRAM_MODE == 2) {
-		if(workingFile.empty()){
+		if (workingFile.empty()) {
 			std::cout << "Missing -f option.";
-		}
-		else{
-			HeinzAnalyzer heinzAnalyzer(workingFile, "biogrid-edges.txt");
+		} else {
+			HeinzAnalyzer heinzAnalyzer(workingFile, GRAPH_EDGE_FILE);
 			heinzAnalyzer.analyze();
 		}
 	}

@@ -11,10 +11,7 @@
 #include <memory>
 #include <fstream>
 #include "../tcga-analyzer/TCGAData.hpp"
-
-enum UnsupervisedNormalizationMethod {
-	KMEANS_NORMALIZATION, BINARY_QUANTILE_NORMALIZATION, NO_NORMALIZATION
-};
+#include "../config.hpp"
 
 class Normalizer {
 public:
@@ -22,7 +19,7 @@ public:
 	virtual ~Normalizer() = default;
 };
 
-class NoOperationNormalizer: Normalizer {
+class NoOperationNormalizer: public Normalizer {
 public:
 	NoOperationNormalizer() = default;
 	void normalize(std::vector<double> *v) {
