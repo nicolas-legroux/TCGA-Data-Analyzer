@@ -34,7 +34,7 @@ const std::string HEINZ_DIRECTORY = "data/heinz/";
 const std::string HEINZ_INPUT_DIRECTORY = HEINZ_DIRECTORY + "input/";
 const std::string HEINZ_RAW_OUTPUT_DIRECTORY = HEINZ_DIRECTORY + "raw_output/";
 const std::string HEINZ_OUTPUT_DIRECTORY = HEINZ_DIRECTORY + "output/";
-const std::string HEINZ_SAMPLES_LIST = HEINZ_DIRECTORY + "samples.list";
+const std::string HEINZ_SAMPLES_LIST = HEINZ_DIRECTORY + "samples.txt";
 const std::string HEINZ_NEGATIVEWEIGHT_LIST = HEINZ_DIRECTORY
 		+ "negative-weights.txt";
 

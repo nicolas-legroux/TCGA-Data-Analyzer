@@ -30,6 +30,10 @@ auto DEFAULT_NORMALIZATION_METHOD = BINARY_QUANTILE_NORMALIZATION;
 int K_MEANS_NORMALIZATION_PARAM = 2;
 int K_MEANS_MAX_ITERATIONS = 1000;
 double BINARY_QUANTILE_NORMALIZATION_PARAM = 0.995;
+double MIN_CUT_PERCENTAGE = 0.05;
+double MAX_CUT_PERCENTAGE = 1;
+double STEP_CUT_PERCENTAGE = 0.025;
+
 /*---------------------------------------------------------*/
 
 /* ------------------ Metric parameters -----------------*/
@@ -50,7 +54,7 @@ ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMet
 ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName SPECTRAL_GRAPH_NO_TRASNFORMATION =
 		ClusterXX::SpectralParameters::GraphTransformationMethod::NO_TRANSFORMATION;
 
-int SPECTRAL_K_NEAREST_NEIGHBORS = 3;
+int SPECTRAL_K_NEAREST_NEIGHBORS = 7;
 double SPECTRAL_GAUSSIAN_MIXTURE_STDDEV = 150.0;
 
 std::pair<

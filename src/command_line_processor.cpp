@@ -10,10 +10,10 @@
 #include <ClusterXX/metrics/metrics.hpp>
 #include "command_line_processor.hpp"
 #include "config.hpp"
+#include "heinz-analyzer/heinzModuleAnalyzer.hpp"
 #include "parameters.hpp"
 #include "utilities.hpp"
 #include "tcga-analyzer/TCGA-Analyzer.hpp"
-#include "heinz-analyzer/heinzAnalyzer.hpp"
 
 CommandLineProcessor::CommandLineProcessor(int argc, char *argv[]) {
 	if (argc % 2 != 1) {
@@ -31,16 +31,16 @@ void CommandLineProcessor::process(const std::string &optionName,
 	if (optionName == "-mode") {
 		if (std::isdigit(optionValue[0])) {
 			int i = std::atoi(optionValue.c_str());
-			if (i >= 0 && i <= 3) {
+			if (i >= 0 && i <= 2) {
 				PROGRAM_MODE = i;
 			} else {
 				throw wrong_usage_exception(
-						"-mode option value should be a digit between 0 and 3.");
+						"-mode option value should be a digit between 0 and 2.");
 
 			}
 		} else {
 			throw wrong_usage_exception(
-					"-mode option value should be a digit between 0 and 3.");
+					"-mode option value should be a digit between 0 and 2.");
 		}
 	}
 
@@ -150,18 +150,19 @@ void CommandLineProcessor::runProgram() {
 				<< std::endl << std::endl;
 	}
 
-	else if (PROGRAM_MODE == 1) {
+	else if (PROGRAM_MODE == 2) {
 		std::cout << std::endl
 				<< "Program mode : 1 (Entry of the Heinz pipeline)" << std::endl
 				<< std::endl;
 	}
 
-	else if (PROGRAM_MODE == 2) {
-		std::cout << std::endl << "Program mode : 2 (Heinz raw output analyzer)"
+	else if (PROGRAM_MODE == 1) {
+		std::cout << std::endl
+				<< "Program mode : 2 (Multiple cut percentages analyzer)"
 				<< std::endl << std::endl;
 	}
 
-	if (PROGRAM_MODE == 0 || PROGRAM_MODE == 1) {
+	if (PROGRAM_MODE == 0 || PROGRAM_MODE == 2) {
 
 		std::cout << "------------------- Data Parameters --------------------"
 				<< std::endl;
@@ -203,8 +204,7 @@ void CommandLineProcessor::runProgram() {
 					<< std::endl;
 			std::cout << "* Binary quantile cut percentage : "
 					<< BINARY_QUANTILE_NORMALIZATION_PARAM << std::endl;
-		}
-		else{
+		} else {
 			normalizer = std::make_shared<NoOperationNormalizer>();
 			std::cout << "* Normalization method : no normalization"
 					<< std::endl;
@@ -319,12 +319,57 @@ void CommandLineProcessor::runProgram() {
 		}
 	}
 
-	else if (PROGRAM_MODE == 2) {
-		if (workingFile.empty()) {
-			std::cout << "Missing -f option.";
-		} else {
-			HeinzAnalyzer heinzAnalyzer(workingFile, GRAPH_EDGE_FILE);
-			heinzAnalyzer.analyze();
+	else if (PROGRAM_MODE == 1) {
+		std::cout << "------------------- Data Parameters --------------------"
+				<< std::endl;
+		std::cout << "* Cancers : "
+				<< implode(CANCERS.begin(), CANCERS.end(), ", ") << std::endl;
+		std::cout << "* Max control samples : " << MAX_CONTROL_SAMPLES
+				<< std::endl;
+		std::cout << "* Max tumor samples : " << MAX_TUMOR_SAMPLES << std::endl;
+		std::cout << "--------------------------------------------------------"
+				<< std::endl << std::endl;
+
+		/* Read Data */
+		std::cout << "-------------------- Loading data ----------------------"
+				<< std::endl;
+		TCGAData data;
+		TCGADataLoader loader(&data, CANCERS, MAX_CONTROL_SAMPLES,
+				MAX_TUMOR_SAMPLES, VERBOSE);
+		loader.loadData();
+		data.keepOnlyGenesInGraph(GRAPH_NODE_FILE);
+		std::cout << "--------------------------------------------------------"
+				<< std::endl << std::endl;
+
+		/*Normalizing and clustering*/
+		std::cout << "------------- Normalizing and clustering ---------------"
+				<< std::endl;
+		std::cout << "* Metric : " << METRIC->toString() << std::endl;
+		for (double d = MIN_CUT_PERCENTAGE; d < MAX_CUT_PERCENTAGE; d +=
+				STEP_CUT_PERCENTAGE) {
+			TCGAData dataCopy = data;
+			std::cout << d << std::flush;
+			std::shared_ptr<Normalizer> normalizer = std::make_shared<
+					BinaryQuantileNormalizer>(d);
+			TCGADataNormalizer tcgaNormalizer(&data, normalizer, false);
+			tcgaNormalizer.normalize();
+			TCGADataDistanceMatrixAnalyser distanceMetricAnalyzer(&data, METRIC,
+					false);
+			distanceMetricAnalyzer.computeDistanceMatrix();
+//			TCGADataKMeansClusterer kMeansClusterer(&data, K_CLUSTER,
+//					K_MEANS_MAX_ITERATIONS, false);
+//			kMeansClusterer.computeClustering();
+			TCGADataSpectralClusterer spectralClusterer(&data,
+					distanceMetricAnalyzer.getDistanceMatrixHandler(), METRIC,
+					K_CLUSTER, DEFAULT_GRAPH_TRANSFORMATION, false);
+			spectralClusterer.computeClustering();
+			//double adi1 = kMeansClusterer.getAdjustedRandIndex();
+			double adi2 = spectralClusterer.getAdjustedRandIndex();
+			std::cout << "\t" << adi2 << std::endl;
+			data = dataCopy;
 		}
+
+		std::cout << "--------------------------------------------------------"
+				<< std::endl << std::endl;
 	}
 }

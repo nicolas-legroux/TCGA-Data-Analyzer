@@ -15,6 +15,7 @@ set(CMAKE_CXX_FLAGS "-Wall -O3 -std=c++14 -fopenmp")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${PROJECT_BINARY_DIR}/lib)
 
+
 file(GLOB CLUSTERXX_SRC_FILES
     "${CLUSTERXX_ROOT_DIR}/src/*.cpp"    
     "${CLUSTERXX_ROOT_DIR}/src/clustering/*.cpp"

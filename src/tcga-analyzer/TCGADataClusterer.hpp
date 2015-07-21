@@ -19,6 +19,9 @@ public:
 	void computeClustering();
 	std::vector<int> getClusters();
 	virtual void printClusteringInfo();
+	double getAdjustedRandIndex() {
+		return clusterer->computeAdjustedRandIndex(realClusters);
+	}
 protected:
 	TCGAData *ptrToData;
 	unsigned int K;
