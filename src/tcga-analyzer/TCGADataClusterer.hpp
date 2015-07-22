@@ -19,6 +19,9 @@ public:
 	void computeClustering();
 	std::vector<int> getClusters();
 	virtual void printClusteringInfo();
+	void printRawClustering(const std::vector<std::string> &patientLabels){
+		clusterer->printRawClustering(patientLabels);
+	}
 	double getAdjustedRandIndex() {
 		return clusterer->computeAdjustedRandIndex(realClusters);
 	}

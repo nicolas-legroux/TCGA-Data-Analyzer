@@ -9,9 +9,8 @@
 #include "../config.hpp"
 
 TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData,
-		const std::set<std::string> &_cancers,
-		unsigned int _maxControlSamples, unsigned int _maxTumorSamples,
-		bool _verbose) :
+		const std::set<std::string> &_cancers, unsigned int _maxControlSamples,
+		unsigned int _maxTumorSamples, bool _verbose) :
 		cancers(_cancers), ptrToData(_ptrToData), verbose(_verbose), maxControlSamples(
 				_maxControlSamples), maxTumorSamples(_maxTumorSamples) {
 	//Nothing to do
@@ -30,9 +29,9 @@ TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData,
 	}
 }
 
-std::map<std::string, int> TCGADataLoader::buildHgnc2IdMapping() {
+std::map<std::string, int> TCGADataLoader::buildHgnc2IdMapping(const std::string &file) {
 	std::map<std::string, int> mapping;
-	std::fstream input(SAMPLE_TCGA_FILE);
+	std::fstream input(file);
 	std::string firstLine;
 	std::getline(input, firstLine);
 	std::string geneId;
@@ -48,17 +47,19 @@ std::map<std::string, int> TCGADataLoader::buildHgnc2IdMapping() {
 	return mapping;
 }
 
-void TCGADataLoader::loadGeneData() {
-	std::fstream input(SAMPLE_TCGA_FILE);
+void TCGADataLoader::loadGeneData(const std::string &file) {
+	std::fstream input(file);
 	std::string firstLine;
 	std::getline(input, firstLine);
 	std::string geneId;
 	double score;
 	while (input >> geneId >> score) {
-		std::vector<std::string> strs = split(geneId,
-				std::vector<char> { '|' });
+		std::vector<std::string> strs = split(geneId, { '|' });
 		std::string hgncSymbol = boost::to_upper_copy<std::string>(strs[0]);
-		int entrezId = atoi(strs[1].c_str());
+		int entrezId = -1;
+		if(strs.size()>1){
+			entrezId = atoi(strs[1].c_str());
+		}
 		ptrToData->getGeneListHandler().push_back(
 				make_pair(hgncSymbol, entrezId));
 	}
@@ -79,22 +80,21 @@ void TCGADataLoader::loadPatientDataByCancer(const std::string &cancer) {
 //	}
 
 	while (input >> patientId) {
-		std::vector<std::string> strs = split(patientId, std::vector<char> {
-				'-', '.' });
-		if (strs.size() >= 4) {
-			std::string patientName = strs[0] + "-" + strs[1] + "-" + strs[2];
-			if (strs[3] == "01") {
-				ptrToData->getPatientListHandler(true)[cancer].push_back(
-						patientName);
-				++countTumor;
-			} else if (strs[3] == "11") {
-				ptrToData->getPatientListHandler(false)[cancer].push_back(
-						patientName);
-				++countControl;
-			}
-//				else if (verbose) {
-//				std::cout << "Did not process " << patientId << std::endl;
-//			}
+		std::vector<std::string> strs = split(patientId, {'-'});
+		unsigned int isTumorInfoPosition = strs.size() - 1;
+		std::string patientName = strs[0];
+		for(unsigned int i=1; i<isTumorInfoPosition; ++i){
+			patientName += "-" + strs[i];
+		}
+
+		if (strs[isTumorInfoPosition] == "01") {
+			ptrToData->getPatientListHandler(true)[cancer].push_back(
+					patientName);
+			++countTumor;
+		} else if (strs[isTumorInfoPosition] == "11") {
+			ptrToData->getPatientListHandler(false)[cancer].push_back(
+					patientName);
+			++countControl;
 		}
 	}
 
@@ -198,7 +198,12 @@ void TCGADataLoader::loadRNASeqData() {
 }
 
 void TCGADataLoader::loadData() {
-	loadGeneData();
+	if(cancers.find("BERGONIE") != cancers.end()){
+		loadGeneData(SAMPLE_BERGONIE_FILE);
+	}
+	else{
+		loadGeneData(SAMPLE_TCGA_FILE);
+	}
 	loadPatientData();
 	loadRNASeqData();
 }

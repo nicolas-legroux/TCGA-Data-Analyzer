@@ -63,7 +63,7 @@ std::vector<int> TCGADataClusterer::getClusters() {
 }
 
 void TCGADataClusterer::printClusteringInfo() {
-	clusterer->printClustering(realLabelsMap, realClusters);
+	clusterer->printClusteringMatrix(realLabelsMap, realClusters);
 	std::cout << std::endl << "Adjusted Rand Index : " << clusterer->computeAdjustedRandIndex(realClusters) << std::endl;
 }
 

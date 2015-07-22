@@ -73,6 +73,14 @@ public:
 
 	void keepOnlyGenesInGraph(const std::string &filenameNodes);
 
+	std::vector<std::string> getPatientLabels(){
+		std::vector<std::string> v;
+		for(const auto &sample : samples){
+			v.push_back(sample.toFullString());
+		}
+		return v;
+	}
+
 	//To export data in TSV file
 
 private:

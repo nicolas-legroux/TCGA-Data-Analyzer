@@ -58,6 +58,11 @@ void CommandLineProcessor::process(const std::string &optionName,
 										ALLOWED_CANCERS.end(), ","));
 			}
 		}
+		if(CANCERS.find("BERGONIE") != CANCERS.end()){
+			if(CANCERS.size() != 1){
+				throw wrong_usage_exception("Cannot mix Bergonie samples and TCGA samples.");
+			}
+		}
 	}
 
 	else if (optionName == "-weights") {
@@ -181,7 +186,7 @@ void CommandLineProcessor::runProgram() {
 		TCGADataLoader loader(&data, CANCERS, MAX_CONTROL_SAMPLES,
 				MAX_TUMOR_SAMPLES, VERBOSE);
 		loader.loadData();
-		data.keepOnlyGenesInGraph(GRAPH_NODE_FILE);
+		//data.keepOnlyGenesInGraph(GRAPH_NODE_FILE);
 		std::cout << "--------------------------------------------------------"
 				<< std::endl << std::endl;
 
@@ -250,6 +255,8 @@ void CommandLineProcessor::runProgram() {
 					<< "--------------------------------------------------------"
 					<< std::endl << std::endl;
 
+			std::vector<std::string> patientLabels = data.getPatientLabels();
+
 			std::cout
 					<< "------------------ KMeans Clustering -------------------"
 					<< std::endl;
@@ -258,11 +265,13 @@ void CommandLineProcessor::runProgram() {
 					K_MEANS_MAX_ITERATIONS, VERBOSE);
 			kMeansClusterer.computeClustering();
 			kMeansClusterer.printClusteringInfo();
+			//kMeansClusterer.printRawClustering(patientLabels);
 
 			std::cout
 					<< "--------------------------------------------------------"
 					<< std::endl << std::endl;
 
+			/*
 			std::cout
 					<< "--------------- Hierarchical Clustering ----------------"
 					<< std::endl;
@@ -276,6 +285,7 @@ void CommandLineProcessor::runProgram() {
 			std::cout
 					<< "--------------------------------------------------------"
 					<< std::endl << std::endl;
+			*/
 
 			std::cout
 					<< "----------------- Spectral Clustering ------------------"
@@ -286,6 +296,7 @@ void CommandLineProcessor::runProgram() {
 					K_CLUSTER, DEFAULT_GRAPH_TRANSFORMATION, VERBOSE);
 			spectralClusterer.computeClustering();
 			spectralClusterer.printClusteringInfo();
+			//spectralClusterer.printRawClustering(patientLabels);
 
 			std::cout
 					<< "--------------------------------------------------------"

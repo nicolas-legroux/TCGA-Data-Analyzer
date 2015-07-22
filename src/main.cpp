@@ -12,11 +12,12 @@
 #include "heinz-analyzer/typedefs.hpp"
 
 int main(int argc, char *argv[]) {
-	/*
-	 CommandLineProcessor clp(argc, argv);
-	 clp.runProgram();
-	 */
 
-	HeinzOutputAnalyzer outputAnalyzer("negative-weights.txt", "samples.txt");
-	outputAnalyzer.analyze();
+	CommandLineProcessor clp(argc, argv);
+	clp.runProgram();
+
+	/*
+	 HeinzOutputAnalyzer outputAnalyzer("negative-weights.txt", "samples.txt");
+	 outputAnalyzer.analyze();
+	 */
 }

@@ -20,7 +20,7 @@ public:
 			unsigned int _maxTumorSamples, bool verbose);
 	void loadData();
 
-	static std::map<std::string, int> buildHgnc2IdMapping();
+	static std::map<std::string, int> buildHgnc2IdMapping(const std::string &file);
 private:
 	std::set<std::string> cancers;
 	TCGAData *ptrToData;
@@ -28,7 +28,7 @@ private:
 	unsigned int maxControlSamples;
 	unsigned int maxTumorSamples;
 
-	void loadGeneData();
+	void loadGeneData(const std::string &file);
 	void loadPatientDataByCancer(const std::string &cancer);
 	void loadPatientData();
 	void initializeRNASeqData(bool isTumorData);

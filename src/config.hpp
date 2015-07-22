@@ -11,8 +11,9 @@
 #include <string>
 #include <set>
 
-const std::set<std::string> ALLOWED_CANCERS = { "BRCA", "COAD", "GBM", "HNSC",
-		"KIRC", "LGG", "LUAD", "LUSC", "OV", "PRAD", "THCA", "UCEC" };
+const std::set<std::string> ALLOWED_CANCERS =
+		{ "BRCA", "COAD", "GBM", "HNSC", "KIRC", "LGG", "LUAD", "LUSC", "OV",
+				"PRAD", "THCA", "UCEC", "BERGONIE" };
 const std::set<std::string> ALLOWED_METRICS =
 		{ "absolute-cosine", "cosine-absolute-similarity", "cosine-distance",
 				"cosine", "cosine-smilarity", "euclidean", "euclidean-distance",
@@ -41,5 +42,7 @@ const std::string HEINZ_NEGATIVEWEIGHT_LIST = HEINZ_DIRECTORY
 const std::string EXPORT_DIRECTORY = "export/";
 const std::string SAMPLE_TCGA_FILE = TCGA_DATA_DIRECTORY
 		+ "BRCA-normalized/TCGA-3C-AAAU-01.genes.normalized.results";
+const std::string SAMPLE_BERGONIE_FILE = TCGA_DATA_DIRECTORY
+		+ "BERGONIE-normalized/M976-01.genes.normalized.results";
 
 #endif /* SRC_CONFIG_HPP_ */
