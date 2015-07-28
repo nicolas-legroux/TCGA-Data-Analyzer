@@ -5,7 +5,7 @@ TCGADataClusterer::TCGADataClusterer(TCGAData *_ptrToData, unsigned int _K,
 		ptrToData(_ptrToData), K(_K), verbose(_verbose) {
 	realClusters.resize(ptrToData->getNumberOfSamples());
 	buildRealClasses();
-	ptrToData->buildDataMatrix({}, verbose);
+	ptrToData->buildDataMatrix();
 	if (K == 0) {
 		K = ptrToData->getClassMapHandler().size();
 	}

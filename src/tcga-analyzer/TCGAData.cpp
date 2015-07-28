@@ -71,32 +71,45 @@ std::vector<double> TCGAData::getPatientRNASeqData(int patientIndex) const {
 	return patientData;
 }
 
-void TCGAData::buildDataMatrix(const std::set<std::string> &keys, bool verbose) {
-	unsigned int numberOfGenes = getNumberOfGenes();
-	unsigned int numberOfSamples = getNumberOfSamples();
-
-	if (verbose) {
-		std::cout << "Building data matrix (number of samples : "
-				<< numberOfSamples << ")... " << std::flush;
+std::vector<std::string> TCGAData::getPatientLabels() const {
+	std::vector<std::string> v;
+	for (const auto &sample : patients) {
+		v.push_back(sample.toString());
 	}
+	return v;
+}
 
-	dataMatrix.resize(numberOfGenes, numberOfSamples);
-	classMap.clear();
+void TCGAData::buildDataMatrix(bool verbose) {
 
-	//Deal with gene data
-	for (unsigned int i = 0; i < numberOfGenes; ++i) {
-		for (unsigned int j = 0; j < numberOfSamples; ++j) {
-			dataMatrix(i, j) = data[i][j];
+	if (!dataMatrixIsComputed) {
+		unsigned int numberOfGenes = getNumberOfGenes();
+		unsigned int numberOfSamples = getNumberOfSamples();
+
+		if (verbose) {
+			std::cout << "Building data matrix (number of samples : "
+					<< numberOfSamples << ")... " << std::flush;
 		}
-	}
 
-	//Deal with patient data
-	for (unsigned int j = 0; j < numberOfSamples; ++j) {
-		classMap[patients[j].toClassString(keys)].push_back(j);
-	}
+		dataMatrix.resize(numberOfGenes, numberOfSamples);
+		classMap.clear();
 
-	if (verbose) {
-		std::cout << "Done." << std::endl;
+		//Deal with gene data
+		for (unsigned int i = 0; i < numberOfGenes; ++i) {
+			for (unsigned int j = 0; j < numberOfSamples; ++j) {
+				dataMatrix(i, j) = data[i][j];
+			}
+		}
+
+		//Deal with patient data
+		for (unsigned int j = 0; j < numberOfSamples; ++j) {
+			classMap[patients[j].toClassString(clinicalKeys)].push_back(j);
+		}
+
+		if (verbose) {
+			std::cout << "Done." << std::endl;
+		}
+
+		dataMatrixIsComputed = true;
 	}
 }
 
@@ -128,6 +141,29 @@ void TCGAData::keepOnlyGenesInGraph(const std::string &filenameNodes) {
 	data = std::move(newData);
 	geneList = std::move(newGeneList);
 
+	dataMatrixIsComputed = false;
+
 	std::cout << "Done. Gene count is now " << getNumberOfGenes() << "."
 			<< std::endl;
+}
+
+void TCGAData::reorderSamples() {
+	RNASeqData newData;
+	std::vector<TCGAPatientData> newPatients;
+	newData.resize(getNumberOfGenes());
+
+	dataMatrixIsComputed = false;
+
+	for (const auto &kv : classMap) {
+		for (auto i : kv.second) {
+			newPatients.push_back(patients[i]);
+			for (unsigned int j = 0; j < getNumberOfGenes(); ++j) {
+				newData[j].push_back(data[j][i]);
+			}
+		}
+	}
+
+	data = std::move(newData);
+	patients = std::move(newPatients);
+	buildDataMatrix();
 }

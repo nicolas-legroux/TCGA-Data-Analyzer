@@ -68,7 +68,7 @@ void TCGADataNormalizer::normalize() {
 
 void TCGADataNormalizer::exportToFile(double positiveValue,
 		double negativeValue) {
-	ptrToData->buildDataMatrix({}, false);
+	ptrToData->buildDataMatrix();
 	std::ofstream outputStreamSamples(HEINZ_SAMPLES_LIST);
 	const auto &dataMatrix = ptrToData->getDataMatrixHandler();
 	unsigned int N = dataMatrix.cols();

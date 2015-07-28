@@ -13,15 +13,9 @@
 #include "TCGAPatientData.hpp"
 #include "../tcga-analyzer/typedefs.hpp"
 
-/*Identifies uniquely a sample by knowing :
- *  - the Cancer set from which it comes from
- *  - whether it is a Control or Tumor Sample
- *  - the TCGA ID of the patient
- */
-
 class TCGAData {
 public:
-	TCGAData() = default;
+	TCGAData() : dataMatrixIsComputed(false) {}
 	//Handlers
 	GeneList &getGeneListHandler();
 	const GeneList &getGeneListHandler() const;
@@ -39,18 +33,13 @@ public:
 	unsigned int getNumberOfSamples() const;
 
 	std::vector<double> getPatientRNASeqData(int patientIndex) const;
+	std::vector<std::string> getPatientLabels() const;
 
-	void buildDataMatrix(const std::set<std::string> &keys = {}, bool verbose = true);
+	void buildDataMatrix(bool verbose = false);
 
 	void keepOnlyGenesInGraph(const std::string &filenameNodes);
 
-	std::vector<std::string> getPatientLabels(){
-		std::vector<std::string> v;
-		for(const auto &sample : patients){
-			v.push_back(sample.toString());
-		}
-		return v;
-	}
+	void reorderSamples();
 
 private:
 	GeneList geneList;
@@ -58,6 +47,8 @@ private:
 	RNASeqData data;
 
 	// Column = Patient; Row = Gene
+	bool dataMatrixIsComputed;
+	std::set<std::string> clinicalKeys = {};
 	Eigen::MatrixXd dataMatrix;
 	ClassMap classMap;
 };

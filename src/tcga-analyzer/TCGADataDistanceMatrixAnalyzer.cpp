@@ -15,7 +15,8 @@ TCGADataDistanceMatrixAnalyser::TCGADataDistanceMatrixAnalyser(
 
 void TCGADataDistanceMatrixAnalyser::computeDistanceMatrix() {
 	if (!matrixIsComputed) {
-		ptrToData->buildDataMatrix({}, verbose);
+		ptrToData->buildDataMatrix();
+		ptrToData->reorderSamples();
 		metric->setVerbose(verbose);
 		distanceMatrix = metric->computeMatrix(ptrToData->getDataMatrixHandler());
 		matrixIsComputed = true;
@@ -101,6 +102,7 @@ void TCGADataDistanceMatrixAnalyser::exportClassStats() {
 		std::cout << "Exporting class stats... " << std::flush;
 	}
 
+	//Assumes patients are ordered by class
 	std::vector<std::string> classes;
 	for (const TCGAPatientData &patient : ptrToData->getPatientsHandler()) {
 		classes.push_back(patient.toClassString());

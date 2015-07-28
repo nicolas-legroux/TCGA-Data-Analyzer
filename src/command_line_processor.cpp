@@ -58,7 +58,7 @@ void CommandLineProcessor::process(const std::string &optionName,
 										ALLOWED_CANCERS.end(), ","));
 			}
 		}
-		if (CANCERS.find("SARC|BERGONIE") != CANCERS.end()) {
+		if (CANCERS.find("SARCB") != CANCERS.end()) {
 			if (CANCERS.size() != 1) {
 				throw wrong_usage_exception(
 						"Cannot mix Bergonie samples and TCGA samples.");
