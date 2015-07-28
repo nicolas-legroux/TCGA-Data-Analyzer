@@ -58,9 +58,16 @@ void CommandLineProcessor::process(const std::string &optionName,
 										ALLOWED_CANCERS.end(), ","));
 			}
 		}
-		if(CANCERS.find("BERGONIE") != CANCERS.end()){
-			if(CANCERS.size() != 1){
-				throw wrong_usage_exception("Cannot mix Bergonie samples and TCGA samples.");
+		if (CANCERS.find("SARC|BERGONIE") != CANCERS.end()) {
+			if (CANCERS.size() != 1) {
+				throw wrong_usage_exception(
+						"Cannot mix Bergonie samples and TCGA samples.");
+			}
+			//Use the right graph
+			else {
+				GRAPH_NODE_FILE = GRAPH_NODE_FILE_BERGONIE;
+				GRAPH_EDGE_FILE = GRAPH_EDGE_FILE_BERGONIE;
+				SAMPLE_FILE = SAMPLE_BERGONIE_FILE;
 			}
 		}
 	}
@@ -157,13 +164,13 @@ void CommandLineProcessor::runProgram() {
 
 	else if (PROGRAM_MODE == 2) {
 		std::cout << std::endl
-				<< "Program mode : 1 (Entry of the Heinz pipeline)" << std::endl
+				<< "Program mode : 2 (Entry of the Heinz pipeline)" << std::endl
 				<< std::endl;
 	}
 
 	else if (PROGRAM_MODE == 1) {
 		std::cout << std::endl
-				<< "Program mode : 2 (Multiple cut percentages analyzer)"
+				<< "Program mode : 1 (Multiple cut percentages analyzer)"
 				<< std::endl << std::endl;
 	}
 
@@ -185,7 +192,9 @@ void CommandLineProcessor::runProgram() {
 		TCGAData data;
 		TCGADataLoader loader(&data, CANCERS, MAX_CONTROL_SAMPLES,
 				MAX_TUMOR_SAMPLES, VERBOSE);
-		loader.loadData();
+		loader.loadData(SAMPLE_FILE);
+
+		//Keep only data which will be in the PPI graph
 		//data.keepOnlyGenesInGraph(GRAPH_NODE_FILE);
 		std::cout << "--------------------------------------------------------"
 				<< std::endl << std::endl;
@@ -273,30 +282,62 @@ void CommandLineProcessor::runProgram() {
 
 			/*
 			std::cout
-					<< "--------------- Hierarchical Clustering ----------------"
+					<< "-------------- Hierarchical Clustering -----------------"
 					<< std::endl;
 
 			TCGADataHierarchicalClusterer hierarchicalClusterer(&data,
 					distanceMetricAnalyzer.getDistanceMatrixHandler(), METRIC,
-					K_CLUSTER, DEFAULT_LINKAGE_METHOD, true);
+					K_CLUSTER, DEFAULT_LINKAGE_METHOD, VERBOSE);
 			hierarchicalClusterer.computeClustering();
 			hierarchicalClusterer.printClusteringInfo();
+			//kMeansClusterer.printRawClustering(patientLabels);
+			 *
+			 */
 
 			std::cout
 					<< "--------------------------------------------------------"
 					<< std::endl << std::endl;
-			*/
 
 			std::cout
-					<< "----------------- Spectral Clustering ------------------"
+					<< "---------- Unnormalized Spectral Clustering ------------"
 					<< std::endl;
 
-			TCGADataSpectralClusterer spectralClusterer(&data,
-					distanceMetricAnalyzer.getDistanceMatrixHandler(), METRIC,
-					K_CLUSTER, DEFAULT_GRAPH_TRANSFORMATION, VERBOSE);
-			spectralClusterer.computeClustering();
-			spectralClusterer.printClusteringInfo();
-			//spectralClusterer.printRawClustering(patientLabels);
+			TCGADataUnnormalizedSpectralClusterer unnormalizedSpectralClusterer(
+					&data, distanceMetricAnalyzer.getDistanceMatrixHandler(),
+					METRIC, K_CLUSTER, DEFAULT_GRAPH_TRANSFORMATION, VERBOSE);
+			unnormalizedSpectralClusterer.computeClustering();
+			unnormalizedSpectralClusterer.printClusteringInfo();
+			//unnormalizedSpectralClusterer.printRawClustering(patientLabels);
+
+			std::cout
+					<< "--------------------------------------------------------"
+					<< std::endl << std::endl;
+
+			std::cout
+					<< "------ Normalized Spectral Clustering (Symmetric) ------"
+					<< std::endl;
+
+			TCGADataNormalizedSpectralClusterer normalizedSpectralClusterer(
+					&data, distanceMetricAnalyzer.getDistanceMatrixHandler(),
+					METRIC, K_CLUSTER, DEFAULT_GRAPH_TRANSFORMATION, VERBOSE);
+			normalizedSpectralClusterer.computeClustering();
+			normalizedSpectralClusterer.printClusteringInfo();
+			//normalizedSpectralClusterer.printRawClustering(patientLabels);
+
+			std::cout
+					<< "--------------------------------------------------------"
+					<< std::endl << std::endl;
+
+			std::cout
+					<< "----- Normalized Spectral Clustering (Random Walk) -----"
+					<< std::endl;
+
+			TCGADataNormalizedSpectralClusterer_RandomWalk normalizedSpectralClusterer_RandomWalk(
+					&data, distanceMetricAnalyzer.getDistanceMatrixHandler(),
+					METRIC, K_CLUSTER, DEFAULT_GRAPH_TRANSFORMATION, VERBOSE);
+			normalizedSpectralClusterer_RandomWalk.computeClustering();
+			normalizedSpectralClusterer_RandomWalk.printClusteringInfo();
+			//normalizedSpectralClusterer_RandomWalk.printRawClustering(patientLabels);
 
 			std::cout
 					<< "--------------------------------------------------------"
@@ -347,7 +388,7 @@ void CommandLineProcessor::runProgram() {
 		TCGAData data;
 		TCGADataLoader loader(&data, CANCERS, MAX_CONTROL_SAMPLES,
 				MAX_TUMOR_SAMPLES, VERBOSE);
-		loader.loadData();
+		loader.loadData(SAMPLE_FILE);
 		data.keepOnlyGenesInGraph(GRAPH_NODE_FILE);
 		std::cout << "--------------------------------------------------------"
 				<< std::endl << std::endl;
@@ -370,7 +411,7 @@ void CommandLineProcessor::runProgram() {
 //			TCGADataKMeansClusterer kMeansClusterer(&data, K_CLUSTER,
 //					K_MEANS_MAX_ITERATIONS, false);
 //			kMeansClusterer.computeClustering();
-			TCGADataSpectralClusterer spectralClusterer(&data,
+			TCGADataUnnormalizedSpectralClusterer spectralClusterer(&data,
 					distanceMetricAnalyzer.getDistanceMatrixHandler(), METRIC,
 					K_CLUSTER, DEFAULT_GRAPH_TRANSFORMATION, false);
 			spectralClusterer.computeClustering();

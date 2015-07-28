@@ -82,3 +82,7 @@ void HeinzModuleAnalyzer::analyze(ClassCount *classCount,
 	(*degreeStatistics)[heinzClass].push_back(meanDegree);
 }
 
+void HeinzModuleAnalyzer::printModule(){
+	module->printNodesToFile(HEINZ_OUTPUT_DIRECTORY + fileBasename + ".txt");
+}
+

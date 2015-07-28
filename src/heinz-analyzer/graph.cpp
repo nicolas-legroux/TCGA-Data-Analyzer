@@ -122,3 +122,11 @@ std::vector<std::pair<PPIGraph::NodeNameType, PPIGraph::NodeValueType>> &PPIGrap
 	return nodes;
 }
 
+void PPIGraph::printNodesToFile(const std::string &filename) {
+	std::ofstream output(filename);
+	std::for_each(nodes.cbegin(), nodes.cend(),
+			[&](const std::pair<NodeNameType, NodeValueType> &pair) {
+				output << pair.first << " " << pair.second << std::endl;
+			});
+}
+

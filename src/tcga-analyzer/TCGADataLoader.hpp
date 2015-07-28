@@ -14,11 +14,7 @@ public:
 			const std::set<std::string> &_cancers,
 			unsigned int _maxControlSamples,
 			unsigned int _maxTumorSamples, bool verbose);
-	TCGADataLoader(TCGAData *_ptrToData,
-			const std::string &_filenameWithCancerList,
-			unsigned int _maxControlSamples,
-			unsigned int _maxTumorSamples, bool verbose);
-	void loadData();
+	void loadData(const std::string &sampleFilePath);
 
 	static std::map<std::string, int> buildHgnc2IdMapping(const std::string &file);
 private:
@@ -29,13 +25,9 @@ private:
 	unsigned int maxTumorSamples;
 
 	void loadGeneData(const std::string &file);
-	void loadPatientDataByCancer(const std::string &cancer);
-	void loadPatientData();
-	void initializeRNASeqData(bool isTumorData);
-	void loadRNASeqSample(const std::string &cancer, bool isTumorData,
-			const std::string &patient);
-	void loadRNASeqData(bool tumorData);
-	void loadRNASeqData();
+	void initializeRNASeqData();
+	void loadRNASeqData(const std::string &cancer, const std::string &patientId);
+	void loadDataByCancer(const std::string &cancer);
 };
 
 #endif // DATAREADER_H_INCLUDED

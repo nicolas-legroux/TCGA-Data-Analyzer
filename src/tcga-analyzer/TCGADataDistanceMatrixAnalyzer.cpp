@@ -15,10 +15,9 @@ TCGADataDistanceMatrixAnalyser::TCGADataDistanceMatrixAnalyser(
 
 void TCGADataDistanceMatrixAnalyser::computeDistanceMatrix() {
 	if (!matrixIsComputed) {
-		ptrToData->transposeData(verbose);
+		ptrToData->buildDataMatrix({}, verbose);
 		metric->setVerbose(verbose);
 		distanceMatrix = metric->computeMatrix(ptrToData->getDataMatrixHandler());
-		//std::cout << "Distance metric : " << ptrToData->getDataMatrixHandler() << std::endl << distanceMatrix;
 		matrixIsComputed = true;
 	}
 }
@@ -43,8 +42,8 @@ void TCGADataDistanceMatrixAnalyser::exportDistanceMatrix() {
 		matrixOutputStream << std::endl;
 	}
 
-	for (const Sample &sample : ptrToData->getSamplesHandler()) {
-		patientsOutputStream << sample.toFullString() << std::endl;
+	for (const TCGAPatientData &patient : ptrToData->getPatientsHandler()) {
+		patientsOutputStream << patient.toString() << std::endl;
 	}
 
 	std::cout << " Done." << std::endl;
@@ -61,8 +60,8 @@ void TCGADataDistanceMatrixAnalyser::exportHeatMap(bool withClassDivision,
 	std::string current = "";
 	int countCurrent = 0;
 
-	for (const Sample &sample : ptrToData->getSamplesHandler()) {
-		std::string newCurrent = sample.toClassString();
+	for (const TCGAPatientData &patient : ptrToData->getPatientsHandler()) {
+		std::string newCurrent = patient.toClassString();
 		if (newCurrent != current) {
 			if (countCurrent != 0) {
 				outputStreamLabels << current << " " << countCurrent
@@ -103,8 +102,8 @@ void TCGADataDistanceMatrixAnalyser::exportClassStats() {
 	}
 
 	std::vector<std::string> classes;
-	for (const auto &sample : ptrToData->getSamplesHandler()) {
-		classes.push_back(sample.toClassString());
+	for (const TCGAPatientData &patient : ptrToData->getPatientsHandler()) {
+		classes.push_back(patient.toClassString());
 	}
 	auto end_unique = unique(classes.begin(), classes.end());
 	classes.erase(end_unique, classes.end());
@@ -117,8 +116,8 @@ void TCGADataDistanceMatrixAnalyser::exportClassStats() {
 	for (unsigned int i = 0; i < numberOfClasses; ++i) {
 		for (unsigned int j = i; j < numberOfClasses; ++j) {
 			std::vector<double> data;
-			for (int I : ptrToData->getPatientsIDsHandler().at(classes[i])) {
-				for (int J : ptrToData->getPatientsIDsHandler().at(classes[j])) {
+			for (int I : ptrToData->getClassMapHandler().at(classes[i])) {
+				for (int J : ptrToData->getClassMapHandler().at(classes[j])) {
 					// When I = J : we are comparing the same patients,
 					//  we know the distance is null
 					if (I != J) {
@@ -142,14 +141,14 @@ void TCGADataDistanceMatrixAnalyser::exportClassStats() {
 					+ ".tsv");
 	outputStream << "CLASSES";
 	for (const std::string &s : classes) {
-		outputStream << "\t" << s << " (" << ptrToData->getPatientsIDsHandler().at(s).size()
+		outputStream << "\t" << s << " (" << ptrToData->getClassMapHandler().at(s).size()
 				<< ")";
 	}
 	outputStream << std::endl;
 
 	for (unsigned int i = 0; i < numberOfClasses; ++i) {
 		outputStream << classes[i] << " ("
-				<< ptrToData->getPatientsIDsHandler().at(classes[i]).size() << ")";
+				<< ptrToData->getClassMapHandler().at(classes[i]).size() << ")";
 		for (unsigned int j = 0; j < numberOfClasses; ++j) {
 			outputStream << "\t" << mean_correlation[numberOfClasses * i + j]
 					<< " (" << standard_dev_correlation[numberOfClasses * i + j]
@@ -165,13 +164,12 @@ void TCGADataDistanceMatrixAnalyser::exportClassStats() {
 
 std::vector<unsigned int> TCGADataDistanceMatrixAnalyser::buildClassDivisionForHeatmap() {
 	std::vector<unsigned int> classDivision;
-	Sample prev = ptrToData->getSamplesHandler()[0];
+	TCGAPatientData prev = ptrToData->getPatientsHandler()[0];
 	unsigned int count = 1;
-	for (auto it = ptrToData->getSamplesHandler().begin() + 1; it != ptrToData->getSamplesHandler().end();
+	for (auto it = ptrToData->getPatientsHandler().begin() + 1; it != ptrToData->getPatientsHandler().end();
 			++it) {
-		Sample next = *it;
-		if (prev.cancerName != next.cancerName
-				|| prev.isTumor != next.isTumor) {
+		TCGAPatientData next = *it;
+		if (prev.toClassString() != next.toClassString()) {
 			classDivision.push_back(count);
 		}
 		++count;

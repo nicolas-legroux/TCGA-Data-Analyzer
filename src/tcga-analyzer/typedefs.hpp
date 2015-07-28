@@ -12,12 +12,10 @@
 #include <vector>
 
 // cancerName -> geneID -> patientID -> RNASeq value
-typedef std::unordered_map<std::string, std::vector<std::vector<double>>> RNASeqDataCancerMap;
-// cancerName -> patientID -> patientName
-typedef std::unordered_map<std::string, std::vector<std::string>> PatientNamesCancerMap;
+typedef std::vector<std::vector<double>> RNASeqData;
 // geneID -> (HNSC Symbol, Entrez ID)
 typedef std::vector<std::pair<std::string, int>> GeneList;
-// cancerName -> list of Patient IDs
-typedef std::unordered_map<std::string, std::vector<int>> PatientIDsCancerMap;
+// class -> list of Patient IDs
+typedef std::map<std::string, std::vector<int>> ClassMap;
 
 #endif /* SRC_TYPEDEFS_HPP_ */

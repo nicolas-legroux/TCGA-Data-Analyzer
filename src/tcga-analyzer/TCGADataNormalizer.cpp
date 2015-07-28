@@ -1,5 +1,4 @@
-#include "../tcga-analyzer/TCGADataNormalizer.hpp"
-
+#include "TCGADataNormalizer.hpp"
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -40,129 +39,43 @@ TCGADataNormalizer::TCGADataNormalizer(TCGAData *_ptrToData,
 				_verbose) {
 }
 
-void TCGADataNormalizer::normalizeIndividualSample(const std::string &cancer,
-		bool isTumor, unsigned int patientId) {
+void TCGADataNormalizer::normalizeIndividualSample(unsigned int sampleId) {
 	unsigned int numberOfGenes = ptrToData->getNumberOfGenes();
 	std::vector<double> dataToNormalize(numberOfGenes);
 	//Copy the data in a vector
 	for (unsigned int i = 0; i < numberOfGenes; ++i) {
-		dataToNormalize[i] =
-				ptrToData->getRNASeqDataHandler(isTumor)[cancer][i][patientId];
+		dataToNormalize[i] = ptrToData->getDataHandler()[i][sampleId];
 	}
 	//Normalize
 	ptrToNormalizer->normalize(&dataToNormalize);
 	//Copy the normalized data back into the structure
 	for (unsigned int i = 0; i < numberOfGenes; ++i) {
-		ptrToData->getRNASeqDataHandler(isTumor)[cancer][i][patientId] =
-				dataToNormalize[i];
+		ptrToData->getDataHandler()[i][sampleId] = dataToNormalize[i];
 	}
 }
 
 void TCGADataNormalizer::normalize() {
 	if (verbose) {
-		std::cout << "Normalizing control data..." << std::endl;
+		std::cout << "Normalizing data... " << std::flush;
 	}
-	for (auto &kv : ptrToData->getRNASeqDataHandler(false)) {
-		std::string cancer = kv.first;
-		if (verbose) {
-			std::cout << "\t" << cancer << "... " << std::flush;
-		}
-		for (unsigned int patientId = 0; patientId < kv.second[0].size();
-				++patientId) {
-			normalizeIndividualSample(cancer, false, patientId);
-		}
-		if (verbose) {
-			std::cout << "Done." << std::endl;
-		}
+	for(unsigned int i=0; i<ptrToData->getNumberOfSamples(); ++i){
+		normalizeIndividualSample(i);
 	}
 	if (verbose) {
-		std::cout << "Normalizing tumor data..." << std::endl;
-	}
-	for (auto &kv : ptrToData->getRNASeqDataHandler(true)) {
-		std::string cancer = kv.first;
-		if (verbose) {
-			std::cout << "\t" << cancer << "... " << std::flush;
-		}
-		for (unsigned int patientId = 0; patientId < kv.second[0].size();
-				++patientId) {
-			normalizeIndividualSample(cancer, true, patientId);
-		}
-		if (verbose) {
-			std::cout << "Done." << std::endl;
-		}
-	}
-}
-
-/*
- *
- * PRINTS MOST EXPRESSED GENES PER CLASS
- *
- */
-
-void TCGADataNormalizer::printMostExpressedGenesByClassUtility(
-		std::ofstream &outputStream, unsigned int maxNumberGenes,
-		std::string &cancer, bool isTumor) {
-
-	unsigned int numberOfPatients = ptrToData->getRNASeqDataHandler(isTumor).at(
-			cancer)[0].size();
-	if (numberOfPatients > 0) {
-		outputStream << cancer;
-		if (isTumor) {
-			outputStream << "-Tumor : ";
-		} else {
-			outputStream << "-Control : ";
-		}
-		outputStream << numberOfPatients << " patients. " << std::endl;
-
-		unsigned int numberOfGenes = ptrToData->getNumberOfGenes();
-		std::vector<double> aggregation(numberOfGenes, 0.0);
-		for (unsigned int i = 0; i < numberOfGenes; i++) {
-			for (unsigned int j = 0; j < numberOfPatients; ++j) {
-				aggregation[i] += ptrToData->getRNASeqDataHandler(isTumor).at(
-						cancer)[i][j];
-			}
-		}
-
-		outputStream << "Most expressed genes in the class : {";
-		std::vector<size_t> sortedIndexes =
-				ClusterXX::Utilities::sort_indexes_decreasing(aggregation);
-		for (unsigned int i = 0; i < maxNumberGenes; ++i) {
-			std::string geneSymbol =
-					ptrToData->getGeneListHandler()[sortedIndexes[i]].first;
-			outputStream << " " << geneSymbol << "("
-					<< 100.0 * aggregation[sortedIndexes[i]]
-							/ (double) numberOfPatients << "%) ";
-		}
-		outputStream << "}" << std::endl << std::endl;
-	}
-}
-
-void TCGADataNormalizer::printMostExpressedGenesByClass(
-		unsigned int maxNumberGenes, const std::string &filename) {
-	std::ofstream outputStream(EXPORT_DIRECTORY + filename);
-	if (verbose) {
-		std::cout << std::endl << "****** FINDING MOST EXPRESSED GENES ******"
-				<< std::endl;
-	}
-	for (const auto &kv : ptrToData->getRNASeqDataHandler(true)) {
-		std::string cancer = kv.first;
-		printMostExpressedGenesByClassUtility(outputStream, maxNumberGenes,
-				cancer, false);
-		printMostExpressedGenesByClassUtility(outputStream, maxNumberGenes,
-				cancer, true);
+		std::cout << "Done." << std::endl;
 	}
 }
 
 void TCGADataNormalizer::exportToFile(double positiveValue,
 		double negativeValue) {
-	ptrToData->transposeData(false);
+	ptrToData->buildDataMatrix({}, false);
 	std::ofstream outputStreamSamples(HEINZ_SAMPLES_LIST);
 	const auto &dataMatrix = ptrToData->getDataMatrixHandler();
 	unsigned int N = dataMatrix.cols();
 	for (unsigned int i = 0; i < N; ++i) {
 
 		std::string outputFilename =
-				ptrToData->getSamplesHandler()[i].toFullString();
+				ptrToData->getPatientsHandler()[i].toString();
 		outputStreamSamples << outputFilename << std::endl;
 
 		std::ofstream outputStream(

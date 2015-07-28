@@ -21,38 +21,12 @@ const GeneList & TCGAData::getGeneListHandler() const {
 	return geneList;
 }
 
-PatientNamesCancerMap & TCGAData::getPatientListHandler(bool getTumorData) {
-	if (getTumorData) {
-		return tumorPatientList;
-	} else {
-		return controlPatientList;
-	}
+RNASeqData & TCGAData::getDataHandler() {
+	return data;
 }
 
-const PatientNamesCancerMap & TCGAData::getPatientListHandler(
-		bool getTumorData) const {
-	if (getTumorData) {
-		return tumorPatientList;
-	} else {
-		return controlPatientList;
-	}
-}
-
-RNASeqDataCancerMap & TCGAData::getRNASeqDataHandler(bool getTumorData) {
-	if (getTumorData) {
-		return tumorRNASeqData;
-	} else {
-		return controlRNASeqData;
-	}
-}
-
-const RNASeqDataCancerMap & TCGAData::getRNASeqDataHandler(
-		bool getTumorData) const {
-	if (getTumorData) {
-		return tumorRNASeqData;
-	} else {
-		return controlRNASeqData;
-	}
+const RNASeqData & TCGAData::getDataHandler() const {
+	return data;
 }
 
 Eigen::MatrixXd & TCGAData::getDataMatrixHandler() {
@@ -63,20 +37,20 @@ const Eigen::MatrixXd & TCGAData::getDataMatrixHandler() const {
 	return dataMatrix;
 }
 
-std::vector<Sample> & TCGAData::getSamplesHandler() {
-	return samples;
+std::vector<TCGAPatientData> & TCGAData::getPatientsHandler() {
+	return patients;
 }
 
-const std::vector<Sample> & TCGAData::getSamplesHandler() const {
-	return samples;
+const std::vector<TCGAPatientData> & TCGAData::getPatientsHandler() const {
+	return patients;
 }
 
-PatientIDsCancerMap & TCGAData::getPatientsIDsHandler() {
-	return patientIDs;
+ClassMap & TCGAData::getClassMapHandler() {
+	return classMap;
 }
 
-const PatientIDsCancerMap & TCGAData::getPatientsIDsHandler() const {
-	return patientIDs;
+const ClassMap & TCGAData::getClassMapHandler() const {
+	return classMap;
 }
 
 unsigned int TCGAData::getNumberOfGenes() const {
@@ -84,138 +58,45 @@ unsigned int TCGAData::getNumberOfGenes() const {
 }
 
 unsigned int TCGAData::getNumberOfSamples() const {
-	unsigned int numberOfSamples = 0;
-	for (const auto &kv : controlRNASeqData) {
-		numberOfSamples += kv.second.at(0).size();
-	}
-	for (const auto &kv : tumorRNASeqData) {
-		numberOfSamples += kv.second.at(0).size();
-	}
-	return numberOfSamples;
+	return patients.size();
 }
 
-std::vector<double> TCGAData::getPatientTumorData(const std::string &cancer,
-		int patientIndex, bool getTumor) const {
+std::vector<double> TCGAData::getPatientRNASeqData(int patientIndex) const {
 	unsigned int numberOfGenes = getNumberOfGenes();
-	std::vector<double> data(numberOfGenes);
-	const std::vector<std::vector<double>> *dataHandler = 0;
-	if (getTumor) {
-		dataHandler = &tumorRNASeqData.at(cancer);
-	} else {
-		dataHandler = &controlRNASeqData.at(cancer);
-	}
-
+	std::vector<double> patientData(numberOfGenes);
 	for (unsigned int i = 0; i < numberOfGenes; ++i) {
-		data[i] = dataHandler->at(i).at(patientIndex);
+		patientData[i] = data[i][patientIndex];
 	}
 
-	return data;
+	return patientData;
 }
 
-void TCGAData::transposeData(bool verbose) {
+void TCGAData::buildDataMatrix(const std::set<std::string> &keys, bool verbose) {
 	unsigned int numberOfGenes = getNumberOfGenes();
 	unsigned int numberOfSamples = getNumberOfSamples();
 
 	if (verbose) {
-		std::cout << "Transposing data (number of samples : "
+		std::cout << "Building data matrix (number of samples : "
 				<< numberOfSamples << ")... " << std::flush;
 	}
 
 	dataMatrix.resize(numberOfGenes, numberOfSamples);
-	patientIDs.clear();
-	samples.clear();
+	classMap.clear();
 
-	int countPatients = 0;
-
-	for (const auto &kv : tumorRNASeqData) {
-		std::string cancerName = kv.first;
-		patientIDs.insert(
-				make_pair(cancerName + "_" + "Tumor", std::vector<int>()));
-		patientIDs.insert(
-				make_pair(cancerName + "_" + "Control", std::vector<int>()));
-
-		for (unsigned int j = 0;
-				j < controlRNASeqData.at(cancerName).at(0).size(); ++j) {
-
-			patientIDs[cancerName + "_" + "Control"].push_back(countPatients);
-			samples.push_back(
-					Sample(cancerName, false,
-							controlPatientList.at(cancerName).at(j)));
-			for (unsigned int k = 0; k < numberOfGenes; ++k) {
-				dataMatrix(k, countPatients) =
-						controlRNASeqData.at(cancerName).at(k).at(j);
-			}
-			countPatients++;
+	//Deal with gene data
+	for (unsigned int i = 0; i < numberOfGenes; ++i) {
+		for (unsigned int j = 0; j < numberOfSamples; ++j) {
+			dataMatrix(i, j) = data[i][j];
 		}
+	}
 
-		for (unsigned int j = 0;
-				j < tumorRNASeqData.at(cancerName).at(0).size(); ++j) {
-
-			patientIDs[cancerName + "_" + "Tumor"].push_back(countPatients);
-			samples.push_back(
-					Sample(cancerName, true,
-							tumorPatientList.at(cancerName).at(j)));
-			for (unsigned int k = 0; k < numberOfGenes; ++k) {
-				dataMatrix(k, countPatients) =
-						tumorRNASeqData.at(cancerName).at(k).at(j);
-			}
-			countPatients++;
-		}
+	//Deal with patient data
+	for (unsigned int j = 0; j < numberOfSamples; ++j) {
+		classMap[patients[j].toClassString(keys)].push_back(j);
 	}
 
 	if (verbose) {
 		std::cout << "Done." << std::endl;
-	}
-}
-
-void TCGAData::exportToMatrix(const std::string &matrixFilenamePath,
-		const std::string &patientListFilenamePath, bool verbose) const {
-
-	std::ofstream matrixOutputStream(EXPORT_DIRECTORY + matrixFilenamePath);
-	std::ofstream patientsOutputStream(
-			EXPORT_DIRECTORY + patientListFilenamePath);
-
-	if (verbose) {
-		std::cout << std::endl << "****** Exporting raw matrix ******"
-				<< std::endl;
-	}
-
-	unsigned int numberOfGenes = getNumberOfGenes();
-
-	for (unsigned int i = 0; i < numberOfGenes; ++i) {
-		if (verbose && i % 1000 == 0) {
-			printAdvancement(i, numberOfGenes);
-		}
-
-		for (const auto &kv : tumorRNASeqData) {
-			std::string cancerName = kv.first;
-			for (unsigned int j = 0;
-					j < controlRNASeqData.at(cancerName).at(0).size(); ++j) {
-				if (i == 0) {
-					patientsOutputStream << cancerName << "-Control ("
-							<< controlPatientList.at(cancerName).at(j) << ")"
-							<< std::endl;
-				}
-				matrixOutputStream
-						<< controlRNASeqData.at(cancerName).at(i).at(j) << "\t";
-			}
-
-			for (unsigned int j = 0;
-					j < tumorRNASeqData.at(cancerName).at(0).size(); ++j) {
-				if (i == 0) {
-					patientsOutputStream << cancerName << "-Tumor ("
-							<< tumorPatientList.at(cancerName).at(j) << ")"
-							<< std::endl;
-				}
-				matrixOutputStream << tumorRNASeqData.at(cancerName).at(i).at(j)
-						<< "\t";
-			}
-		}
-		matrixOutputStream << std::endl;
-	}
-
-	if (verbose) {
-		std::cout << "********* Done exporting *********" << std::endl;
 	}
 }
 
@@ -228,8 +109,7 @@ void TCGAData::keepOnlyGenesInGraph(const std::string &filenameNodes) {
 
 	std::ifstream inputStream(pathToFile);
 	GeneList newGeneList;
-	RNASeqDataCancerMap newControlData;
-	RNASeqDataCancerMap newTumorData;
+	RNASeqData newData;
 	std::set<std::string> genesInGraph;
 	std::string gene;
 
@@ -241,37 +121,13 @@ void TCGAData::keepOnlyGenesInGraph(const std::string &filenameNodes) {
 		std::string HGNCSymbol = geneList[i].first;
 		if (genesInGraph.find(HGNCSymbol) != genesInGraph.end()) {
 			newGeneList.push_back(geneList[i]);
+			newData.push_back(data[i]);
 		}
 	}
 
-	for (const auto &kv : controlRNASeqData) {
-		std::string cancer = kv.first;
-		newControlData.insert( { cancer, std::vector<std::vector<double>>() });
-		for (unsigned int i = 0; i < geneList.size(); ++i) {
-			std::string HGNCSymbol = geneList[i].first;
-			if (genesInGraph.find(HGNCSymbol) != genesInGraph.end()) {
-				newControlData[cancer].push_back(controlRNASeqData[cancer][i]);
-			}
-		}
-	}
-
-	controlRNASeqData = std::move(newControlData);
-
-	for (const auto &kv : tumorRNASeqData) {
-		std::string cancer = kv.first;
-		newTumorData.insert( { cancer, std::vector<std::vector<double>>() });
-		for (unsigned int i = 0; i < geneList.size(); ++i) {
-			std::string HGNCSymbol = geneList[i].first;
-			if (genesInGraph.find(HGNCSymbol) != genesInGraph.end()) {
-				newTumorData[cancer].push_back(tumorRNASeqData[cancer][i]);
-			}
-		}
-	}
-
-	tumorRNASeqData = std::move(newTumorData);
+	data = std::move(newData);
 	geneList = std::move(newGeneList);
 
 	std::cout << "Done. Gene count is now " << getNumberOfGenes() << "."
 			<< std::endl;
 }
-

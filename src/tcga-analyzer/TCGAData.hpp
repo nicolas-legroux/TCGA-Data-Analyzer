@@ -9,8 +9,9 @@
 #define SRC_TCGADATA_HPP_
 
 #include <Eigen/Dense>
-#include "../tcga-analyzer/typedefs.hpp"
 #include <map>
+#include "TCGAPatientData.hpp"
+#include "../tcga-analyzer/typedefs.hpp"
 
 /*Identifies uniquely a sample by knowing :
  *  - the Cancer set from which it comes from
@@ -18,82 +19,47 @@
  *  - the TCGA ID of the patient
  */
 
-struct Sample {
-	std::string cancerName;
-	bool isTumor;
-	std::string patientId;
-
-	Sample(std::string _cancerName, bool _isTumor, std::string _patientId) :
-			cancerName(_cancerName), isTumor(_isTumor), patientId(_patientId) {
-	}
-
-	std::string toFullString() const {
-		return cancerName + "_" + ((isTumor) ? "Tumor" : "Control") + "_"
-				+ patientId;
-	}
-
-	std::string toClassString() const {
-		return cancerName + "_" + ((isTumor) ? "Tumor" : "Control");
-	}
-};
-
 class TCGAData {
 public:
 	TCGAData() = default;
-
 	//Handlers
 	GeneList &getGeneListHandler();
 	const GeneList &getGeneListHandler() const;
-	PatientNamesCancerMap &getPatientListHandler(
-			bool getTumorData = true);
-	const PatientNamesCancerMap &getPatientListHandler(
-			bool getTumorData = true) const;
-	RNASeqDataCancerMap &getRNASeqDataHandler(bool getTumorData = true);
-	const RNASeqDataCancerMap &getRNASeqDataHandler(bool getTumorData =
-			true) const;
+	std::vector<TCGAPatientData> &getPatientsHandler();
+	const std::vector<TCGAPatientData> &getPatientsHandler() const;
+	RNASeqData &getDataHandler();
+	const RNASeqData &getDataHandler() const;
 	Eigen::MatrixXd &getDataMatrixHandler();
 	const Eigen::MatrixXd &getDataMatrixHandler() const;
-	std::vector<Sample> &getSamplesHandler();
-	const std::vector<Sample> &getSamplesHandler() const;
-	PatientIDsCancerMap &getPatientsIDsHandler();
-	const PatientIDsCancerMap &getPatientsIDsHandler() const;
+	ClassMap &getClassMapHandler();
+	const ClassMap &getClassMapHandler() const;
 
 	//Utilities
 	unsigned int getNumberOfGenes() const;
 	unsigned int getNumberOfSamples() const;
 
-	//Handler to copy data and get specific sample info
-	std::vector<double> getPatientTumorData(const std::string &cancer,
-			int patientIndex, bool getTumor = true) const;
+	std::vector<double> getPatientRNASeqData(int patientIndex) const;
 
-	void transposeData(bool verbose = true);
-
-	void exportToMatrix(const std::string &matrixFilename,
-			const std::string &patientListFilename, bool verbose = true) const;
+	void buildDataMatrix(const std::set<std::string> &keys = {}, bool verbose = true);
 
 	void keepOnlyGenesInGraph(const std::string &filenameNodes);
 
 	std::vector<std::string> getPatientLabels(){
 		std::vector<std::string> v;
-		for(const auto &sample : samples){
-			v.push_back(sample.toFullString());
+		for(const auto &sample : patients){
+			v.push_back(sample.toString());
 		}
 		return v;
 	}
 
-	//To export data in TSV file
-
 private:
-	PatientNamesCancerMap controlPatientList;
-	PatientNamesCancerMap tumorPatientList;
 	GeneList geneList;
-	RNASeqDataCancerMap controlRNASeqData;
-	RNASeqDataCancerMap tumorRNASeqData;
+	std::vector<TCGAPatientData> patients;
+	RNASeqData data;
 
-	std::vector<Sample> samples;
 	// Column = Patient; Row = Gene
 	Eigen::MatrixXd dataMatrix;
-	PatientIDsCancerMap patientIDs;
+	ClassMap classMap;
 };
 
 #endif /* SRC_TCGADATA_HPP_ */

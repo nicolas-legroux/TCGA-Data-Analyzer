@@ -37,6 +37,7 @@ public:
 
 	void printDegreeStatistics();
 	void printNodes();
+	void printNodesToFile(const std::string &filename);
 
 	const std::vector<std::pair<NodeNameType, NodeValueType>> &getNodesHandler() const;
 	std::vector<std::pair<NodeNameType, NodeValueType>> &getNodesHandler();

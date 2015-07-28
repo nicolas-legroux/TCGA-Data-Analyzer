@@ -29,13 +29,12 @@ protected:
 	TCGAData *ptrToData;
 	unsigned int K;
 	bool verbose;
-	std::map<int, std::string> realLabelsMap;
+	std::vector<std::string> realLabels;
 	std::vector<int> realClusters;
 	std::shared_ptr<ClusterXX::ClustererParameters> clustererParameters; //To be initialized in children class
 	std::shared_ptr<ClusterXX::Clusterer> clusterer; //To be initialized in children class
 private:
-	void buildRealClusters();
-	void buildRealLabelsMap();
+	void buildRealClasses();
 };
 
 class TCGADataKMeansClusterer: public TCGADataClusterer {
@@ -57,14 +56,44 @@ public:
 			bool verbose);
 };
 
-class TCGADataSpectralClusterer: public TCGADataClusterer {
+class TCGADataUnnormalizedSpectralClusterer: public TCGADataClusterer {
 public:
-	TCGADataSpectralClusterer(TCGAData *_ptrToData,
+	TCGADataUnnormalizedSpectralClusterer(TCGAData *_ptrToData,
 			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
 			std::pair<
 					ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
 					double> transformationParameters, bool _verbose);
-	TCGADataSpectralClusterer(TCGAData *_ptrToData,
+	TCGADataUnnormalizedSpectralClusterer(TCGAData *_ptrToData,
+			const Eigen::MatrixXd &_distanceMatrix,
+			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
+			std::pair<
+					ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
+					double> transformationParameters, bool _verbose);
+};
+
+class TCGADataNormalizedSpectralClusterer: public TCGADataClusterer {
+public:
+	TCGADataNormalizedSpectralClusterer(TCGAData *_ptrToData,
+			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
+			std::pair<
+					ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
+					double> transformationParameters, bool _verbose);
+	TCGADataNormalizedSpectralClusterer(TCGAData *_ptrToData,
+			const Eigen::MatrixXd &_distanceMatrix,
+			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
+			std::pair<
+					ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
+					double> transformationParameters, bool _verbose);
+};
+
+class TCGADataNormalizedSpectralClusterer_RandomWalk: public TCGADataClusterer {
+public:
+	TCGADataNormalizedSpectralClusterer_RandomWalk(TCGAData *_ptrToData,
+			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
+			std::pair<
+					ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
+					double> transformationParameters, bool _verbose);
+	TCGADataNormalizedSpectralClusterer_RandomWalk(TCGAData *_ptrToData,
 			const Eigen::MatrixXd &_distanceMatrix,
 			const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
 			std::pair<

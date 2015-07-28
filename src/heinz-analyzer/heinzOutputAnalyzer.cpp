@@ -26,10 +26,11 @@ HeinzOutputAnalyzer::HeinzOutputAnalyzer(const std::string &weightsFilename,
 }
 
 void HeinzOutputAnalyzer::analyze() {
-	for (unsigned int i = 0; i < 5; ++i) {
+	for (unsigned int i = 0; i < weights.size(); ++i) {
 		for (unsigned int j = 0; j < patientIDs.size(); ++j) {
 			std::cout << patientIDs[j] << std::endl;
 			HeinzModuleAnalyzer hma(weights[i] + "_" + patientIDs[j]);
+			//hma.printModule();
 			hma.analyze(&classCount, &negativeGeneCount, &degreeStatistics);
 		}
 	}

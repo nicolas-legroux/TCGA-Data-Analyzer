@@ -3,11 +3,11 @@
 TCGADataClusterer::TCGADataClusterer(TCGAData *_ptrToData, unsigned int _K,
 		bool _verbose) :
 		ptrToData(_ptrToData), K(_K), verbose(_verbose) {
-	buildRealLabelsMap();
-	buildRealClusters();
-	ptrToData->transposeData(verbose);
+	realClusters.resize(ptrToData->getNumberOfSamples());
+	buildRealClasses();
+	ptrToData->buildDataMatrix({}, verbose);
 	if (K == 0) {
-		K = realLabelsMap.size();
+		K = ptrToData->getClassMapHandler().size();
 	}
 }
 
@@ -15,42 +15,14 @@ TCGADataClusterer::~TCGADataClusterer() {
 
 }
 
-void TCGADataClusterer::buildRealClusters() {
-
-	Sample prev = ptrToData->getSamplesHandler()[0];
+void TCGADataClusterer::buildRealClasses(){
 	int currentCluster = 0;
-	realClusters.push_back(currentCluster);
-
-	for (auto it = ptrToData->getSamplesHandler().begin() + 1;
-			it != ptrToData->getSamplesHandler().end(); ++it) {
-		Sample next = *it;
-		if (prev.cancerName != next.cancerName
-				|| prev.isTumor != next.isTumor) {
-			++currentCluster;
+	for(const auto &kv : ptrToData->getClassMapHandler()){
+		realLabels.push_back( kv.first);
+		for(auto i : kv.second){
+			realClusters[i] = currentCluster;
 		}
-		realClusters.push_back(currentCluster);
-		prev = next;
-	}
-}
-
-void TCGADataClusterer::buildRealLabelsMap() {
-	Sample prev = ptrToData->getSamplesHandler()[0];
-	std::string label = prev.cancerName + "-"
-			+ ((prev.isTumor) ? "Tumor" : "Control");
-	int currentCluster = 0;
-	realLabelsMap.insert(std::make_pair(currentCluster, label));
-
-	for (auto it = ptrToData->getSamplesHandler().begin() + 1;
-			it != ptrToData->getSamplesHandler().end(); ++it) {
-		Sample next = *it;
-		if (prev.cancerName != next.cancerName
-				|| prev.isTumor != next.isTumor) {
-			++currentCluster;
-			std::string label = next.cancerName + "-"
-					+ ((next.isTumor) ? "Tumor" : "Control");
-			realLabelsMap.insert(std::make_pair(currentCluster, label));
-		}
-		prev = next;
+		++currentCluster;
 	}
 }
 
@@ -63,7 +35,7 @@ std::vector<int> TCGADataClusterer::getClusters() {
 }
 
 void TCGADataClusterer::printClusteringInfo() {
-	clusterer->printClusteringMatrix(realLabelsMap, realClusters);
+	clusterer->printClusteringMatrix(realLabels, realClusters);
 	std::cout << std::endl << "Adjusted Rand Index : " << clusterer->computeAdjustedRandIndex(realClusters) << std::endl;
 }
 
@@ -101,7 +73,7 @@ TCGADataHierarchicalClusterer::TCGADataHierarchicalClusterer(
 
 }
 
-TCGADataSpectralClusterer::TCGADataSpectralClusterer(TCGAData *_ptrToData,
+TCGADataUnnormalizedSpectralClusterer::TCGADataUnnormalizedSpectralClusterer(TCGAData *_ptrToData,
 		const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
 		std::pair<
 				ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
@@ -112,11 +84,11 @@ TCGADataSpectralClusterer::TCGADataSpectralClusterer(TCGAData *_ptrToData,
 			ClusterXX::SpectralParameters::GraphTransformationMethod(
 					transformationParameters.first,
 					transformationParameters.second), _verbose);
-	clusterer = std::make_shared<ClusterXX::Spectral_Clusterer>(
+	clusterer = std::make_shared<ClusterXX::UnnormalizedSpectralClustering>(
 			ptrToData->getDataMatrixHandler(), clustererParameters);
 }
 
-TCGADataSpectralClusterer::TCGADataSpectralClusterer(TCGAData *_ptrToData,
+TCGADataUnnormalizedSpectralClusterer::TCGADataUnnormalizedSpectralClusterer(TCGAData *_ptrToData,
 		const Eigen::MatrixXd &_distanceMatrix,
 		const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
 		std::pair<
@@ -128,6 +100,68 @@ TCGADataSpectralClusterer::TCGADataSpectralClusterer(TCGAData *_ptrToData,
 			ClusterXX::SpectralParameters::GraphTransformationMethod(
 					transformationParameters.first,
 					transformationParameters.second), _verbose);
-	clusterer = std::make_shared<ClusterXX::Spectral_Clusterer>(_distanceMatrix,
+	clusterer = std::make_shared<ClusterXX::UnnormalizedSpectralClustering>(_distanceMatrix,
+			clustererParameters, true);
+}
+
+TCGADataNormalizedSpectralClusterer::TCGADataNormalizedSpectralClusterer(TCGAData *_ptrToData,
+		const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
+		std::pair<
+				ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
+				double> transformationParameters, bool _verbose) :
+		TCGADataClusterer(_ptrToData, _K, _verbose) {
+	clustererParameters = std::make_shared<ClusterXX::SpectralParameters>(K,
+			_metric,
+			ClusterXX::SpectralParameters::GraphTransformationMethod(
+					transformationParameters.first,
+					transformationParameters.second), _verbose);
+	clusterer = std::make_shared<ClusterXX::NormalizedSpectralClustering>(
+			ptrToData->getDataMatrixHandler(), clustererParameters);
+}
+
+TCGADataNormalizedSpectralClusterer::TCGADataNormalizedSpectralClusterer(TCGAData *_ptrToData,
+		const Eigen::MatrixXd &_distanceMatrix,
+		const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
+		std::pair<
+				ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
+				double> transformationParameters, bool _verbose) :
+		TCGADataClusterer(_ptrToData, _K, _verbose) {
+	clustererParameters = std::make_shared<ClusterXX::SpectralParameters>(K,
+			_metric,
+			ClusterXX::SpectralParameters::GraphTransformationMethod(
+					transformationParameters.first,
+					transformationParameters.second), _verbose);
+	clusterer = std::make_shared<ClusterXX::NormalizedSpectralClustering>(_distanceMatrix,
+			clustererParameters, true);
+}
+
+TCGADataNormalizedSpectralClusterer_RandomWalk::TCGADataNormalizedSpectralClusterer_RandomWalk(TCGAData *_ptrToData,
+		const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
+		std::pair<
+				ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
+				double> transformationParameters, bool _verbose) :
+		TCGADataClusterer(_ptrToData, _K, _verbose) {
+	clustererParameters = std::make_shared<ClusterXX::SpectralParameters>(K,
+			_metric,
+			ClusterXX::SpectralParameters::GraphTransformationMethod(
+					transformationParameters.first,
+					transformationParameters.second), _verbose);
+	clusterer = std::make_shared<ClusterXX::NormalizedSpectralClustering_RandomWalk>(
+			ptrToData->getDataMatrixHandler(), clustererParameters);
+}
+
+TCGADataNormalizedSpectralClusterer_RandomWalk::TCGADataNormalizedSpectralClusterer_RandomWalk(TCGAData *_ptrToData,
+		const Eigen::MatrixXd &_distanceMatrix,
+		const std::shared_ptr<ClusterXX::Metric> &_metric, unsigned int _K,
+		std::pair<
+				ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,
+				double> transformationParameters, bool _verbose) :
+		TCGADataClusterer(_ptrToData, _K, _verbose) {
+	clustererParameters = std::make_shared<ClusterXX::SpectralParameters>(K,
+			_metric,
+			ClusterXX::SpectralParameters::GraphTransformationMethod(
+					transformationParameters.first,
+					transformationParameters.second), _verbose);
+	clusterer = std::make_shared<ClusterXX::NormalizedSpectralClustering_RandomWalk>(_distanceMatrix,
 			clustererParameters, true);
 }

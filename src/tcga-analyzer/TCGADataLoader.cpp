@@ -16,20 +16,8 @@ TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData,
 	//Nothing to do
 }
 
-TCGADataLoader::TCGADataLoader(TCGAData *_ptrToData,
-		const std::string &_filenameWithCancerList,
-		unsigned int _maxControlSamples, unsigned int _maxTumorSamples,
-		bool _verbose) :
-		ptrToData(_ptrToData), verbose(_verbose), maxControlSamples(
-				_maxControlSamples), maxTumorSamples(_maxTumorSamples) {
-	std::ifstream input(TCGA_DATA_DIRECTORY + _filenameWithCancerList);
-	std::string cancerName;
-	while (input >> cancerName) {
-		cancers.insert(cancerName);
-	}
-}
-
-std::map<std::string, int> TCGADataLoader::buildHgnc2IdMapping(const std::string &file) {
+std::map<std::string, int> TCGADataLoader::buildHgnc2IdMapping(
+		const std::string &file) {
 	std::map<std::string, int> mapping;
 	std::fstream input(file);
 	std::string firstLine;
@@ -57,7 +45,7 @@ void TCGADataLoader::loadGeneData(const std::string &file) {
 		std::vector<std::string> strs = split(geneId, { '|' });
 		std::string hgncSymbol = boost::to_upper_copy<std::string>(strs[0]);
 		int entrezId = -1;
-		if(strs.size()>1){
+		if (strs.size() > 1) {
 			entrezId = atoi(strs[1].c_str());
 		}
 		ptrToData->getGeneListHandler().push_back(
@@ -65,145 +53,77 @@ void TCGADataLoader::loadGeneData(const std::string &file) {
 	}
 }
 
-void TCGADataLoader::loadPatientDataByCancer(const std::string &cancer) {
-
-	std::string patientListFilename = TCGA_DATA_DIRECTORY + cancer
-			+ "-normalized/patient.list";
-	std::ifstream input(patientListFilename);
-	std::string patientId;
-	int countControl = 0;
-	int countTumor = 0;
-
-//	if (verbose) {
-//		std::cout << "**** Processing " << cancer << " Patients ****"
-//				<< std::endl;
-//	}
-
-	while (input >> patientId) {
-		std::vector<std::string> strs = split(patientId, {'-'});
-		unsigned int isTumorInfoPosition = strs.size() - 1;
-		std::string patientName = strs[0];
-		for(unsigned int i=1; i<isTumorInfoPosition; ++i){
-			patientName += "-" + strs[i];
-		}
-
-		if (strs[isTumorInfoPosition] == "01") {
-			ptrToData->getPatientListHandler(true)[cancer].push_back(
-					patientName);
-			++countTumor;
-		} else if (strs[isTumorInfoPosition] == "11") {
-			ptrToData->getPatientListHandler(false)[cancer].push_back(
-					patientName);
-			++countControl;
-		}
-	}
-
-//	if (verbose) {
-//		std::cout << "Data types : " << std::endl;
-//		std::cout << "01 (Tumor) --> " << countTumor << std::endl;
-//		std::cout << "11 (Control) --> " << countControl << std::endl;
-//
-//		//Checking that for normal samples we have the corresponding cancer sample
-//		for (const std::string &s : ptrToData->getPatientListHandler(false)[cancer]) {
-//			if (find(ptrToData->getPatientListHandler(true)[cancer].begin(),
-//					ptrToData->getPatientListHandler(true)[cancer].end(), s)
-//					== ptrToData->getPatientListHandler(true)[cancer].end()) {
-//				std::cout
-//						<< "Did not find a matching tumor sample for the control sample "
-//						<< s << std::endl;
-//			}
-//		}
-//
-//		std::cout << "*************************" << std::endl << std::endl;
-//	}
-}
-
-void TCGADataLoader::loadPatientData() {
-	for (const std::string &cancer : cancers) {
-		ptrToData->getPatientListHandler(false).insert(
-				std::make_pair(cancer, std::vector<std::string>()));
-		ptrToData->getPatientListHandler(true).insert(
-				std::make_pair(cancer, std::vector<std::string>()));
-		loadPatientDataByCancer(cancer);
-	}
-}
-
-void TCGADataLoader::initializeRNASeqData(bool isTumorData) {
+void TCGADataLoader::initializeRNASeqData() {
 	unsigned int numberOfGenes = ptrToData->getNumberOfGenes();
-	for (auto itr = ptrToData->getPatientListHandler(isTumorData).begin();
-			itr != ptrToData->getPatientListHandler(isTumorData).end(); ++itr) {
-		ptrToData->getRNASeqDataHandler(isTumorData).insert(
-				std::make_pair(itr->first,
-						std::vector<std::vector<double>>(numberOfGenes)));
-
-	}
+	ptrToData->getDataHandler().resize(numberOfGenes);
 }
 
-void TCGADataLoader::loadRNASeqSample(const std::string &cancer,
-		bool isTumorData, const std::string &patient) {
-	std::string filename = patient + "-" + ((isTumorData) ? "01" : "11")
-			+ ".genes.normalized.results";
+void TCGADataLoader::loadRNASeqData(const std::string &cancer,
+		const std::string &patientId) {
 	std::string filePath = TCGA_DATA_DIRECTORY + cancer + "-normalized/"
-			+ filename;
+			+ patientId + ".genes.normalized.results";
 	std::string geneId;
 	std::string firstLine;
 	double score;
 	std::fstream input(filePath);
 	std::getline(input, firstLine);
-
 	int i = 0;
 	while (input >> geneId >> score) {
-		ptrToData->getRNASeqDataHandler(isTumorData)[cancer][i].push_back(
-				score);
+		ptrToData->getDataHandler()[i].push_back(score);
 		i++;
 	}
 }
 
-void TCGADataLoader::loadRNASeqData(bool tumorData) {
-	initializeRNASeqData(tumorData);
+void TCGADataLoader::loadDataByCancer(const std::string &cancer) {
+	std::string patientListFilename = TCGA_DATA_DIRECTORY + cancer
+			+ "-normalized/patient.list";
+	std::ifstream input(patientListFilename);
+	std::string patientId;
+	unsigned int countControl = 0;
+	unsigned int countTumor = 0;
+	unsigned int countLoadedControl = 0;
+	unsigned int countLoadedTumor = 0;
 
-	unsigned int maxSamples = (tumorData) ? maxTumorSamples : maxControlSamples;
+	if (verbose) {
+		std::cout << "*Processing " << cancer << "..." << std::endl;
+	}
 
-	for (const auto &pairedData : ptrToData->getPatientListHandler(tumorData)) {
-		const std::string &cancer = pairedData.first;
-		if (verbose) {
-			std::string type;
-			(tumorData) ? type = "Tumor" : type = "Control";
-			std::cout << "Reading " << cancer << " " << type
-					<< " patient files... " << std::flush;
+	while (input >> patientId) {
+		std::vector<std::string> strs = split(patientId, { '-' });
+		unsigned int isTumorInfoPosition = strs.size() - 1;
+		std::string patientName = strs[0];
+		for (unsigned int i = 1; i < isTumorInfoPosition; ++i) {
+			patientName += "-" + strs[i];
 		}
 
-		unsigned int i = 0;
-		for (const std::string &patient : pairedData.second) {
-			if (i >= maxSamples) {
-				break;
-			}
-			loadRNASeqSample(cancer, tumorData, patient);
-			i++;
+		if (strs[isTumorInfoPosition] == "01"
+				&& ++countTumor <= maxTumorSamples) {
+			loadRNASeqData(cancer, patientId);
+			ptrToData->getPatientsHandler().push_back(
+					TCGAPatientData(patientName, cancer, true));
+			++countLoadedTumor;
+		} else if (strs[isTumorInfoPosition] == "11"
+				&& ++countControl <= maxControlSamples) {
+			loadRNASeqData(cancer, patientId);
+			ptrToData->getPatientsHandler().push_back(
+					TCGAPatientData(patientName, cancer, false));
+			++countLoadedControl;
 		}
+	}
 
-		if (verbose) {
-			std::cout << "Found "
-					<< ptrToData->getRNASeqDataHandler(tumorData)[cancer][0].size()
-					<< " patients." << std::endl;
-		}
+	if (verbose) {
+		std::cout << "\tLoaded " << countLoadedControl
+				<< " control samples (out of " << countControl
+				<< " samples) and " << countLoadedTumor
+				<< " tumor samples (out of " << countTumor << " samples)."
+				<< std::endl;
 	}
 }
 
-void TCGADataLoader::loadRNASeqData() {
-	//Load Control Data
-	loadRNASeqData(false);
-	//Load tumor Data
-	loadRNASeqData(true);
-}
-
-void TCGADataLoader::loadData() {
-	if(cancers.find("BERGONIE") != cancers.end()){
-		loadGeneData(SAMPLE_BERGONIE_FILE);
+void TCGADataLoader::loadData(const std::string &sampleFilePath) {
+	loadGeneData(sampleFilePath);
+	initializeRNASeqData();
+	for (const auto &cancer : cancers) {
+		loadDataByCancer(cancer);
 	}
-	else{
-		loadGeneData(SAMPLE_TCGA_FILE);
-	}
-	loadPatientData();
-	loadRNASeqData();
 }

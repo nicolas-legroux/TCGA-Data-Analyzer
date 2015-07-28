@@ -54,17 +54,12 @@ public:
 			const std::shared_ptr<Normalizer> &_ptrToNormalizer, bool _verbose =
 					true);
 	void normalize();
-	void printMostExpressedGenesByClass(unsigned int maxNumberGenes,
-			const std::string &filename);
 	void exportToFile(double positiveValue, double negativeValuess);
 private:
 	TCGAData *ptrToData;
 	std::shared_ptr<Normalizer> ptrToNormalizer;
 	bool verbose;
-	void normalizeIndividualSample(const std::string &cancer, bool isTumor,
-			unsigned int patientID);
-	void printMostExpressedGenesByClassUtility(std::ofstream &outputStream, unsigned int maxNumberGenes,
-			std::string &cancer, bool isTumor);
+	void normalizeIndividualSample(unsigned int sampleId);
 };
 
 #endif /* SRC_TCGADATANORMALIZER_HPP_ */

@@ -16,6 +16,7 @@
 class HeinzModuleAnalyzer {
 public:
 	HeinzModuleAnalyzer(const std::string &_fileBasename);
+	void printModule();
 	void analyze(ClassCount *classCount, NegativeGeneCount *negativeGeneCount, DegreeStatistics *degreeStatistics);
 private:
 	std::string fileBasename;

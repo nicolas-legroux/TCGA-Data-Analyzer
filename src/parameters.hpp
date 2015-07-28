@@ -23,6 +23,7 @@ bool VERBOSE = true;
 std::set<std::string> CANCERS = { "BRCA", "LUAD" };
 unsigned int MAX_CONTROL_SAMPLES = 20;
 unsigned int MAX_TUMOR_SAMPLES = 20;
+std::string SAMPLE_FILE = SAMPLE_TCGA_FILE;
 /*---------------------------------------------------------*/
 
 /* ------------------ Normalization parameters -----------------*/
@@ -54,7 +55,7 @@ ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMet
 ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName SPECTRAL_GRAPH_NO_TRASNFORMATION =
 		ClusterXX::SpectralParameters::GraphTransformationMethod::NO_TRANSFORMATION;
 
-int SPECTRAL_K_NEAREST_NEIGHBORS = 5;
+int SPECTRAL_K_NEAREST_NEIGHBORS = 7;
 double SPECTRAL_GAUSSIAN_MIXTURE_STDDEV = 150.0;
 
 std::pair<
@@ -66,8 +67,13 @@ std::pair<
 /* ------------------ Module search -----------------*/
 std::vector<double> WEIGHTS =
 		{ 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0 };
-std::string GRAPH_NODE_FILE = "biogrid-nodes.txt";
-std::string GRAPH_EDGE_FILE = "biogrid-edges.txt";
+std::string GRAPH_NODE_FILE_TCGA = "biogrid-nodes-tcga.txt";
+std::string GRAPH_EDGE_FILE_TCGA = "biogrid-edges-tcga.txt";
+std::string GRAPH_NODE_FILE_BERGONIE = "biogrid-nodes-bergonie.txt";
+std::string GRAPH_EDGE_FILE_BERGONIE = "biogrid-edges-bergonie.txt";
+//Default choice
+std::string GRAPH_NODE_FILE = GRAPH_NODE_FILE_TCGA;
+std::string GRAPH_EDGE_FILE = GRAPH_EDGE_FILE_TCGA;
 /*---------------------------------------------------------*/
 
 #endif /* PARAMETERS_HPP_ */
