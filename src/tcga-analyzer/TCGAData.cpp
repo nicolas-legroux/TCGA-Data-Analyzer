@@ -79,6 +79,10 @@ std::vector<std::string> TCGAData::getPatientLabels() const {
 	return v;
 }
 
+void TCGAData::setClinicalAttributes(const std::set<std::string> &attributes) {
+	clinicalAttributes = attributes;
+}
+
 void TCGAData::buildDataMatrix(bool verbose) {
 
 	if (!dataMatrixIsComputed) {
@@ -102,7 +106,8 @@ void TCGAData::buildDataMatrix(bool verbose) {
 
 		//Deal with patient data
 		for (unsigned int j = 0; j < numberOfSamples; ++j) {
-			classMap[patients[j].toClassString(clinicalKeys)].push_back(j);
+			classMap[patients[j].toClassString(clinicalAttributes)].push_back(
+					j);
 		}
 
 		if (verbose) {

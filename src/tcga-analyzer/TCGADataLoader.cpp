@@ -85,7 +85,7 @@ void TCGADataLoader::loadDataByCancer(const std::string &cancer) {
 	unsigned int countLoadedTumor = 0;
 
 	if (verbose) {
-		std::cout << "*Processing " << cancer << "..." << std::endl;
+		std::cout << "* Processing " << cancer << "..." << std::endl;
 	}
 
 	while (input >> patientId) {
@@ -120,10 +120,83 @@ void TCGADataLoader::loadDataByCancer(const std::string &cancer) {
 	}
 }
 
-void TCGADataLoader::loadData(const std::string &sampleFilePath) {
+void TCGADataLoader::loadGeneExpressionData(const std::string &sampleFilePath) {
 	loadGeneData(sampleFilePath);
 	initializeRNASeqData();
 	for (const auto &cancer : cancers) {
 		loadDataByCancer(cancer);
 	}
+}
+
+void TCGADataLoader::loadClinicalDataByCancer(
+		const std::set<std::string> &clinicalAttributes,
+		const std::string &cancer) {
+	if (verbose) {
+		std::cout << "* Loading clinical data... " << std::endl;
+	}
+	std::ifstream input(
+			TCGA_DATA_DIRECTORY + cancer + "-normalized/clinical.tsv");
+	std::string line;
+	std::getline(input, line);
+	std::vector<std::string> allAttributes = split(line, { '\t' });
+	std::map<std::string, int> attributeMap;
+
+	for (const auto &s : clinicalAttributes) {
+		int it = std::find(allAttributes.begin(), allAttributes.end(), s)
+				- allAttributes.begin();
+		if (it == static_cast<int>(allAttributes.size())) {
+			throw tcga_data_exception(
+					"Could not find clinical attribute '" + s
+							+ "' in the clinical file for cancer " + cancer
+							+ ".");
+		} else {
+			attributeMap[s] = it;
+		}
+	}
+
+	while (std::getline(input, line)) {
+		std::vector<std::string> patientClinicalData = split(line, { '\t' });
+		std::string patientName = patientClinicalData[0];
+		for (const auto &s : clinicalAttributes) {
+			clinicalData[patientName][s] = patientClinicalData[attributeMap[s]];
+		}
+	}
+}
+
+void TCGADataLoader::loadClinicalData(
+		const std::set<std::string> &clinicalAttributes) {
+
+	if (!clinicalAttributes.empty()) {
+		for (const auto &cancer : cancers) {
+			loadClinicalDataByCancer(clinicalAttributes, cancer);
+		}
+
+		for (auto &patient : ptrToData->getPatientsHandler()) {
+			if (patient.isTumor()) {
+				auto it = clinicalData.find(patient.getPatientName());
+				bool patientHasClinicalData = (it != clinicalData.end());
+				if (!patientHasClinicalData) {
+					std::cout
+							<< "\tWarning : could not find patient with name "
+									+ patient.getPatientName()
+									+ " in the clinical data file."
+							<< std::endl;
+				}
+				for (const auto &attribute : clinicalAttributes) {
+					if (patientHasClinicalData) {
+						auto it2 = it->second.find(attribute);
+						if (it2 == it->second.end()) {
+							patient.setClinicalData(attribute, "NA");
+						} else {
+							patient.setClinicalData(attribute, it2->second);
+						}
+					} else {
+						patient.setClinicalData(attribute, "NA");
+					}
+				}
+			}
+		}
+	}
+
+	ptrToData->setClinicalAttributes(clinicalAttributes);
 }

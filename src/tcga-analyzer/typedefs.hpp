@@ -11,6 +11,20 @@
 #include <unordered_map>
 #include <vector>
 
+class tcga_data_exception: public std::exception {
+public:
+	 tcga_data_exception(std::string _msg = "TCGA Data Exception") :
+			msg(_msg) {
+	}
+	~ tcga_data_exception() throw () {
+	}
+	const char* what() const throw () {
+		return msg.c_str();
+	}
+private:
+	std::string msg;
+};
+
 // cancerName -> geneID -> patientID -> RNASeq value
 typedef std::vector<std::vector<double>> RNASeqData;
 // geneID -> (HNSC Symbol, Entrez ID)

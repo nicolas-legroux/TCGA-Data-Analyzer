@@ -6,20 +6,22 @@
  */
 
 #include "TCGAPatientData.hpp"
+#include "typedefs.hpp"
 
-TCGAPatientData::TCGAPatientData(const std::string &_id, const std::string &_cancerName, bool _isTumor) :
-		identifier(_id), cancerName(_cancerName), tumor(_isTumor) {
+TCGAPatientData::TCGAPatientData(const std::string &_id,
+		const std::string &_cancerName, bool _isTumor) :
+		patientName(_id), cancerName(_cancerName), tumor(_isTumor) {
 }
 
-std::string TCGAPatientData::getId() {
-	return identifier;
+std::string TCGAPatientData::getPatientName() {
+	return patientName;
 }
 
-std::string TCGAPatientData::getCancerName(){
+std::string TCGAPatientData::getCancerName() {
 	return cancerName;
 }
 
-bool TCGAPatientData::isTumor(){
+bool TCGAPatientData::isTumor() {
 	return tumor;
 }
 
@@ -37,22 +39,24 @@ std::string TCGAPatientData::getClinicalData(const std::string &key) const {
 	if (result == clinicalData.end()) {
 		throw tcga_data_exception(
 				"Could not find clinical data '" + key + "' for patient "
-						+ identifier + ".");
-	}
-	else{
+						+ patientName + ".");
+	} else {
 		return result->second;
 	}
 }
 
 std::string TCGAPatientData::toString() const {
 	return cancerName + "_" + ((tumor) ? "Tumor" : "Control") + "_"
-			+ identifier;
+			+ patientName;
 }
 
 std::string TCGAPatientData::toClassString(std::set<std::string> keys) const {
 	std::string className = cancerName + "_" + ((tumor) ? "Tumor" : "Control");
-	for(const auto &key : keys){
-		className += "_" + getClinicalData(key);
+	for (const auto &key : keys) {
+		auto it = clinicalData.find(key);
+		if (it != clinicalData.end()) {
+			className += "_" + it->second;
+		}
 	}
 	return className;
 }

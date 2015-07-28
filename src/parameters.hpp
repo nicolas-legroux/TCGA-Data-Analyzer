@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <memory>
+#include <set>
 #include <ClusterXX/metrics/metrics.hpp>
 #include <ClusterXX/clustering/clusterer_parameters.hpp>
 #include "config.hpp"
@@ -24,6 +25,7 @@ std::set<std::string> CANCERS = { "BRCA", "LUAD" };
 unsigned int MAX_CONTROL_SAMPLES = 20;
 unsigned int MAX_TUMOR_SAMPLES = 20;
 std::string SAMPLE_FILE = SAMPLE_TCGA_FILE;
+std::set<std::string> CLINICAL = {};
 /*---------------------------------------------------------*/
 
 /* ------------------ Normalization parameters -----------------*/
@@ -55,7 +57,7 @@ ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMet
 ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName SPECTRAL_GRAPH_NO_TRASNFORMATION =
 		ClusterXX::SpectralParameters::GraphTransformationMethod::NO_TRANSFORMATION;
 
-int SPECTRAL_K_NEAREST_NEIGHBORS = 7;
+int SPECTRAL_K_NEAREST_NEIGHBORS = 4;
 double SPECTRAL_GAUSSIAN_MIXTURE_STDDEV = 150.0;
 
 std::pair<

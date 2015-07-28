@@ -14,7 +14,8 @@ public:
 			const std::set<std::string> &_cancers,
 			unsigned int _maxControlSamples,
 			unsigned int _maxTumorSamples, bool verbose);
-	void loadData(const std::string &sampleFilePath);
+	void loadGeneExpressionData(const std::string &sampleFilePath);
+	void loadClinicalData(const std::set<std::string> &clinicalAttributes);
 
 	static std::map<std::string, int> buildHgnc2IdMapping(const std::string &file);
 private:
@@ -24,10 +25,15 @@ private:
 	unsigned int maxControlSamples;
 	unsigned int maxTumorSamples;
 
+	std::vector<std::string> clinicalKeys;
+	std::map<std::string, std::map<std::string, std::string>> clinicalData;
+
 	void loadGeneData(const std::string &file);
 	void initializeRNASeqData();
 	void loadRNASeqData(const std::string &cancer, const std::string &patientId);
 	void loadDataByCancer(const std::string &cancer);
+
+	void loadClinicalDataByCancer(const std::set<std::string> &clinicalAttributes, const std::string &cancer);
 };
 
 #endif // DATAREADER_H_INCLUDED

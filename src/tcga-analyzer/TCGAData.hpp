@@ -35,6 +35,8 @@ public:
 	std::vector<double> getPatientRNASeqData(int patientIndex) const;
 	std::vector<std::string> getPatientLabels() const;
 
+	void setClinicalAttributes(const std::set<std::string> &attributes);
+
 	void buildDataMatrix(bool verbose = false);
 
 	void keepOnlyGenesInGraph(const std::string &filenameNodes);
@@ -48,7 +50,7 @@ private:
 
 	// Column = Patient; Row = Gene
 	bool dataMatrixIsComputed;
-	std::set<std::string> clinicalKeys = {};
+	std::set<std::string> clinicalAttributes;
 	Eigen::MatrixXd dataMatrix;
 	ClassMap classMap;
 };

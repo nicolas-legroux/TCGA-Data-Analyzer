@@ -72,6 +72,14 @@ void CommandLineProcessor::process(const std::string &optionName,
 		}
 	}
 
+	else if (optionName == "-clinical") {
+		std::vector<std::string> clinicalAttributes = split(optionValue,
+				{ ',' });
+		for (const auto &attribute : clinicalAttributes) {
+			CLINICAL.insert(attribute);
+		}
+	}
+
 	else if (optionName == "-weights") {
 		WEIGHTS.clear();
 		std::vector<std::string> weights = split(optionValue, { ',' });
@@ -180,6 +188,8 @@ void CommandLineProcessor::runProgram() {
 				<< std::endl;
 		std::cout << "* Cancers : "
 				<< implode(CANCERS.begin(), CANCERS.end(), ", ") << std::endl;
+		std::cout << "* Clinical attributes : "
+				<< implode(CLINICAL.begin(), CLINICAL.end(), ", ") << std::endl;
 		std::cout << "* Max control samples : " << MAX_CONTROL_SAMPLES
 				<< std::endl;
 		std::cout << "* Max tumor samples : " << MAX_TUMOR_SAMPLES << std::endl;
@@ -192,7 +202,8 @@ void CommandLineProcessor::runProgram() {
 		TCGAData data;
 		TCGADataLoader loader(&data, CANCERS, MAX_CONTROL_SAMPLES,
 				MAX_TUMOR_SAMPLES, VERBOSE);
-		loader.loadData(SAMPLE_FILE);
+		loader.loadGeneExpressionData(SAMPLE_FILE);
+		loader.loadClinicalData(CLINICAL);
 
 		//Keep only data which will be in the PPI graph
 		//data.keepOnlyGenesInGraph(GRAPH_NODE_FILE);
@@ -243,8 +254,8 @@ void CommandLineProcessor::runProgram() {
 			TCGADataDistanceMatrixAnalyser distanceMetricAnalyzer(&data, METRIC,
 					VERBOSE);
 			distanceMetricAnalyzer.computeDistanceMatrix();
-			distanceMetricAnalyzer.exportClassStats();
-			distanceMetricAnalyzer.exportHeatMap();
+			//distanceMetricAnalyzer.exportClassStats();
+			//distanceMetricAnalyzer.exportHeatMap();
 			std::cout
 					<< "--------------------------------------------------------"
 					<< std::endl << std::endl;
@@ -281,22 +292,21 @@ void CommandLineProcessor::runProgram() {
 					<< std::endl << std::endl;
 
 			/*
-			std::cout
-					<< "-------------- Hierarchical Clustering -----------------"
-					<< std::endl;
+			 std::cout
+			 << "-------------- Hierarchical Clustering -----------------"
+			 << std::endl;
 
-			TCGADataHierarchicalClusterer hierarchicalClusterer(&data,
-					distanceMetricAnalyzer.getDistanceMatrixHandler(), METRIC,
-					K_CLUSTER, DEFAULT_LINKAGE_METHOD, VERBOSE);
-			hierarchicalClusterer.computeClustering();
-			hierarchicalClusterer.printClusteringInfo();
-			//kMeansClusterer.printRawClustering(patientLabels);
-			 *
+			 TCGADataHierarchicalClusterer hierarchicalClusterer(&data,
+			 distanceMetricAnalyzer.getDistanceMatrixHandler(), METRIC,
+			 K_CLUSTER, DEFAULT_LINKAGE_METHOD, VERBOSE);
+			 hierarchicalClusterer.computeClustering();
+			 hierarchicalClusterer.printClusteringInfo();
+			 //kMeansClusterer.printRawClustering(patientLabels);
+
+			 std::cout
+			 << "--------------------------------------------------------"
+			 << std::endl << std::endl;
 			 */
-
-			std::cout
-					<< "--------------------------------------------------------"
-					<< std::endl << std::endl;
 
 			std::cout
 					<< "---------- Unnormalized Spectral Clustering ------------"
@@ -323,21 +333,6 @@ void CommandLineProcessor::runProgram() {
 			normalizedSpectralClusterer.computeClustering();
 			normalizedSpectralClusterer.printClusteringInfo();
 			//normalizedSpectralClusterer.printRawClustering(patientLabels);
-
-			std::cout
-					<< "--------------------------------------------------------"
-					<< std::endl << std::endl;
-
-			std::cout
-					<< "----- Normalized Spectral Clustering (Random Walk) -----"
-					<< std::endl;
-
-			TCGADataNormalizedSpectralClusterer_RandomWalk normalizedSpectralClusterer_RandomWalk(
-					&data, distanceMetricAnalyzer.getDistanceMatrixHandler(),
-					METRIC, K_CLUSTER, DEFAULT_GRAPH_TRANSFORMATION, VERBOSE);
-			normalizedSpectralClusterer_RandomWalk.computeClustering();
-			normalizedSpectralClusterer_RandomWalk.printClusteringInfo();
-			//normalizedSpectralClusterer_RandomWalk.printRawClustering(patientLabels);
 
 			std::cout
 					<< "--------------------------------------------------------"
@@ -388,7 +383,7 @@ void CommandLineProcessor::runProgram() {
 		TCGAData data;
 		TCGADataLoader loader(&data, CANCERS, MAX_CONTROL_SAMPLES,
 				MAX_TUMOR_SAMPLES, VERBOSE);
-		loader.loadData(SAMPLE_FILE);
+		loader.loadGeneExpressionData(SAMPLE_FILE);
 		data.keepOnlyGenesInGraph(GRAPH_NODE_FILE);
 		std::cout << "--------------------------------------------------------"
 				<< std::endl << std::endl;
