@@ -1,0 +1,33 @@
+ROOT_DIR = "/home/nlegroux/TCGA-Data-Analyzer/"
+EDGES = ROOT_DIR + "data/graph/biogrid-edges-bergonie.txt"
+NEGATIVE_WEIGHTS = []
+NEGATIVE_WEIGHTS_STRING = ",".join(NEGATIVE_WEIGHTS)
+MAX_CONTROL = 100
+MAX_TUMOR = 700
+CANCERS = "BRCA,COAD,GBM,HNSC,KIRC,LGG,LUAD,LUSC,OV,PRAD,THCA,UCEC"
+SAMPLES = []
+
+try:
+	SAMPLES = open(ROOT_DIR + "data/heinz/samples.txt", "r").readlines()
+	SAMPLES = map(str.strip, SAMPLES)
+	NEGATIVE_WEIGHTS = open(ROOT_DIR + "data/heinz/negative-weights.txt", "r").readlines()
+	NEGATIVE_WEIGHTS = map(str.strip, NEGATIVE_WEIGHTS)
+except (FileNotFoundError, IOError):
+	print("samples.txt was not found in the initialization. Please run 'snakemake init' before running 'snakemake'.")
+	
+rule all:
+	input: ROOT_DIR + "data/heinz/samples.txt",  \
+expand(ROOT_DIR + "data/heinz/raw_output/{weight}_{sample}.txt", weight=NEGATIVE_WEIGHTS, sample=SAMPLES)
+
+rule heinz:
+	input: ROOT_DIR + "data/heinz/input/{weight}_{sample}.txt"
+	output: ROOT_DIR + "data/heinz/raw_output/{weight}_{sample}.txt"
+	threads: 1
+	shell: "/home/thume/heinz/build/heinz -e {EDGES} -n {input} >{output} 2>/dev/null"
+
+rule init:
+	output: ROOT_DIR + "data/heinz/samples.txt",ROOT_DIR + "data/heinz/negative-weights.txt"
+	shell: "{ROOT_DIR}TCGA-Analyzer -mode 2 -cancers {CANCERS} -weights {NEGATIVE_WEIGHTS_STRING} -maxcontrol {MAX_CONTROL} -maxtumor {MAX_TUMOR}"
+
+rule clean:
+	shell: "rm -f {ROOT_DIR}data/heinz/samples.txt; rm -f {ROOT_DIR}data/heinz/input/*; rm -f {ROOT_DIR}data/heinz/output/*; rm -f {ROOT_DIR}data/heinz/raw_output/*; rm -f {ROOT_DIR}data/heinz/negative-weights.txt; rm -f {ROOT_DIR}export/*"
