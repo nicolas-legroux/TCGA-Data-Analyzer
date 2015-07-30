@@ -12,7 +12,7 @@ void KMeansNormalizer::normalize(std::vector<double> *v) {
 	Eigen::Map<Eigen::MatrixXd> mapToData((*v).data(), 1, (*v).size());
 	std::shared_ptr<ClusterXX::ClustererParameters> kMeansParams =
 			std::make_shared<ClusterXX::KMeansParameters>(K, maxIterations);
-	ClusterXX::KMeans_Clusterer clusterer(mapToData, kMeansParams);
+	ClusterXX::Single_KMeans_Clusterer clusterer(mapToData, kMeansParams);
 	clusterer.compute();
 	std::vector<int> clusters = clusterer.getClusters();
 	for (unsigned int i = 0; i < v->size(); ++i) {

@@ -11,11 +11,16 @@
 #include "heinz-analyzer/heinzOutputAnalyzer.hpp"
 #include "heinz-analyzer/typedefs.hpp"
 
+#include <thread>
+
+void call_from_thread(int i) {
+	std::cout << "Launched by thread " << i << std::endl;
+}
+
 int main(int argc, char *argv[]) {
 
 	CommandLineProcessor clp(argc, argv);
 	clp.runProgram();
-
 	/*
 	 HeinzOutputAnalyzer outputAnalyzer("negative-weights.txt", "samples.txt");
 	 outputAnalyzer.analyze();

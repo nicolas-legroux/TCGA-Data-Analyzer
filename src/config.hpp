@@ -12,7 +12,7 @@
 #include <set>
 
 const std::set<std::string> ALLOWED_CANCERS =
-		{ "BRCA", "COAD", "GBM", "HNSC", "KIRC", "LGG", "LUAD", "LUSC", "OV",
+		{ "BRCA", "COAD", "GBM", "HNSC", "KIRC", "KIRP", "LGG", "LUAD", "LUSC", "OV",
 				"PRAD", "SARC", "THCA", "UCEC", "SARCB" };
 const std::set<std::string> ALLOWED_METRICS =
 		{ "absolute-cosine", "cosine-absolute-similarity", "cosine-distance",

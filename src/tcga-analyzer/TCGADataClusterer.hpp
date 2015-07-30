@@ -19,7 +19,7 @@ public:
 	void computeClustering();
 	std::vector<int> getClusters();
 	virtual void printClusteringInfo();
-	void printRawClustering(const std::vector<std::string> &patientLabels){
+	void printRawClustering(const std::vector<std::string> &patientLabels) {
 		clusterer->printRawClustering(patientLabels);
 	}
 	double getAdjustedRandIndex() {
@@ -40,7 +40,8 @@ private:
 class TCGADataKMeansClusterer: public TCGADataClusterer {
 public:
 	TCGADataKMeansClusterer(TCGAData *_ptrToData, unsigned int _K,
-			unsigned int _maxIteration, bool verbose);
+			unsigned int _maxIteration, unsigned int _parallel_KMeans,
+			bool verbose);
 };
 
 class TCGADataHierarchicalClusterer: public TCGADataClusterer {

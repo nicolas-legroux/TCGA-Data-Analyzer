@@ -57,8 +57,9 @@ ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMet
 ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName SPECTRAL_GRAPH_NO_TRASNFORMATION =
 		ClusterXX::SpectralParameters::GraphTransformationMethod::NO_TRANSFORMATION;
 
-int SPECTRAL_K_NEAREST_NEIGHBORS = 4;
+int SPECTRAL_K_NEAREST_NEIGHBORS = 3;
 double SPECTRAL_GAUSSIAN_MIXTURE_STDDEV = 150.0;
+unsigned int PARALLEL_KMEANS = 100;
 
 std::pair<
 		ClusterXX::SpectralParameters::GraphTransformationMethod::GraphTransformationMethodName,

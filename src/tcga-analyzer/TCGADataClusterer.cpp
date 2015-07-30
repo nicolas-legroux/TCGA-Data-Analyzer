@@ -40,10 +40,10 @@ void TCGADataClusterer::printClusteringInfo() {
 }
 
 TCGADataKMeansClusterer::TCGADataKMeansClusterer(TCGAData *_ptrToData,
-		unsigned int _K, unsigned int _maxIterations, bool _verbose) :
+		unsigned int _K, unsigned int _maxIterations, unsigned int _parallel_KMeans, bool _verbose) :
 		TCGADataClusterer(_ptrToData, _K, _verbose) {
 	clustererParameters = std::make_shared<ClusterXX::KMeansParameters>(K,
-			_maxIterations, _verbose);
+			_maxIterations, _parallel_KMeans, _verbose);
 	clusterer = std::make_shared<ClusterXX::KMeans_Clusterer>(
 			ptrToData->getDataMatrixHandler(), clustererParameters);
 }

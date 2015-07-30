@@ -282,7 +282,7 @@ void CommandLineProcessor::runProgram() {
 					<< std::endl;
 
 			TCGADataKMeansClusterer kMeansClusterer(&data, K_CLUSTER,
-					K_MEANS_MAX_ITERATIONS, VERBOSE);
+					K_MEANS_MAX_ITERATIONS, PARALLEL_KMEANS, VERBOSE);
 			kMeansClusterer.computeClustering();
 			kMeansClusterer.printClusteringInfo();
 			//kMeansClusterer.printRawClustering(patientLabels);

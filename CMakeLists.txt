@@ -11,7 +11,7 @@ set(CLUSTERXX_INCLUDE_DIR ${CLUSTERXX_ROOT_DIR}/includes)
 set(LODEPNG_ROOT_DIR ${CLUSTERXX_ROOT_DIR}/lib/lodepng)
 set(LODEPNG_INCLUDE_DIR ${LODEPNG_ROOT_DIR})
 
-set(CMAKE_CXX_FLAGS "-Wall -O3 -std=c++14 -fopenmp")
+set(CMAKE_CXX_FLAGS "-Wall -O3 -std=c++14 -fopenmp -pthread")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${PROJECT_BINARY_DIR}/lib)
 
